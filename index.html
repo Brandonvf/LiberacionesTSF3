@@ -664,6 +664,8 @@ async function prepararAdmin(u) {
 const rol = () => S.perfil?.rol || "";
 const esAdmin = () => rol() === "admin";
 const esGab = () => rol() === "gabinete" || esAdmin();
+// Ajustes: administrador y jefe de área, con los mismos permisos
+const puedeAjustes = () => esAdmin() || rol() === "jefe";
 const escribe = () => ["topografo", "operario", "gabinete", "admin"].includes(rol());
 const veTodo = () => ["gabinete", "jefe", "admin"].includes(rol());
 
@@ -696,7 +698,7 @@ function entrarApp() {
     if (S.view === "panel" && S.panel.vista === "planta") actualizarPanel();
     if (S.view === "ajustes" && S.aj.tab === "lugares" && !document.activeElement?.closest?.("#ajBody")) ajLugares();
   }, e => console.warn("ejes", e)));
-  if (esAdmin()) {
+  if (puedeAjustes()) {
     S.subs.push(onSnapshot(collection(db, "solicitudes"), snap => { S.solicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() })); pintarNav(); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("solicitudes", e)));
     S.subs.push(onSnapshot(collection(db, "usuarios"), snap => { S.usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nombre || a.id).localeCompare(b.nombre || b.id)); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("usuarios", e)));
   }
@@ -742,7 +744,7 @@ function vistas() {
   if (esGab()) v.push({ id: "bandeja", t: "Bandeja" });
   if (veTodo()) v.push({ id: "todos", t: "Registros" });
   if (rol() !== "jefe") v.push({ id: "panel", t: "Panel" });
-  if (esAdmin()) v.push({ id: "ajustes", t: "Ajustes" });
+  if (puedeAjustes()) v.push({ id: "ajustes", t: "Ajustes" });
   return v;
 }
 function pintarCabecera() {
@@ -1517,7 +1519,7 @@ function dibujarPlanta(est, recs) {
   const box = $("#chart"); const W = Math.max(300, box.clientWidth);
   const subs = (est.subs || []).filter(s => s.activo !== false).map(s => ({ s, p: puntosEje(s.id) })).filter(x => x.p);
   if (!subs.length) {
-    box.innerHTML = `<div class="empty"><b>Falta el eje de ${esc(est.nombre)}</b>Para dibujar la planta se necesita el eje de cada frente (CSV con PK, Este y Norte, como sale de Civil 3D).${esAdmin() ? '<br><br><button type="button" class="btn pri" id="irEjes">Subir ejes en Ajustes → Lugares</button>' : " Pídeselo al administrador."}</div>`;
+    box.innerHTML = `<div class="empty"><b>Falta el eje de ${esc(est.nombre)}</b>Para dibujar la planta se necesita el eje de cada frente (CSV con PK, Este y Norte, como sale de Civil 3D).${puedeAjustes() ? '<br><br><button type="button" class="btn pri" id="irEjes">Subir ejes en Ajustes → Lugares</button>' : " Pídeselo al administrador."}</div>`;
     $("#pNota").textContent = ""; $("#irEjes")?.addEventListener("click", () => { S.aj.tab = "lugares"; ir("ajustes"); }); return;
   }
   let minE = Infinity, maxE = -Infinity, minN = Infinity, maxN = -Infinity;
@@ -1771,12 +1773,12 @@ function guardarLista(lista, items, msg = "Guardado") {
   return true;
 }
 function pintarAjustes() {
-  if (!esAdmin()) { ir(vistas()[0].id); return; }
+  if (!puedeAjustes()) { ir(vistas()[0].id); return; }
   const A = S.aj, lista = AJ_LISTA[A.tab];
   if (lista) A.b = clon(S.listas[lista] || []);
   $("#view").innerHTML = `
   <h1 class="view-title">Ajustes</h1>
-  <p class="lead">Solo el administrador ve esta sección. Cada cambio se guarda solo.</p>
+  <p class="lead">Solo el administrador y el jefe de área ven esta sección. Cada cambio se guarda solo.</p>
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
