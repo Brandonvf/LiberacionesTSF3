@@ -5,7 +5,7 @@ rules_version = '2';
 // - El administrador principal entra directo y aprueba a los demás.
 // - Quien entra por primera vez deja una "solicitud" y espera aprobación.
 // - Roles: topografo (registra), gabinete (genera protocolos y cambia estados),
-//   jefe (solo ve), admin (todo).
+//   jefe (ve todo y tiene los mismos ajustes que el administrador), admin (todo).
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -48,10 +48,15 @@ service cloud.firestore {
     match /listas/{id}     { allow read: if member(); allow write: if isConf(); }
     match /config/{id}     { allow read: if member(); allow write: if isConf(); }
     match /contadores/{id} { allow read: if member(); allow write: if isGab() || isConf(); }
-    match /ejes/{id}       { allow read: if member(); allow write: if isConf(); }
+    match /ejes/{id}       { allow read: if member(); allow write: if isGab() || isConf(); }
     match /capas/{id}      { allow read: if member(); allow write: if isConf(); }
     // Resumen por frente para el panel (se actualiza junto con cada registro)
     match /resumen/{id}    { allow read: if member(); allow write: if writer() || isConf(); }
+
+    // Modelo 2D de gabinete: secciones de diseño del frente y superficie de cada liberación
+    match /secciones/{id}      { allow read: if isGab() || isConf(); allow write: if isGab() || isConf(); }
+    match /superficies/{id}    { allow read: if isGab() || isConf(); allow write: if isGab() || isConf(); }
+    match /superficiesRes/{id} { allow read: if isGab() || isConf(); allow write: if isGab() || isConf(); }
 
     // Liberaciones y levantamientos
     match /liberaciones/{id} {

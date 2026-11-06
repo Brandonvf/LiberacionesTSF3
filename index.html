@@ -338,6 +338,50 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .fpill:hover{background:#fbe3dc}
 @media (max-width:560px){.frow{grid-template-columns:1fr auto}.fpills{grid-column:1/-1}}
 .legend i.nolib{background:#c4ceca;border:1px solid #aebab5}
+.dlg-box{max-height:calc(100dvh - 32px);overflow:auto}
+.dlg-box.ancho{width:min(720px,100%)}
+.dlg-p{margin:0 0 10px;font-size:14.5px;line-height:1.45}
+.dlg-p.aviso{background:var(--ep-bg);color:var(--ep);border-radius:12px;padding:8px 12px;font-weight:700;font-size:13.5px}
+.grid.g3{grid-template-columns:1fr 1fr 1fr;margin:8px 0 0}
+@media (max-width:560px){.grid.g3{grid-template-columns:1fr 1fr}.grid.g3 .f:first-child{grid-column:1/-1}}
+.mprev{display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto}
+.mprev-r{display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding-top:6px}
+.mprev-n{flex:1;min-width:0;font-weight:700;font-size:13.5px;overflow-wrap:anywhere}
+.mprev-n small{display:block;color:var(--muted);font-weight:600;font-size:12px}
+.mprev-r select{border:1.5px solid var(--line);border-radius:12px;padding:6px 10px;min-height:40px;background:var(--surface);font-size:14px}
+.mprev-c{border-top:1px solid var(--line);padding:10px 0 6px}
+.mprev-c:first-of-type{border-top:0;padding-top:0}
+.mprev-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:2px;overflow-wrap:anywhere}
+.mres{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;font-weight:700;color:var(--muted);margin:6px 0 2px}
+.mres b{color:var(--ink);font-family:var(--f-disp);font-size:15px}
+.mbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:14px 0 6px}
+.mbar h3{font-family:var(--f-disp);font-size:15px;font-weight:800;margin:0;margin-right:auto}
+.mbar .mini{min-height:38px;min-width:42px;padding:0 12px;font-size:14px}
+.mbar .mini[disabled]{opacity:.45}
+.mscroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#fbfdfc;-webkit-overflow-scrolling:touch}
+.mscroll svg{display:block}
+.msec{position:relative;border:1px solid var(--line);border-radius:14px;background:#fbfdfc;overflow:hidden}
+.msec svg{display:block}
+.mex{position:absolute;top:8px;right:10px;font-size:11.5px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.85);border-radius:8px;padding:2px 6px}
+.mlab{font:500 10.5px var(--f-mono);fill:var(--muted)}
+#mPlan .msup{cursor:pointer}
+#mPlan .msup:hover path,#mPlan .msup:hover rect{fill-opacity:.95}
+#mSec .mcut{cursor:pointer}
+.msta{width:100%;accent-color:var(--accent);margin:2px 0 8px;min-height:28px}
+.mleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;font-weight:700;color:var(--muted);margin:8px 0 4px}
+.mleg i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:3px}
+.mwrap{overflow-x:auto;margin-top:6px}
+.mtab{width:100%;border-collapse:collapse;font-size:13px}
+.mtab th{text-align:left;font-size:11.5px;color:var(--muted);font-weight:800;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.mtab td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+.mtab .num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--f-mono);white-space:nowrap}
+.mtab tr[data-sid]{cursor:pointer;transition:background .15s}
+.mtab tr[data-sid]:hover,.mtab tr.msel{background:var(--accent-soft)}
+.mtab tr.mfuera{opacity:.6}
+.mtab .mn{overflow-wrap:anywhere;margin-top:2px}
+.mtab .st{font-size:11px;padding:2px 8px;margin-left:4px}
+@media (max-width:560px){.chart-h .tabs:has(> :nth-child(4)){display:grid;grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.mtab .hm{display:none}.mtab td,.mtab th{padding:7px 5px}}
 #chart .nolib-t{font:800 10.5px var(--f-body);fill:#56655f;letter-spacing:.02em}
 .legend i.hatch{background:repeating-linear-gradient(45deg,#f4f8f7 0 3px,#c9d8d3 3px 5px);border:1px solid #c9d8d3}
 .mini.eje{display:inline-flex;align-items:center;cursor:pointer;font-size:12.5px;min-height:42px}
@@ -588,7 +632,7 @@ const S = {
   subs: [], dentro: false,
   aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {}, config: null,
   bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, todos() { return [...this.pend, ...this.ep, ...this.epHist]; } },
-  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "" }, panelDatos: [], panelSub: ""
+  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "", mGrupo: "", mSel: "", mSta: null, mZoom: 1 }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -819,7 +863,11 @@ function pintarNav() {
   $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
 }
 $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
-$("#btnSalir").addEventListener("click", () => { cortar(); signOut(auth); });
+$("#btnSalir").addEventListener("click", async () => {
+  const pend = new Set([...S.mis, ...S.todos].filter(r => r._pend).map(r => r.id)).size;
+  if (pend && !await confirmar("Salir", `Hay ${pend === 1 ? "1 registro" : pend + " registros"} sin subir todavía. Si sales ahora ${pend === 1 ? "se sube" : "se suben"} recién cuando vuelvas a entrar en este teléfono con señal.`, "Salir de todos modos", true)) return;
+  cortar(); signOut(auth);
+});
 
 function ir(v, desdeHistorial) {
   if (S.view === "nueva" && v !== "nueva") { if (S.editando) S.form = null; else guardarBorrador(); }
@@ -997,7 +1045,7 @@ function conectarForm() {
   $("#iCapa").addEventListener("blur", e => { const v = normCapa(e.target.value, f.subestructuraId, f.tipoId); if (v !== e.target.value.trim()) e.target.value = v; });
   $("#bVar").addEventListener("click", () => { $("#iCota").value = "Variable"; });
   for (const id of ["iPk1", "iPk2"]) $("#" + id).addEventListener("blur", e => { const v = leerPk(e.target.value); if (v != null && !isNaN(v)) e.target.value = fmtPk(v); });
-  fm.addEventListener("click", e => {
+  fm.addEventListener("click", async e => {
     const a = e.target.closest("[data-add]");
     if (a) { const inp = a.previousElementSibling; const v = inp.value.trim(); if (!v) { inp.focus(); return; }
       if (!/^https?:\/\//i.test(v)) { toast("El enlace debe empezar con https://", "bad"); inp.focus(); return; }
@@ -1005,12 +1053,17 @@ function conectarForm() {
     const d = e.target.closest("[data-del]");
     if (d) { leerCampos(); f[d.dataset.del].splice(+d.dataset.i, 1); pintarForm(); return; }
     const da = e.target.closest("[data-delarch]");
-    if (da) { leerCampos(); const [a] = f.archivos.splice(+da.dataset.delarch, 1); if (a && !a.nuevo) f.borrarArchivos.push(a.id); pintarForm(); }
+    if (da) { leerCampos(); const a0 = f.archivos[+da.dataset.delarch]; if (a0 && !a0.nuevo && !await confirmar("Quitar archivo", `«${esc(a0.nombre || "archivo")}» se borra al guardar el registro.`, "Quitar", true)) return; const [a] = f.archivos.splice(+da.dataset.delarch, 1); if (a && !a.nuevo) f.borrarArchivos.push(a.id); pintarForm(); }
   });
   $("#fCsv").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "csv"); });
   $("#fFoto").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "foto"); });
-  $("#bLimpiar").addEventListener("click", () => {
-    if (S.editando) { const r = S.editando; S.editando = null; S.form = null; ir(r.creadoPor === S.email ? "mis" : "todos"); return; }
+  $("#bLimpiar").addEventListener("click", async () => {
+    leerCampos();
+    if (S.editando) { const r = S.editando, a = formDesde(r), cambio = Object.keys(a).some(k => JSON.stringify(a[k]) !== JSON.stringify(f[k]));
+      if (cambio && !await confirmar("Cancelar edición", "Los cambios que hiciste no se guardan.", "Descartar cambios", true)) return;
+      S.editando = null; S.form = null; ir(r.creadoPor === S.email ? "mis" : "todos"); return; }
+    const v = formVacio(), lleno = ["pkInicio", "pkFin", "cota", "capa", "area", "descripcion", "observaciones"].some(k => String(f[k] || "").trim() && f[k] !== v[k]) || f.archivos.length;
+    if (lleno && !await confirmar("Limpiar formulario", `Se borra lo escrito${f.archivos.length ? ` y ${f.archivos.length === 1 ? "el archivo adjunto" : `los ${f.archivos.length} archivos adjuntos`}` : ""}.`, "Limpiar", true)) return;
     ls.set(BORR(), null); S.form = formVacio(); pintarForm();
   });
   fm.addEventListener("input", () => { clearTimeout(S._bt); S._bt = setTimeout(guardarBorrador, 600); });
@@ -1414,6 +1467,8 @@ function pintarPanel() {
   if (!lista.length) { $("#view").innerHTML = '<h1 class="view-title">Panel</h1><div class="card empty"><b>Cargando listas…</b></div>'; return; }
   if (!P.subId || !lista.some(x => x.s.id === P.subId)) { const g = ls.get("lib.panelSub", ""); P.subId = lista.some(x => x.s.id === g) ? g : lista[0].s.id; }
   suscribirPanel(estDeSub(P.subId).id);
+  if (P.vista === "modelo" && !esGab()) P.vista = "perfil";
+  if (P.vista === "modelo") { pintarModelo(); return; }
   const planta = P.vista === "planta";
   const movilP = innerWidth < 760, hayFiltro = !!(P.desde || P.hasta || P.st || P.topo || P.hoy);
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
@@ -1433,7 +1488,7 @@ function pintarPanel() {
   ${movilP ? "" : '<div class="stats" id="pStats"></div>'}
   <div class="card chartbox">
     <div class="chart-h">
-      <div class="tabs" style="margin:0" role="group" aria-label="Vista"><button type="button" data-vista="lista" aria-pressed="${P.vista === "lista"}">Qué falta</button><button type="button" data-vista="perfil" aria-pressed="${P.vista === "perfil"}">Perfil</button><button type="button" data-vista="planta" aria-pressed="${planta}">Planta</button></div>
+      <div class="tabs" style="margin:0" role="group" aria-label="Vista">${tabsPanel()}</div>
       ${planta ? `<div class="pl-ctl"><select id="pTipoPl" aria-label="Tipo a mostrar en planta"></select><select id="pCapaPl" aria-label="Capa a mostrar en planta"></select></div>` : ""}
     </div>
     ${planta ? "" : `<div class="rango">
@@ -1536,7 +1591,9 @@ function pintarChips(bandas) {
 }
 
 function actualizarPanel() {
-  const P = S.panel, sub = L.sub(P.subId); if (!sub || !$("#chart")) return;
+  const P = S.panel, sub = L.sub(P.subId);
+  if (P.vista === "modelo") { if ($("#mBody")) dibujarModelo(); return; }
+  if (!sub || !$("#chart")) return;
   const planta = P.vista === "planta";
   const est = estDeSub(P.subId);
   const base = filtrarPanel(false, planta ? "" : P.subId);
@@ -1754,7 +1811,578 @@ function dibujarPlanta(est, recs) {
   $("#pNota").textContent = `Norte arriba. Toca un tramo para ver su ficha.${faltan.length ? " Sin eje: " + faltan.join(", ") + "." : ""}`;
   conectarTramos(box.querySelector("svg"), "path.tramo");
 }
-let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (S.view === "panel" && $("#chart")) actualizarPanel(); }, 150); });
+let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (S.view === "panel" && ($("#chart") || $("#mBody"))) actualizarPanel(); }, 150); });
+
+/* ---------- Modelo 2D (solo gabinete): eje y secciones de Civil 3D + la superficie de cada liberación ----------
+   Lecturas: 1 documento con las secciones de diseño del frente, 1 resumen de superficies (en vivo) y las
+   superficies del frente una sola vez por sesión; después solo se leen las nuevas. */
+const MOD = { secc: {}, sup: {}, res: {}, cargando: {}, supOk: {}, unsub: null, resSub: "" };
+const xHijos = (el, tag) => el ? [...el.children].filter(c => c.localName === tag) : [];
+const xUno = (el, tag) => xHijos(el, tag)[0];
+const xTodos = (el, tag) => [...el.getElementsByTagNameNS("*", tag)];
+const nums = t => (t || "").trim().split(/\s+/).filter(Boolean).map(Number);
+const r2 = v => Math.round(v * 100) / 100, r3 = v => Math.round(v * 1000) / 1000;
+const mm = a => { let lo = Infinity, hi = -Infinity, t = 0; for (const v of a) { if (v < lo) lo = v; if (v > hi) hi = v; t += v; } return [lo, hi, a.length ? t / a.length : 0]; };
+const limpiarSup = n => String(n || "").replace(/^SL Collection - \d+ - [\d+.]+ (\(\d+\) )?- /, "").replace(/\(\d+\)\s*$/, "").trim();
+const codigoDe = n => { const m = String(n).match(/SKT-?TOP-?(\d+)/i); return m ? fmtNumero(+m[1]) : ""; };
+const pkDeNombre = n => { const m = String(n).match(/(\d+)[_+](\d{3})_+(\d+)[_+](\d{3})/); if (!m) return null; const a = +m[1] * 1000 + +m[2], b = +m[3] * 1000 + +m[4]; return a <= b ? [a, b] : [b, a]; };
+function claseSup(n) {
+  if (/^x+$/i.test(n.trim())) return "no";
+  if (/SKT-?TOP-?\d+/i.test(n) || /\d[_+]\d{3}_+\d[_+]\d{3}/.test(n) || /^\d{4}\.\d{2}\.\d{2}/.test(n) || /^\d{6}/.test(n)) return "lib";
+  return "dis";
+}
+const idSup = (subId, nombre) => subId + "~" + String(nombre).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 110);
+const grupoDe = (tipoId, capa) => (tipoId || "") + "|" + (capa || "").trim();
+const nomGrupo = g => { const [t, c] = g.split("|"); return (t ? nom(L.tipo(t)) : "Sin tipo") + (c ? " · " + c : ""); };
+function leerXml(texto) {
+  const d = new DOMParser().parseFromString(texto, "application/xml");
+  if (d.getElementsByTagName("parsererror").length) throw new Error("no es un XML válido");
+  if (d.documentElement.localName !== "LandXML") throw new Error("no es un LandXML (expórtalo desde Civil 3D)");
+  return d;
+}
+// Douglas-Peucker: quita puntos que no cambian la forma (menos datos, mismo dibujo)
+function dp(pts, tol) {
+  if (pts.length < 3) return pts.slice();
+  const keep = new Uint8Array(pts.length); keep[0] = keep[pts.length - 1] = 1; const st = [[0, pts.length - 1]];
+  while (st.length) {
+    const [i, j] = st.pop(), [x1, y1] = pts[i], [x2, y2] = pts[j], dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+    let md = 0, mk = -1;
+    for (let k = i + 1; k < j; k++) { const d = Math.abs(dy * (pts[k][0] - x1) - dx * (pts[k][1] - y1)) / L; if (d > md) { md = d; mk = k; } }
+    if (md > tol) { keep[mk] = 1; st.push([i, mk], [mk, j]); }
+  }
+  return pts.filter((_, k) => keep[k]);
+}
+const codLinea = pts => pts.map(q => r2(q[0]) + "," + r2(q[1])).join(" ");
+const decLinea = t => t.split(" ").filter(Boolean).map(x => x.split(",").map(Number));
+
+/* Eje: líneas y curvas del alineamiento (LandXML guarda «Norte Este») → [pk, Este, Norte] */
+function ejeDeXml(al) {
+  const cg = xUno(al, "CoordGeom"); if (!cg) throw new Error("el alineamiento no tiene geometría");
+  let pk = Number(al.getAttribute("staStart")) || 0; const p = [];
+  const add = (k, e, n) => { const u = p[p.length - 1]; if (u && Math.abs(u[0] - k) < 1e-6) return; p.push([k, e, n]); };
+  for (const g of cg.children) {
+    const a = nums(xUno(g, "Start")?.textContent), b = nums(xUno(g, "End")?.textContent);
+    if (a.length < 2 || b.length < 2) continue;
+    const [sN, sE] = a, [eN, eE] = b; let L = Number(g.getAttribute("length"));
+    if (g.localName === "Curve") {
+      const [cN, cE] = nums(xUno(g, "Center")?.textContent);
+      const R = Number(g.getAttribute("radius")) || Math.hypot(sE - cE, sN - cN), ccw = g.getAttribute("rot") === "ccw", a0 = Math.atan2(sN - cN, sE - cE);
+      if (!L) { let d = Math.atan2(eN - cN, eE - cE) - a0; if (ccw && d < 0) d += 2 * Math.PI; if (!ccw && d > 0) d -= 2 * Math.PI; L = Math.abs(d) * R; }
+      const sw = L / R * (ccw ? 1 : -1), n = Math.max(4, Math.ceil(L));
+      for (let i = 0; i <= n; i++) { const f = i / n, an = a0 + sw * f; add(pk + L * f, cE + R * Math.cos(an), cN + R * Math.sin(an)); }
+    } else { if (!L) L = Math.hypot(eE - sE, eN - sN); add(pk, sE, sN); add(pk + L, eE, eN); }
+    pk += L;
+  }
+  if (p.length < 2) throw new Error("el alineamiento no tiene tramos");
+  return p;
+}
+function seccionesDeXml(al) {
+  const out = [];
+  for (const cs of xTodos(al, "CrossSect")) {
+    const sta = Number(cs.getAttribute("sta")); if (isNaN(sta)) continue;
+    const sups = [];
+    for (const s of xHijos(cs, "CrossSectSurf")) {
+      const v = nums(xUno(s, "PntList2D")?.textContent); if (v.length < 4) continue;
+      const pts = []; for (let i = 0; i + 1 < v.length; i += 2) pts.push([v[i], v[i + 1]]);
+      pts.sort((p, q) => p[0] - q[0]);
+      sups.push({ nombre: limpiarSup(s.getAttribute("name")), pts });
+    }
+    out.push({ sta, sups });
+  }
+  return out.sort((a, b) => a.sta - b.sta);
+}
+// Proyecta un punto (Este, Norte) sobre el eje → [progresiva, desfase (+ a la derecha), distancia]
+function proyector(eje) {
+  const g = [];
+  for (let i = 1; i < eje.length; i++) { const a = eje[i - 1], b = eje[i], dx = b[1] - a[1], dy = b[2] - a[2], L = Math.hypot(dx, dy); if (L > 1e-9) g.push([a[0], a[1], a[2], dx / L, dy / L, L, b[0] - a[0]]); }
+  return (E, N) => {
+    let best = Infinity, s = 0, o = 0;
+    for (const q of g) {
+      const px = E - q[1], py = N - q[2], t = Math.max(0, Math.min(q[5], px * q[3] + py * q[4])), qx = px - q[3] * t, qy = py - q[4] * t, d = qx * qx + qy * qy;
+      if (d < best) { best = d; s = q[0] + t / q[5] * q[6]; o = px * q[4] - py * q[3]; }
+    }
+    return [s, o, Math.sqrt(best)];
+  };
+}
+
+/* Modelo guardado: secciones/{frente} = { sups: [nombres], est: [progresivas], cs: ["i:o,z o,z;i:…" por sección] } */
+function decModelo(d) {
+  const secs = (d.cs || []).map(t => !t ? [] : t.split(";").map(x => { const k = x.indexOf(":"); return { i: +x.slice(0, k), pts: decLinea(x.slice(k + 1)) }; }));
+  return { ...d, secs };
+}
+async function cargarModelo(subId) {
+  if (subId in MOD.secc || MOD.cargando[subId]) return;
+  MOD.cargando[subId] = true;
+  try {
+    const d = await getDoc(doc(db, "secciones", subId));
+    if (!d.exists()) MOD.secc[subId] = null;
+    else {
+      const m = d.data(); let cs = m.cs || [];
+      for (let k = 1; k < (m.partes || 1); k++) { const p = await getDoc(doc(db, "secciones", subId + "~p" + k)); cs = cs.concat(p.exists() ? p.data().cs || [] : []); }
+      MOD.secc[subId] = decModelo({ ...m, cs });
+    }
+  } catch (e) { console.warn("modelo", e); toast("No se pudo leer el modelo: " + (e.code === "permission-denied" ? "publica las reglas nuevas en Firebase." : e.message), "bad"); MOD.secc[subId] = null; }
+  MOD.cargando[subId] = false;
+  if (S.view === "panel" && S.panel.vista === "modelo") dibujarModelo();
+}
+// Resumen de superficies del frente (en vivo) + detalle de cada una (una vez por sesión)
+function suscribirModelo(subId) {
+  if (MOD.resSub === subId && MOD.unsub) return;
+  MOD.unsub?.(); MOD.resSub = subId; MOD.res[subId] = MOD.res[subId] || null;
+  MOD.unsub = onSnapshot(doc(db, "superficiesRes", subId), snap => {
+    MOD.res[subId] = snap.exists() ? snap.data().r || {} : {};
+    traerSuperficies(subId);
+    if (S.view === "panel" && S.panel.vista === "modelo") dibujarModelo();
+  }, e => { console.warn("superficies", e); MOD.res[subId] = {}; });
+  S.subs.push(() => { MOD.unsub?.(); MOD.unsub = null; MOD.resSub = ""; });
+}
+async function traerSuperficies(subId) {
+  const res = MOD.res[subId] || {}, mapa = MOD.sup[subId] ||= new Map();
+  for (const id of [...mapa.keys()]) if (!res[id]) mapa.delete(id);
+  try {
+    if (!MOD.supOk[subId]) {
+      MOD.supOk[subId] = "cargando";
+      const snap = await getDocs(query(collection(db, "superficies"), where("subId", "==", subId)));
+      snap.docs.forEach(d => { if (res[d.id]) mapa.set(d.id, decSup(d.id, d.data())); });
+      MOD.supOk[subId] = true;
+    } else if (MOD.supOk[subId] === true) {
+      const faltan = Object.keys(res).filter(id => !mapa.has(id) || mapa.get(id)._v !== res[id][12]);
+      await Promise.all(faltan.map(id => getDoc(doc(db, "superficies", id)).then(d => { if (d.exists()) mapa.set(id, decSup(id, d.data())); })));
+      if (!faltan.length) return;
+    } else return;
+  } catch (e) { console.warn("superficies", e); MOD.supOk[subId] = false; return; }
+  if (S.view === "panel" && S.panel.vista === "modelo") dibujarModelo();
+}
+function decSup(id, d) {
+  const borde = []; for (let i = 0; i + 1 < (d.borde || []).length; i += 2) borde.push([d.borde[i], d.borde[i + 1]]);
+  const cortes = new Map(); (d.cs || []).forEach(t => { const k = t.indexOf("|"); cortes.set(+t.slice(0, k), t.slice(k + 1).split("/").map(decLinea)); });
+  return { id, ...d, borde, cortes, _v: d.v || 0 };
+}
+// [nombre, código, tipo, capa, pk0, pk1, oMin, oMax, zMed, dzMed, área, superficie de referencia, versión]
+const supCompacto = x => [x.nombre, x.codigo || "", x.tipoId || "", (x.capa || "").trim(), x.pk0, x.pk1, x.oMin, x.oMax, x.zMed, x.dzMed ?? null, x.area ?? null, x.supRef || "", x.v || 0];
+const supDeRes = (id, a) => ({ id, nombre: a[0], codigo: a[1], tipoId: a[2], capa: a[3], pk0: a[4], pk1: a[5], oMin: a[6], oMax: a[7], zMed: a[8], dzMed: a[9], area: a[10], supRef: a[11], v: a[12], grupo: grupoDe(a[2], a[3]) });
+
+/* Cota del diseño en (progresiva, desfase): interpola entre las dos secciones vecinas que tienen esa superficie */
+function zEnSeccion(sec, i, o) {
+  for (const p of sec) if (p.i === i && p.pts.length > 1 && o >= p.pts[0][0] - 1e-6 && o <= p.pts[p.pts.length - 1][0] + 1e-6) {
+    const q = p.pts; for (let k = 1; k < q.length; k++) if (o <= q[k][0] + 1e-9) { const t = (o - q[k - 1][0]) / ((q[k][0] - q[k - 1][0]) || 1); return q[k - 1][1] + (q[k][1] - q[k - 1][1]) * t; }
+  }
+  return null;
+}
+function idxSta(mod, s) { const e = mod.est; let lo = 0, hi = e.length - 1; if (s <= e[0]) return 0; if (s >= e[hi]) return hi; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (e[m] <= s) lo = m; else hi = m; } return lo; }
+function zDiseno(mod, i, s, o) {
+  const e = mod.est; if (!e.length) return null;
+  const k = idxSta(mod, s);
+  let a = null, b = null;
+  for (let j = k; j >= 0 && k - j < 4; j--) if (e[j] <= s + 1e-6) { const z = zEnSeccion(mod.secs[j], i, o); if (z != null) { a = [e[j], z]; break; } }
+  for (let j = k; j < e.length && j - k < 4; j++) if (e[j] >= s - 1e-6) { const z = zEnSeccion(mod.secs[j], i, o); if (z != null) { b = [e[j], z]; break; } }
+  if (a && b) return b[0] - a[0] < 1e-6 ? a[1] : a[1] + (b[1] - a[1]) * (s - a[0]) / (b[0] - a[0]);
+  const u = a || b; return u && Math.abs(u[0] - s) <= 25 ? u[1] : null;
+}
+// Compara puntos [s, o, z] con cada superficie de diseño; se queda con la más cercana que cubre al menos la mitad
+function compararDiseno(mod, pts) {
+  if (!mod || !pts.length) return null;
+  const paso = Math.max(1, Math.floor(pts.length / 2500)), m = pts.filter((_, k) => k % paso === 0);
+  let mejor = null;
+  mod.sups.forEach((nombre, i) => {
+    const dz = []; for (const [s, o, z] of m) { const zd = zDiseno(mod, i, s, o); if (zd != null) dz.push(z - zd); }
+    if (dz.length < m.length * 0.5) return;
+    const abs = dz.reduce((t, v) => t + Math.abs(v), 0) / dz.length;
+    if (!mejor || abs < mejor.abs) mejor = { abs, supRef: nombre, dzMed: r3(dz.reduce((t, v) => t + v, 0) / dz.length), dzMin: r3(Math.min(...dz)), dzMax: r3(Math.max(...dz)) };
+  });
+  return mejor;
+}
+
+/* Superficie TIN de una liberación → huella (en progresiva/desfase), cortes en las secciones del modelo y comparación con el diseño */
+function leerTin(sEl) {
+  const def = xUno(sEl, "Definition"), id = new Map(), P = [], F = [];
+  for (const p of xHijos(xUno(def, "Pnts"), "P")) { const v = nums(p.textContent); if (v.length >= 3) { id.set(p.getAttribute("id"), P.length); P.push([v[1], v[0], v[2]]); } }
+  for (const f of xHijos(xUno(def, "Faces"), "F")) { if (f.getAttribute("i") === "1") continue; const t = f.textContent.trim().split(/\s+/).map(k => id.get(k)); if (t.length === 3 && t.every(x => x != null)) F.push(t); }
+  return { P, F };
+}
+function bordeTin(Q, F) {
+  const cuenta = new Map(), k = (a, b) => a < b ? a + "," + b : b + "," + a;
+  F.forEach(([a, b, c]) => [[a, b], [b, c], [c, a]].forEach(([u, v]) => { const x = k(u, v); cuenta.set(x, (cuenta.get(x) || 0) + 1); }));
+  const ady = new Map();
+  cuenta.forEach((n, x) => { if (n !== 1) return; const [u, v] = x.split(",").map(Number); (ady.get(u) || ady.set(u, []).get(u)).push(v); (ady.get(v) || ady.set(v, []).get(v)).push(u); });
+  const usado = new Set(); let mejor = [];
+  for (const ini of ady.keys()) {
+    if (usado.has(ini)) continue;
+    const lazo = [ini]; usado.add(ini); let prev = -1, cur = ini;
+    for (let g = 0; g < 200000; g++) { const sig = (ady.get(cur) || []).find(v => v !== prev && !usado.has(v)); if (sig == null) break; lazo.push(sig); usado.add(sig); prev = cur; cur = sig; }
+    if (lazo.length > mejor.length) mejor = lazo;
+  }
+  return mejor.map(i => [Q[i][0], Q[i][1]]);
+}
+function casco(pts) {
+  const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); if (p.length < 3) return p;
+  const cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+  for (const q of p) { while (lo.length > 1 && cr(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.slice().reverse()) { while (up.length > 1 && cr(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+function cortarTin(Q, F, s0) {
+  const segs = [];
+  for (const [a, b, c] of F) {
+    const A = Q[a], B = Q[b], C = Q[c], mn = Math.min(A[0], B[0], C[0]), mx = Math.max(A[0], B[0], C[0]);
+    if (s0 < mn || s0 > mx || mx - mn < 1e-9) continue;
+    const pts = [];
+    for (const [u, v] of [[A, B], [B, C], [C, A]]) { const du = u[0] - s0, dv = v[0] - s0; if (du === 0 && dv === 0) continue; if (du * dv <= 0) { const t = du / (du - dv); pts.push([u[1] + (v[1] - u[1]) * t, u[3] + (v[3] - u[3]) * t]); } }
+    if (pts.length >= 2) { pts.sort((p, q) => p[0] - q[0]); if (pts[pts.length - 1][0] - pts[0][0] > 1e-4) segs.push([pts[0], pts[pts.length - 1]]); }
+  }
+  segs.sort((p, q) => p[0][0] - q[0][0]);
+  const piezas = []; let cur = null;
+  for (const [p, q] of segs) { if (!cur || p[0] > cur[cur.length - 1][0] + 0.05) { cur = [p, q]; piezas.push(cur); } else if (q[0] > cur[cur.length - 1][0]) cur.push(q); }
+  return piezas.map(pc => dp(pc, 0.005)).filter(pc => pc.length >= 2);
+}
+// Contorno cerrado: se parte en el punto más lejano del inicio y se simplifica cada mitad
+function simplificarBorde(b) {
+  if (b.length < 4) return b;
+  let k = 0, dmax = -1; b.forEach((q, i) => { const d = Math.hypot(q[0] - b[0][0], q[1] - b[0][1]); if (d > dmax) { dmax = d; k = i; } });
+  const f = tol => dp(b.slice(0, k + 1), tol).concat(dp(b.slice(k).concat([b[0]]), tol).slice(1, -1));
+  let tol = 0.1, r = f(tol); while (r.length > 400 && tol < 50) { tol *= 2; r = f(tol); }
+  return r;
+}
+function supDesdeTin(sEl, subId, mod) {
+  const nombre = (sEl.getAttribute("name") || "Superficie").trim();
+  const { P, F } = leerTin(sEl); if (P.length < 3) throw new Error(`«${nombre}» no tiene puntos`);
+  const eje = puntosEje(subId); if (!eje) throw new Error("primero sube el XML del eje de este frente");
+  const pr = proyector(eje), Q = P.map(([E, N, z]) => { const [s, o, d] = pr(E, N); return [s, o, d, z]; });
+  const lejos = Q.filter(q => q[2] > 250).length;
+  if (lejos > Q.length / 2) throw new Error(`«${nombre}» está a más de 250 m del eje: ¿es de otro frente?`);
+  let area = 0; F.forEach(([a, b, c]) => { area += Math.abs((P[b][0] - P[a][0]) * (P[c][1] - P[a][1]) - (P[c][0] - P[a][0]) * (P[b][1] - P[a][1])) / 2; });
+  const [pk0, pk1] = mm(Q.map(q => q[0])), [oMin, oMax] = mm(Q.map(q => q[1])), [zMin, zMax, zMed] = mm(Q.map(q => q[3]));
+  let borde = F.length ? bordeTin(Q, F) : []; if (borde.length < 3) borde = casco(Q.map(q => [q[0], q[1]]));
+  borde = simplificarBorde(borde);
+  const cs = [];
+  if (mod && F.length) mod.est.forEach(st => { if (st >= pk0 - 0.05 && st <= pk1 + 0.05) { const pz = cortarTin(Q, F, Math.min(pk1, Math.max(pk0, st))); if (pz.length) cs.push(r2(st) + "|" + pz.map(codLinea).join("/")); } });
+  const cmp = compararDiseno(mod, Q.map(q => [q[0], q[1], q[3]]));
+  return { id: idSup(subId, nombre), subId, nombre, codigo: codigoDe(nombre), pk0: r2(pk0), pk1: r2(pk1), oMin: r2(oMin), oMax: r2(oMax),
+    zMed: r3(zMed), zMin: r3(zMin), zMax: r3(zMax), area: Math.round(area * 10) / 10,
+    supRef: cmp?.supRef || "", dzMed: cmp?.dzMed ?? null, dzMin: cmp?.dzMin ?? null, dzMax: cmp?.dzMax ?? null,
+    borde: borde.flatMap(q => [r2(q[0]), r2(q[1])]), cs, origen: "tin", puntos: P.length };
+}
+// Liberación que ya viene cortada en las secciones del XML del eje (sin la superficie completa)
+function supDesdeSecciones(nombre, porSta, subId, mod) {
+  const stas = [...porSta.keys()].sort((a, b) => a - b), todos = [], ext = [];
+  const cs = stas.map(st => { const pz = porSta.get(st); pz.forEach(p => p.forEach(q => todos.push([st, q[0], q[1]]))); const os = pz.flat().map(q => q[0]); ext.push([st, Math.min(...os), Math.max(...os)]); return r2(st) + "|" + pz.map(p => codLinea(dp(p, 0.005))).join("/"); });
+  const rng = pkDeNombre(nombre); let pk0 = stas[0], pk1 = stas[stas.length - 1];
+  if (rng) { pk0 = Math.min(pk0, rng[0]); pk1 = Math.max(pk1, rng[1]); } else if (pk1 - pk0 < 1) { pk0 -= 5; pk1 += 5; }
+  if (ext[0][0] > pk0) ext.unshift([pk0, ext[0][1], ext[0][2]]);
+  if (ext[ext.length - 1][0] < pk1) ext.push([pk1, ext[ext.length - 1][1], ext[ext.length - 1][2]]);
+  const borde = [...ext.map(e => [e[0], e[1]]), ...ext.slice().reverse().map(e => [e[0], e[2]])];
+  const [zMin, zMax, zMed] = mm(todos.map(q => q[2])), [oMin, oMax] = mm(todos.map(q => q[1]));
+  let area = 0; for (let k = 1; k < ext.length; k++) area += (ext[k][0] - ext[k - 1][0]) * ((ext[k][2] - ext[k][1]) + (ext[k - 1][2] - ext[k - 1][1])) / 2;
+  const cmp = compararDiseno(mod, todos);
+  return { id: idSup(subId, nombre), subId, nombre, codigo: codigoDe(nombre), pk0: r2(pk0), pk1: r2(pk1), oMin: r2(oMin), oMax: r2(oMax),
+    zMed: r3(zMed), zMin: r3(zMin), zMax: r3(zMax), area: Math.round(area * 10) / 10,
+    supRef: cmp?.supRef || "", dzMed: cmp?.dzMed ?? null, dzMin: cmp?.dzMin ?? null, dzMax: cmp?.dzMax ?? null,
+    borde: borde.flatMap(q => [r2(q[0]), r2(q[1])]), cs, origen: "secciones", puntos: todos.length };
+}
+// Registro de la app que tiene ese código (para tipo, capa y color de estado)
+function registroDe(codigo) { return codigo ? S.panelDatos.find(r => r.numero === codigo) || null : null; }
+function tipoSugerido(n) { const t = String(n); if (/(\bF|filtro\s*)1\b|F1_/i.test(t)) return "filtro1"; if (/(\bF|filtro\s*)2\b|F2_/i.test(t)) return "filtro2"; if (/transici/i.test(t)) return "transicion"; if (/STN/i.test(t)) return "stn"; return ls.get("lib.modTipo", ""); }
+
+/* --- Subir XML: el del eje (alineamiento + secciones) o las superficies de las liberaciones --- */
+async function subirXmlModelo(files) {
+  const subId = S.panel.subId, sub = L.sub(subId);
+  const leidos = [];
+  for (const f of files) { try { leidos.push({ f, d: leerXml(await f.text()) }); } catch (e) { toast(`${f.name}: ${e.message}`, "bad"); } }
+  if (!leidos.length) return;
+  const conEje = leidos.filter(x => xTodos(x.d, "Alignment").length);
+  if (conEje.length) { if (leidos.length > 1) toast("El XML del eje se sube solo; las superficies, después.", "bad"); else prevModelo(conEje[0].f, conEje[0].d, subId, sub); return; }
+  const mod = MOD.secc[subId] || null, nuevas = [], errores = [];
+  for (const { f, d } of leidos) for (const s of xTodos(d, "Surface")) {
+    if (!xUno(s, "Definition")) continue;
+    try { nuevas.push({ ...supDesdeTin(s, subId, mod), archivo: f.name }); } catch (e) { errores.push(e.message); }
+  }
+  if (errores.length) toast(errores[0], "bad");
+  if (!nuevas.length) { if (!errores.length) toast("El archivo no tiene superficies (TIN) ni un eje.", "bad"); return; }
+  prevSuperficies(nuevas, subId);
+}
+function prevModelo(file, d, subId, sub) {
+  let al, eje, secs;
+  try { al = xTodos(d, "Alignment")[0]; eje = ejeDeXml(al); secs = seccionesDeXml(al); } catch (e) { toast("No se pudo leer el eje: " + e.message, "bad"); return; }
+  const cuenta = new Map(); secs.forEach(s => s.sups.forEach(x => cuenta.set(x.nombre, (cuenta.get(x.nombre) || 0) + 1)));
+  const lista = [...cuenta.entries()].map(([n, c]) => ({ n, c, k: claseSup(n) }));
+  const previo = MOD.secc[subId], hayEje = !!S.ejes[subId];
+  const fuera = sub && sub.pkMax != null && eje[eje.length - 1][0] > sub.pkMax + 50;
+  const html = `<p class="dlg-p">Eje <b>${esc(al.getAttribute("name") || "")}</b> · PK ${fmtPk(eje[0][0])} a ${fmtPk(eje[eje.length - 1][0])} · ${secs.length} secciones. Se guarda en <b>${esc(sub?.nombre || "")}</b>.</p>
+    ${fuera ? `<p class="dlg-p aviso">El eje llega a ${fmtPk(eje[eje.length - 1][0])} y este frente termina en ${fmtPk(sub.pkMax)}. Revisa que sea el frente correcto.</p>` : ""}
+    ${previo || hayEje ? `<p class="dlg-p aviso">Reemplaza ${previo ? `el modelo actual (${esc(previo.nombre || "")})` : "el eje actual de la planta"}. Las superficies de liberación ya subidas se quedan.</p>` : ""}
+    <p class="muted small" style="margin:0 0 6px">Indica qué es cada superficie. Las de diseño son la referencia; las de liberación se suman al avance.</p>
+    <div class="mprev">${lista.map((x, i) => `<div class="mprev-r"><span class="mprev-n">${esc(x.n)}<small>${x.c} ${x.c === 1 ? "sección" : "secciones"}</small></span><select name="k${i}" aria-label="Uso de ${esc(x.n)}"><option value="dis" ${x.k === "dis" ? "selected" : ""}>Diseño</option><option value="lib" ${x.k === "lib" ? "selected" : ""}>Liberación</option><option value="no" ${x.k === "no" ? "selected" : ""}>No usar</option></select></div>`).join("")}</div>`;
+  dialogo("Subir modelo del frente", html, o => { guardarModelo(file, al, eje, secs, lista.map((x, i) => ({ ...x, k: o["k" + i] || x.k })), subId); }, "Guardar modelo", { ancho: true, sinFoco: true });
+}
+async function guardarModelo(file, al, eje, secs, lista, subId) {
+  const dis = lista.filter(x => x.k === "dis").map(x => x.n), libs = new Set(lista.filter(x => x.k === "lib").map(x => x.n));
+  const iDe = new Map(dis.map((n, i) => [n, i]));
+  const est = secs.map(s => r2(s.sta));
+  const cs = secs.map(s => s.sups.filter(x => iDe.has(x.nombre)).map(x => iDe.get(x.nombre) + ":" + codLinea(dp(x.pts, 0.005))).join(";"));
+  const meta = { nombre: file.name, eje: al.getAttribute("name") || "", pk0: r2(eje[0][0]), pk1: r2(eje[eje.length - 1][0]), sups: dis, est, n: secs.length, editadoEn: serverTimestamp(), editadoPor: S.email };
+  // Partes de hasta ~700 KB para no pasar el límite de 1 MB por documento
+  const partes = [[]]; let tam = 0;
+  cs.forEach(t => { if (tam + t.length > 700000 && partes[partes.length - 1].length) { partes.push([]); tam = 0; } partes[partes.length - 1].push(t); tam += t.length + 4; });
+  const flat = eje.flatMap(q => [r2(q[0]), r3(q[1]), r3(q[2])]);
+  const mod = decModelo({ ...meta, cs }); MOD.secc[subId] = mod;
+  S.ejes[subId] = { puntos: flat, nombre: file.name };
+  // Liberaciones que vienen cortadas en las secciones
+  const porNom = new Map();
+  secs.forEach(s => s.sups.forEach(x => { if (!libs.has(x.nombre)) return; const m = porNom.get(x.nombre) || porNom.set(x.nombre, new Map()).get(x.nombre); (m.get(s.sta) || m.set(s.sta, []).get(s.sta)).push(x.pts); }));
+  const nuevas = [...porNom.entries()].map(([n, m]) => ({ ...supDesdeSecciones(n, m, subId, mod), archivo: file.name }));
+  try {
+    const b = writeBatch(db);
+    b.set(doc(db, "secciones", subId), { ...meta, cs: partes[0], partes: partes.length });
+    partes.slice(1).forEach((p, k) => b.set(doc(db, "secciones", subId + "~p" + (k + 1)), { cs: p }));
+    b.set(doc(db, "ejes", subId), { puntos: flat, nombre: file.name, editadoEn: serverTimestamp(), editadoPor: S.email });
+    await b.commit();
+    toast(`Modelo guardado: ${est.length} secciones, ${dis.length} superficies de diseño`);
+  } catch (e) { toast("No se guardó el modelo: " + (e.code === "permission-denied" ? "publica las reglas nuevas en Firebase." : e.message), "bad"); return; }
+  if (nuevas.length) await guardarSuperficies(nuevas.map(x => { const r = registroDe(x.codigo); return { ...x, tipoId: r?.tipoId || tipoSugerido(x.nombre), capa: r?.capa || "" }; }), subId, `Modelo guardado con ${nuevas.length} ${nuevas.length === 1 ? "liberación" : "liberaciones"} que venían en las secciones`);
+  dibujarModelo();
+}
+function prevSuperficies(nuevas, subId) {
+  const res = MOD.res[subId] || {};
+  const tipos = S.listas.tipos.filter(t => t.enGrafico);
+  const capasDe = new Set(); Object.values(res).forEach(a => a[3] && capasDe.add(a[3])); S.panelDatos.forEach(r => r.capa && capasDe.add(r.capa)); Object.values(S.capasCfg[subId]?.tipos || {}).forEach(t => (t.capas || []).forEach(c => capasDe.add(c.nombre)));
+  const filas = nuevas.map((x, i) => {
+    const r = registroDe(x.codigo), t = r?.tipoId || tipoSugerido(x.nombre), c = r?.capa || ls.get("lib.modCapa", "");
+    return `<div class="mprev-c">
+      <div class="mprev-h"><b>${esc(x.nombre)}</b>${res[x.id] ? '<span class="st OB">Reemplaza la que ya está</span>' : ""}</div>
+      <div class="muted small mono">PK ${esc(rangoPk(x.pk0, x.pk1))} · cota ${x.zMin.toFixed(2)} a ${x.zMax.toFixed(2)} · ${Math.round(x.area).toLocaleString("es-PE")} m² · ${x.cs.length} ${x.cs.length === 1 ? "sección" : "secciones"}${x.supRef ? ` · Δz ${fmtDz(x.dzMed)} vs ${esc(x.supRef)}` : ""}</div>
+      <div class="muted small">${x.codigo ? (r ? `${esc(x.codigo)}: registro ${esc(ESTADOS[r.estado] || r.estado)}` : `${esc(x.codigo)}: no hay registro con ese código en este frente`) : "Sin código SKT-TOP en el nombre"}</div>
+      <div class="grid g3"><div class="f"><label for="pk${i}">Código</label><input id="pk${i}" name="k${i}" class="mono" value="${esc(x.codigo)}" placeholder="SKT-TOP-…"></div>
+      <div class="f"><label for="pt${i}">Tipo</label><select id="pt${i}" name="t${i}"><option value="">Sin tipo</option>${tipos.map(y => `<option value="${esc(y.id)}" ${y.id === t ? "selected" : ""}>${esc(y.nombre)}</option>`).join("")}</select></div>
+      <div class="f"><label for="pc${i}">Capa <span class="opt">(opcional)</span></label><input id="pc${i}" name="c${i}" value="${esc(c)}" list="dlModCapa" autocomplete="off" placeholder="Capa 11"></div></div></div>`;
+  }).join("");
+  dialogo(nuevas.length === 1 ? "Subir superficie de liberación" : `Subir ${nuevas.length} superficies`, `<datalist id="dlModCapa">${[...capasDe].sort(natural).map(c => `<option value="${esc(c)}">`).join("")}</datalist>${filas}`, o => {
+    const lst = nuevas.map((x, i) => { const codigo = (o["k" + i] || "").toUpperCase(); return { ...x, codigo, tipoId: o["t" + i] || "", capa: normCapa(o["c" + i] || "", subId, o["t" + i] || "") }; });
+    if (lst.length) { ls.set("lib.modTipo", lst[lst.length - 1].tipoId); ls.set("lib.modCapa", lst[lst.length - 1].capa); }
+    guardarSuperficies(lst, subId).then(() => { const g = lst[0]; S.panel.mGrupo = grupoDe(g.tipoId, g.capa); S.panel.mSel = g.id; const sta = (MOD.secc[subId]?.est || []).find(s => s >= g.pk0 - 0.05 && s <= g.pk1 + 0.05); if (sta != null) S.panel.mSta = sta; dibujarModelo(); });
+  }, nuevas.length === 1 ? "Guardar superficie" : `Guardar ${nuevas.length}`, { ancho: true, sinFoco: true });
+}
+async function guardarSuperficies(lst, subId, msg) {
+  const mapa = MOD.sup[subId] ||= new Map(), res = MOD.res[subId] ||= {};
+  try {
+    for (let i = 0; i < lst.length; i += 200) {
+      const b = writeBatch(db), r = {};
+      lst.slice(i, i + 200).forEach(x => {
+        const { id: _id, ...resto } = x, v = (res[x.id]?.[12] || 0) + 1, d = { ...resto, grupo: grupoDe(x.tipoId, x.capa), v, editadoEn: serverTimestamp(), editadoPor: S.email };
+        b.set(doc(db, "superficies", x.id), d); r[x.id] = supCompacto(d); res[x.id] = r[x.id]; mapa.set(x.id, decSup(x.id, d));
+      });
+      b.set(doc(db, "superficiesRes", subId), { r }, { merge: true });
+      await b.commit();
+    }
+    toast(msg || (lst.length === 1 ? "Superficie guardada" : `${lst.length} superficies guardadas`));
+  } catch (e) { toast("No se guardó: " + (e.code === "permission-denied" ? "publica las reglas nuevas en Firebase." : e.message), "bad"); }
+}
+async function quitarSuperficie(x) {
+  if (!await confirmar("Quitar superficie", `Se quita <b>${esc(x.nombre)}</b> del modelo. El registro de la liberación no cambia.`, "Quitar", true)) return false;
+  try {
+    const b = writeBatch(db); b.delete(doc(db, "superficies", x.id)); b.set(doc(db, "superficiesRes", x.subId), { r: { [x.id]: deleteField() } }, { merge: true }); await b.commit();
+    delete MOD.res[x.subId]?.[x.id]; MOD.sup[x.subId]?.delete(x.id); if (S.panel.mSel === x.id) S.panel.mSel = ""; toast("Superficie quitada"); dibujarModelo(); return true;
+  } catch (e) { toast("No se pudo quitar: " + e.message, "bad"); return false; }
+}
+function editarSuperficie(id) {
+  const subId = S.panel.subId, a = MOD.res[subId]?.[id]; if (!a) return;
+  const x = { ...supDeRes(id, a), subId, ...(MOD.sup[subId]?.get(id) || {}) }, r = registroDe(x.codigo);
+  const tipos = S.listas.tipos.filter(t => t.enGrafico);
+  const capas = new Set(Object.values(MOD.res[subId] || {}).map(v => v[3]).filter(Boolean));
+  const dd = dialogo("Liberación en el modelo", `<dl class="kv" style="margin:0 0 10px"><dt>Superficie</dt><dd>${esc(x.nombre)}</dd><dt>Tramo</dt><dd class="mono">${esc(rangoPk(x.pk0, x.pk1))} · desfase ${fmtOff(x.oMin)} a ${fmtOff(x.oMax)}</dd><dt>Cota</dt><dd class="mono">${x.zMin != null ? `${x.zMin.toFixed(2)} a ${x.zMax.toFixed(2)} · media ` : ""}${x.zMed.toFixed(2)}</dd>${x.supRef ? `<dt>Contra diseño</dt><dd class="mono">Δz ${fmtDz(x.dzMed)}${x.dzMin != null ? ` (${fmtDz(x.dzMin)} a ${fmtDz(x.dzMax)})` : ""} · ${esc(x.supRef)}</dd>` : ""}<dt>Área</dt><dd class="mono">${Math.round(x.area || 0).toLocaleString("es-PE")} m²</dd><dt>Registro</dt><dd>${r ? `<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado])}</span>` : "Sin registro enlazado"}</dd>${x.archivo ? `<dt>Archivo</dt><dd>${esc(x.archivo)}</dd>` : ""}${x.editadoPor ? `<dt>Subido por</dt><dd>${esc(x.editadoPor)}</dd>` : ""}</dl>
+    <datalist id="dlModCapa2">${[...capas].sort(natural).map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+    <div class="grid g3"><div class="f"><label for="eK">Código</label><input id="eK" name="k" class="mono" value="${esc(x.codigo)}"></div><div class="f"><label for="eT">Tipo</label><select id="eT" name="t"><option value="">Sin tipo</option>${tipos.map(y => `<option value="${esc(y.id)}" ${y.id === x.tipoId ? "selected" : ""}>${esc(y.nombre)}</option>`).join("")}</select></div><div class="f"><label for="eC">Capa</label><input id="eC" name="c" value="${esc(x.capa)}" list="dlModCapa2" autocomplete="off"></div></div>
+    <div class="actions" style="margin:10px 0 0;flex-wrap:wrap">${r ? '<button type="button" class="btn sec" id="eFicha">Ver registro</button>' : ""}<button type="button" class="btn warn" id="eQuitar">Quitar superficie</button></div>`,
+    o => {
+      const codigo = (o.k || "").toUpperCase(), tipoId = o.t || "", capa = normCapa(o.c || "", subId, tipoId);
+      if (codigo === x.codigo && tipoId === x.tipoId && capa === x.capa) return;
+      const d = { codigo, tipoId, capa, grupo: grupoDe(tipoId, capa), v: (x.v || 0) + 1, editadoEn: serverTimestamp(), editadoPor: S.email };
+      const b = writeBatch(db); b.update(doc(db, "superficies", id), d); b.set(doc(db, "superficiesRes", subId), { r: { [id]: supCompacto({ ...x, ...d }) } }, { merge: true });
+      b.commit().then(() => toast("Guardado")).catch(e => toast("No se guardó: " + e.message, "bad"));
+      MOD.res[subId][id] = supCompacto({ ...x, ...d }); const m = MOD.sup[subId]?.get(id); if (m) Object.assign(m, d, { _v: d.v });
+      S.panel.mGrupo = d.grupo; dibujarModelo();
+    }, "Guardar", { ancho: true, sinFoco: true });
+  dd.querySelector("#eFicha")?.addEventListener("click", () => { dd.cerrar(true); abrirFichaId(r.id); });
+  dd.querySelector("#eQuitar").addEventListener("click", async () => { dd.cerrar(true); await quitarSuperficie(x); });
+}
+const fmtDz = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(2) + " m";
+const fmtOff = v => v == null ? "—" : (v < 0 ? "I " : "D ") + Math.abs(v).toFixed(1);
+
+/* --- Vista --- */
+const COL_DIS = ["#7c8c86", "#a8875f", "#5f84ad", "#8d73ab", "#4f9187", "#b06f6f", "#7f9655", "#5a6b66", "#c08a3e", "#6e7fb8"];
+function colorSup(x) { const r = registroDe(x.codigo); return r ? COLOR[r.estado] || COLOR.PT : "#5b7fa6"; }
+function pintarModelo() {
+  const P = S.panel, lista = subsConDatos();
+  const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
+  $("#view").innerHTML = `<div id="mRoot">
+  <h1 class="view-title">Panel de liberaciones</h1>
+  <p class="lead" ${innerWidth < 760 ? "hidden" : ""}>Modelo 2D del frente para gabinete: el diseño de Civil 3D con las superficies de cada liberación encima.</p>
+  <div class="card filters"><div class="f wide"><label for="pSub">Frente</label><select id="pSub">${grupos}</select></div>
+    <div class="f wide"><label for="mGrupo">Capa</label><select id="mGrupo"></select></div></div>
+  <div class="card chartbox">
+    <div class="chart-h">
+      <div class="tabs" style="margin:0" role="group" aria-label="Vista">${tabsPanel()}</div>
+      <div class="pl-ctl"><label class="mini eje"><input type="file" id="mFile" accept=".xml" multiple hidden>Subir XML</label></div>
+    </div>
+    <div id="mBody"><div class="empty"><b>Cargando modelo…</b></div></div>
+  </div>
+  <div id="mLista"></div></div>`;
+  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.mGrupo = ""; P.mSel = ""; P.mSta = null; P.mZoom = 1; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); pintarPanel(); });
+  $("#mGrupo").addEventListener("change", e => { P.mGrupo = e.target.value; P.mSel = ""; irPrimera(); dibujarModelo(); centrarSta(); });
+  $(".chart-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-vista]"); if (b) { P.vista = b.dataset.vista; ls.set("lib.panelVista", P.vista); pintarPanel(); } });
+  $("#mFile").addEventListener("change", e => { const f = [...e.target.files]; e.target.value = ""; if (f.length) subirXmlModelo(f); });
+  $("#mRoot").addEventListener("click", e => {
+    const t = e.target.closest("[data-sid]"); if (t && !e.target.closest("#mPlan")) { editarSuperficie(t.dataset.sid); return; }
+    const z = e.target.closest("[data-mz]"); if (z) { P.mZoom = z.dataset.mz === "+" ? Math.min(32, (P.mZoom || 1) * 2) : z.dataset.mz === "-" ? Math.max(1, (P.mZoom || 1) / 2) : 1; dibujarModelo(); centrarSta(); return; }
+    const m = e.target.closest("[data-mst]"); if (m) { const mod = MOD.secc[P.subId]; if (!mod) return; const k = idxCerca(mod, P.mSta) + (m.dataset.mst === "+" ? 1 : -1); if (k >= 0 && k < mod.est.length) { P.mSta = mod.est[k]; dibujarSeccion(); centrarSta(); } }
+  });
+  cargarModelo(P.subId); suscribirModelo(P.subId);
+  dibujarModelo();
+}
+const tabsPanel = () => `<button type="button" data-vista="lista" aria-pressed="${S.panel.vista === "lista"}">Qué falta</button><button type="button" data-vista="perfil" aria-pressed="${S.panel.vista === "perfil"}">Perfil</button><button type="button" data-vista="planta" aria-pressed="${S.panel.vista === "planta"}">Planta</button>${esGab() ? `<button type="button" data-vista="modelo" aria-pressed="${S.panel.vista === "modelo"}">Modelo 2D</button>` : ""}`;
+function irPrimera() {
+  const mod = MOD.secc[S.panel.subId], { vis } = supsGrupo(); if (!mod || !vis.length) return;
+  const x = vis.slice().sort((a, b) => a.pk0 - b.pk0)[0], dentro = mod.est.filter(t => t >= x.pk0 - 0.05 && t <= x.pk1 + 0.05);
+  S.panel.mSta = dentro.length ? dentro[0] : mod.est[idxCerca(mod, (x.pk0 + x.pk1) / 2)];
+}
+function idxCerca(mod, s) { let k = 0, d = Infinity; mod.est.forEach((v, i) => { const x = Math.abs(v - (s ?? -1e9)); if (x < d) { d = x; k = i; } }); return k; }
+function supsGrupo() {
+  const P = S.panel, res = MOD.res[P.subId] || {};
+  const todas = Object.entries(res).map(([id, a]) => supDeRes(id, a));
+  return { todas, vis: P.mGrupo ? todas.filter(x => x.grupo === P.mGrupo) : todas };
+}
+function dibujarModelo() {
+  const P = S.panel, body = $("#mBody"); if (!body) return;
+  const subId = P.subId, sub = L.sub(subId), mod = MOD.secc[subId], res = MOD.res[subId];
+  if (mod === undefined || res === null || res === undefined) { body.innerHTML = '<div class="empty"><b>Cargando modelo…</b></div>'; return; }
+  const { todas, vis } = supsGrupo();
+  // Capas presentes (por tipo y capa), la más reciente arriba
+  const gr = new Map(); todas.forEach(x => gr.set(x.grupo, (gr.get(x.grupo) || 0) + 1));
+  if (P.mGrupo && !gr.has(P.mGrupo)) P.mGrupo = "";
+  $("#mGrupo").innerHTML = `<option value="">Todas (${todas.length})</option>` + [...gr.entries()].sort((a, b) => natural(nomGrupo(a[0]), nomGrupo(b[0]))).map(([g, n]) => `<option value="${esc(g)}" ${g === P.mGrupo ? "selected" : ""}>${esc(nomGrupo(g))} (${n})</option>`).join("");
+  $("#mGrupo").disabled = !todas.length;
+  const eje = puntosEje(subId);
+  if (!mod && !eje) {
+    body.innerHTML = `<div class="empty"><b>Falta el modelo de ${esc(sub?.nombre || "este frente")}</b>Sube el XML del eje exportado de Civil 3D (LandXML con el alineamiento y sus secciones). Después sube aquí el XML de la superficie de cada liberación y se dibuja el avance de la capa.</div>`;
+    $("#mLista").innerHTML = ""; return;
+  }
+  const lim = mod ? [mod.pk0, mod.pk1] : [eje[0][0], eje[eje.length - 1][0]];
+  if (P.mSta == null && mod?.est.length) { P.mSta = mod.est[0]; irPrimera(); }
+  const largo = (sub?.pkMax ?? lim[1]) - (sub?.pkMin ?? lim[0]) || lim[1] - lim[0] || 1;
+  const cub = unionLen(vis.map(x => [Math.max(x.pk0, sub?.pkMin ?? -1e9), Math.min(x.pk1, sub?.pkMax ?? 1e9)]).filter(q => q[1] > q[0]));
+  const area = vis.reduce((t, x) => t + (x.area || 0), 0), zs = vis.map(x => x.zMed);
+  const conDz = vis.filter(x => x.dzMed != null);
+  const estados = {}; vis.forEach(x => { const r = registroDe(x.codigo); const k = r ? r.estado : "SR"; estados[k] = (estados[k] || 0) + 1; });
+  body.innerHTML = `
+    <h2 class="chart-t">${esc(sub?.nombre || "")} · ${esc(P.mGrupo ? nomGrupo(P.mGrupo) : "todas las capas")}</h2>
+    <div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"}</span><span><b>${mts(cub)}</b> de eje (${Math.round(cub / largo * 100)}%)</span><span><b>${Math.round(area).toLocaleString("es-PE")}</b> m²</span>${zs.length === 1 ? `<span>cota media <b>${zs[0].toFixed(2)}</b></span>` : zs.length ? `<span>cota <b>${Math.min(...zs).toFixed(2)}</b> a <b>${Math.max(...zs).toFixed(2)}</b></span>` : ""}${conDz.length ? `<span>Δz medio <b>${fmtDz(r3(conDz.reduce((t, x) => t + x.dzMed, 0) / conDz.length))}</b></span>` : ""}</div>
+    <div class="legend">${["PT", "EP", "EC", "OB"].filter(k => estados[k]).map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]} (${estados[k]})</span>`).join("")}${estados.SR ? `<span><i style="background:#5b7fa6"></i>Sin registro (${estados.SR})</span>` : ""}<span><i class="hatch"></i>Diseño</span><span><i style="background:var(--accent);height:3px"></i>Sección elegida</span></div>
+    <div class="mbar"><h3>Planta desarrollada <span class="muted small">· progresiva y desfase desde el eje</span></h3><button type="button" class="mini" data-mz="-" aria-label="Alejar" ${(P.mZoom || 1) <= 1 ? "disabled" : ""}>−</button><button type="button" class="mini" data-mz="+" aria-label="Acercar">+</button><button type="button" class="mini" data-mz="0">Todo</button></div>
+    <div class="mscroll" id="mPlanBox"><div id="mPlan"></div></div>
+    <p class="nota-g">Toca una liberación para ir a su sección y otra vez para ver sus datos; toca cualquier punto para ver esa sección. Izquierda del eje arriba, derecha abajo.</p>
+    ${mod ? `<div class="mbar"><h3 id="mSecT">Sección</h3><button type="button" class="mini" data-mst="-" aria-label="Sección anterior">‹</button><button type="button" class="mini" data-mst="+" aria-label="Sección siguiente">›</button></div>
+    <input type="range" class="msta" id="mSta" min="0" max="${mod.est.length - 1}" step="1" value="${idxCerca(mod, P.mSta)}" aria-label="Sección">
+    <div class="msec" id="mSec"></div><div class="mleg" id="mLeg"></div><div id="mSecTab"></div>` : `<p class="pinfo">Hay eje pero no secciones: sube el XML del eje con secciones para comparar con el diseño.</p>`}`;
+  dibujarPlanModelo(mod, eje, vis, todas, lim);
+  if (mod) {
+    $("#mSta").addEventListener("input", e => { P.mSta = mod.est[+e.target.value]; dibujarSeccion(); marcarStaPlan(); });
+    $("#mSta").addEventListener("change", () => centrarSta());
+    dibujarSeccion();
+  }
+  dibujarListaModelo(vis);
+}
+function dibujarPlanModelo(mod, eje, vis, todas, lim) {
+  const P = S.panel, box = $("#mPlan"), cont = $("#mPlanBox"); if (!box) return;
+  const W0 = Math.max(300, cont.clientWidth - 2), W = Math.round(W0 * (P.mZoom || 1)), movil = innerWidth < 760, H = movil ? 210 : 260;
+  const padL = 10, padR = 10, padT = 14, padB = 26;
+  // Rango de desfase: diseño + liberaciones
+  let oA = Infinity, oB = -Infinity;
+  if (mod) mod.secs.forEach(sec => sec.forEach(p => { oA = Math.min(oA, p.pts[0][0]); oB = Math.max(oB, p.pts[p.pts.length - 1][0]); }));
+  todas.forEach(x => { oA = Math.min(oA, x.oMin); oB = Math.max(oB, x.oMax); });
+  if (!isFinite(oA)) { oA = -30; oB = 30; } oA = Math.min(oA, -2); oB = Math.max(oB, 2);
+  const kx = (W - padL - padR) / ((lim[1] - lim[0]) || 1), ky = (H - padT - padB) / ((oB - oA) || 1);
+  const X = s => (padL + (s - lim[0]) * kx).toFixed(1), Y = o => (padT + (o - oA) * ky).toFixed(1);
+  const out = [];
+  // Huella del diseño de referencia (la superficie con la que más se comparan las liberaciones visibles)
+  if (mod) {
+    const cuenta = new Map(); vis.forEach(x => x.supRef && cuenta.set(x.supRef, (cuenta.get(x.supRef) || 0) + 1));
+    const ref = [...cuenta.entries()].sort((a, b) => b[1] - a[1])[0]?.[0], iRef = ref ? mod.sups.indexOf(ref) : -1;
+    let tramo = [];
+    const cerrar = () => { if (tramo.length > 1) out.push(`<path d="M${tramo.map(t => X(t[0]) + "," + Y(t[1])).join("L")}L${tramo.slice().reverse().map(t => X(t[0]) + "," + Y(t[2])).join("L")}Z" fill="url(#hDis)" stroke="#bccdc7" stroke-width="1"/>`); tramo = []; };
+    mod.est.forEach((st, k) => { const ps = mod.secs[k].filter(p => iRef < 0 || p.i === iRef); if (!ps.length) { cerrar(); return; } tramo.push([st, Math.min(...ps.map(p => p.pts[0][0])), Math.max(...ps.map(p => p.pts[p.pts.length - 1][0]))]); });
+    cerrar();
+    mod.est.forEach(st => out.push(`<line x1="${X(st)}" x2="${X(st)}" y1="${padT}" y2="${H - padB}" stroke="#dfe8e5" stroke-width="1"/>`));
+  }
+  out.push(`<line x1="${X(lim[0])}" x2="${X(lim[1])}" y1="${Y(0)}" y2="${Y(0)}" stroke="#2b3a36" stroke-width="1.2" stroke-dasharray="6 4"/><text class="mlab" x="${padL + 2}" y="${(+Y(0) - 4).toFixed(1)}">Eje</text>`);
+  // Liberaciones: la huella exacta si ya está leída; si no, el rectángulo del resumen
+  const mapa = MOD.sup[P.subId] || new Map();
+  vis.slice().sort((a, b) => a.pk0 - b.pk0).forEach(x => {
+    const d = mapa.get(x.id), c = colorSup(x), sel = P.mSel === x.id;
+    const forma = d && d.borde.length > 2 ? `<path d="M${d.borde.map(q => X(q[0]) + "," + Y(q[1])).join("L")}Z"` : `<rect x="${X(x.pk0)}" y="${Y(x.oMin)}" width="${Math.max(1.5, (x.pk1 - x.pk0) * kx).toFixed(1)}" height="${Math.max(1.5, (x.oMax - x.oMin) * ky).toFixed(1)}"`;
+    out.push(`<g class="msup" data-sid="${esc(x.id)}">${forma} fill="${c}" fill-opacity="${sel ? .95 : .72}" stroke="${sel ? "#14231f" : c}" stroke-width="${sel ? 2 : 1}" stroke-linejoin="round"/><title>${esc(x.codigo || x.nombre)} · ${esc(rangoPk(x.pk0, x.pk1))}</title></g>`);
+  });
+  // Progresivas
+  const st = paso(lim[1] - lim[0], W);
+  for (let v = Math.ceil(lim[0] / st) * st; v <= lim[1] + 1e-6; v += st) { const xv = +X(v), an = xv < 30 ? "start" : xv > W - 30 ? "end" : "middle"; out.push(`<line x1="${xv}" x2="${xv}" y1="${H - padB}" y2="${H - padB + 4}" stroke="#7c8c86"/><text class="mlab" x="${xv}" y="${H - 8}" text-anchor="${an}">${fmtPk(v)}</text>`); }
+  out.push(`<line id="mStaL" x1="0" x2="0" y1="${padT - 6}" y2="${H - padB}" stroke="var(--accent)" stroke-width="2.5" ${P.mSta == null ? 'visibility="hidden"' : ""}/>`);
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Planta desarrollada del modelo"><defs><pattern id="hDis" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#f2f7f5"/><line x1="0" y1="0" x2="0" y2="7" stroke="#d3e1dd" stroke-width="2"/></pattern></defs>${out.join("")}</svg>`;
+  box._esc = { X, kx, lim, padL };
+  marcarStaPlan();
+  const svg = box.querySelector("svg");
+  svg.addEventListener("click", e => {
+    const g = e.target.closest(".msup");
+    const r = svg.getBoundingClientRect(), s = lim[0] + ((e.clientX - r.left) * (W / r.width) - padL) / kx;
+    if (g) { const id = g.dataset.sid; if (P.mSel === id) { editarSuperficie(id); return; } P.mSel = id; const x = vis.find(v => v.id === id); const m = MOD.secc[P.subId]; if (m && x) { const dentro = m.est.filter(t => t >= x.pk0 - 0.05 && t <= x.pk1 + 0.05); P.mSta = dentro.length ? dentro.reduce((a, b) => Math.abs(b - s) < Math.abs(a - s) ? b : a) : m.est[idxCerca(m, s)]; } dibujarModelo(); return; }
+    const m = MOD.secc[P.subId]; if (!m) return; P.mSta = m.est[idxCerca(m, s)]; if ($("#mSta")) $("#mSta").value = idxCerca(m, P.mSta); dibujarSeccion(); marcarStaPlan();
+  });
+  if (P.mZoom > 1) centrarSta();
+}
+function marcarStaPlan() { const b = $("#mPlan"), l = $("#mStaL"); if (!b || !l || !b._esc || S.panel.mSta == null) return; const x = b._esc.X(S.panel.mSta); l.setAttribute("x1", x); l.setAttribute("x2", x); l.removeAttribute("visibility"); }
+function centrarSta() { const b = $("#mPlan"), c = $("#mPlanBox"); if (!b || !c || !b._esc || S.panel.mSta == null) return; c.scrollLeft = Math.max(0, +b._esc.X(S.panel.mSta) - c.clientWidth / 2); }
+function dibujarSeccion() {
+  const P = S.panel, mod = MOD.secc[P.subId], box = $("#mSec"); if (!mod || !box) return;
+  const k = idxCerca(mod, P.mSta), sta = mod.est[k], sec = mod.secs[k] || [];
+  $("#mSecT").innerHTML = `Sección PK ${esc(fmtPk(sta))} <span class="muted small">· ${k + 1} de ${mod.est.length}</span>`;
+  const { vis, todas } = supsGrupo(), visIds = new Set(vis.map(x => x.id)), mapa = MOD.sup[P.subId] || new Map();
+  const cortes = todas.map(x => ({ x, d: mapa.get(x.id) })).filter(c => c.d && c.d.cortes.has(sta)).map(c => ({ ...c, pz: c.d.cortes.get(sta), vis: visIds.has(c.x.id) }));
+  const W = Math.max(300, box.clientWidth), movil = innerWidth < 760, H = movil ? 250 : 330, pad = { l: 46, r: 12, t: 12, b: 26 };
+  let oA = Infinity, oB = -Infinity, zA = Infinity, zB = -Infinity;
+  const ext = pts => pts.forEach(q => { oA = Math.min(oA, q[0]); oB = Math.max(oB, q[0]); zA = Math.min(zA, q[1]); zB = Math.max(zB, q[1]); });
+  sec.forEach(p => ext(p.pts)); cortes.forEach(c => c.pz.forEach(ext));
+  if (!isFinite(oA)) { box.innerHTML = '<div class="empty" style="padding:24px"><b>Esta sección no tiene superficies de diseño</b></div>'; $("#mLeg").innerHTML = ""; $("#mSecTab").innerHTML = ""; return; }
+  const mo = (oB - oA) * 0.03 + 0.5, mz = (zB - zA) * 0.08 + 0.3; oA -= mo; oB += mo; zA -= mz; zB += mz;
+  let kx = (W - pad.l - pad.r) / (oB - oA), ky = (H - pad.t - pad.b) / (zB - zA);
+  if (ky < kx) kx = ky;
+  const ex = ky / kx, x0 = pad.l + ((W - pad.l - pad.r) - (oB - oA) * kx) / 2;
+  const X = o => (x0 + (o - oA) * kx).toFixed(1), Y = z => (pad.t + (zB - z) * ky).toFixed(1);
+  const ln = pts => "M" + pts.map(q => X(q[0]) + "," + Y(q[1])).join("L");
+  const out = [];
+  const pasoF = (span, px) => { const obj = span / Math.max(2, px / 60); return [0.1, 0.2, 0.25, 0.5, 1, 2, 5, 10, 20, 25, 50, 100].find(v => v >= obj) || 200; };
+  const zs = pasoF(zB - zA, H - pad.t - pad.b);
+  for (let z = Math.ceil(zA / zs) * zs; z <= zB + 1e-9; z = r3(z + zs)) out.push(`<line x1="${pad.l}" x2="${W - pad.r}" y1="${Y(z)}" y2="${Y(z)}" stroke="#edf3f1"/><text class="mlab" x="${pad.l - 4}" y="${(+Y(z) + 3.5).toFixed(1)}" text-anchor="end">${z.toFixed(zs < 0.5 ? 2 : zs < 1 ? 1 : 0)}</text>`);
+  const os = pasoF(oB - oA, W - pad.l - pad.r);
+  for (let o = Math.ceil(oA / os) * os; o <= oB + 1e-9; o = r3(o + os)) out.push(`<text class="mlab" x="${X(o)}" y="${H - 8}" text-anchor="middle">${Math.abs(o) < 1e-9 ? "Eje" : fmtOff(o).replace(/\.0$/, "")}</text>`);
+  if (oA < 0 && oB > 0) out.push(`<line x1="${X(0)}" x2="${X(0)}" y1="${pad.t}" y2="${H - pad.b}" stroke="#2b3a36" stroke-width="1" stroke-dasharray="5 4"/>`);
+  const usadas = [...new Set(sec.map(p => p.i))];
+  sec.forEach(p => out.push(`<path d="${ln(p.pts)}" fill="none" stroke="${COL_DIS[p.i % COL_DIS.length]}" stroke-width="1.6" stroke-linejoin="round"><title>${esc(mod.sups[p.i])}</title></path>`));
+  cortes.sort((a, b) => a.vis - b.vis).forEach(c => { const col = colorSup(c.x), sel = P.mSel === c.x.id; c.pz.forEach(p => out.push(`<path class="mcut" data-sid="${esc(c.x.id)}" d="${ln(p)}" fill="none" stroke="${c.vis ? col : "#b9c6c2"}" stroke-width="${sel ? 5 : c.vis ? 3.6 : 2.4}" stroke-linecap="round" stroke-linejoin="round"><title>${esc(c.x.codigo || c.x.nombre)}</title></path>`)); });
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="Sección transversal PK ${esc(fmtPk(sta))}">${out.join("")}</svg>${ex > 1.15 ? `<span class="mex">Vertical ×${ex.toFixed(1)}</span>` : ""}`;
+  $("#mLeg").innerHTML = usadas.map(i => `<span><i style="background:${COL_DIS[i % COL_DIS.length]}"></i>${esc(mod.sups[i])}</span>`).join("") + (cortes.length ? `<span><i style="background:linear-gradient(90deg,${COLOR.EC} 0 33%,${COLOR.EP} 33% 66%,#5b7fa6 66%);height:5px"></i>Liberaciones (color de su estado)</span>` : "");
+  // Δz de cada liberación en esta sección contra su superficie de referencia
+  const filas = cortes.map(c => {
+    const i = mod.sups.indexOf(c.x.supRef), dz = [];
+    if (i >= 0) c.pz.forEach(p => p.forEach(q => { const zd = zEnSeccion(sec, i, q[0]); if (zd != null) dz.push(q[1] - zd); }));
+    const os2 = c.pz.flat().map(q => q[0]), r = registroDe(c.x.codigo);
+    return `<tr data-sid="${esc(c.x.id)}" class="${c.vis ? "" : "mfuera"}"><td>${celdaSup(c.x, r)}</td><td class="num hm">${fmtOff(Math.min(...os2))} a ${fmtOff(Math.max(...os2))}</td><td class="num">${dz.length ? fmtDz(r3(dz.reduce((t, v) => t + v, 0) / dz.length)) : "—"}</td><td class="num hm">${dz.length ? `${fmtDz(r3(Math.min(...dz)))} a ${fmtDz(r3(Math.max(...dz)))}` : "—"}</td></tr>`;
+  });
+  $("#mSecTab").innerHTML = filas.length ? `<div class="mwrap"><table class="mtab"><thead><tr><th>Liberación</th><th class="num hm">Desfase</th><th class="num">Δz medio</th><th class="num hm">Δz mín. a máx.</th></tr></thead><tbody>${filas.join("")}</tbody></table></div><p class="nota-g">Δz: cota liberada menos la superficie de diseño con la que se compara (+ arriba, − abajo).</p>` : `<p class="nota-g">No hay liberaciones cortadas en esta sección.</p>`;
+}
+const celdaSup = (x, r) => `<b class="mono">${esc(x.codigo || "Sin código")}</b> ${r ? `<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado])}</span>` : '<span class="muted small">· sin registro</span>'}<div class="muted small mn">${esc(corta(x.nombre, 48))}</div>`;
+function dibujarListaModelo(vis) {
+  const box = $("#mLista"); if (!box) return;
+  if (!vis.length) { box.innerHTML = `<div class="card empty"><b>Aún no hay superficies de liberación</b>Sube con «Subir XML» la superficie que se exporta de Civil 3D por cada liberación. Si el nombre trae el código SKT-TOP, se enlaza solo con su registro.</div>`; return; }
+  const fil = vis.slice().sort((a, b) => a.pk0 - b.pk0 || natural(a.nombre, b.nombre)).map(x => { const r = registroDe(x.codigo); return `<tr data-sid="${esc(x.id)}" class="${S.panel.mSel === x.id ? "msel" : ""}"><td>${celdaSup(x, r)}</td><td class="num">${esc(rangoPk(x.pk0, x.pk1))}</td><td class="num hm">${x.zMed.toFixed(2)}</td><td class="num">${fmtDz(x.dzMed)}</td><td class="num hm">${Math.round(x.area || 0).toLocaleString("es-PE")}</td></tr>`; });
+  box.innerHTML = `<div class="card section"><h2 style="margin-bottom:6px">Liberaciones en el modelo <span class="muted small">· ${vis.length}</span></h2><div class="mwrap"><table class="mtab"><thead><tr><th>Liberación</th><th class="num">Tramo</th><th class="num hm">Cota media</th><th class="num">Δz medio</th><th class="num hm">Área m²</th></tr></thead><tbody>${fil.join("")}</tbody></table></div></div>`;
+}
 
 /* ---------- Ejes de los frentes (para la planta) ---------- */
 function leerEje(texto, pk0) {
@@ -1784,15 +2412,22 @@ function leerEje(texto, pk0) {
 }
 
 /* ---------- Bandeja de gabinete: aceptar (código único), observar, entregar a Calidad ---------- */
-function dialogo(titulo, html, onOk, okTxt = "Aceptar") {
+function dialogo(titulo, html, onOk, okTxt = "Aceptar", op = {}) {
   const d = document.createElement("div"); d.className = "dlg";
-  d.innerHTML = `<form class="dlg-box card" novalidate><h3>${esc(titulo)}</h3>${html}<div class="actions" style="margin:14px 0 0"><button type="submit" class="btn pri block">${esc(okTxt)}</button><button type="button" class="btn sec" data-x>Cancelar</button></div></form>`;
+  d.innerHTML = `<form class="dlg-box card ${op.ancho ? "ancho" : ""}" novalidate><h3>${esc(titulo)}</h3>${html}<div class="actions" style="margin:14px 0 0"><button type="submit" class="btn ${op.peligro ? "warn" : "pri"} block">${esc(okTxt)}</button><button type="button" class="btn sec" data-x>${esc(op.cancelar || "Cancelar")}</button></div></form>`;
   document.body.appendChild(d); requestAnimationFrame(() => d.classList.add("on"));
-  const cerrar = () => { d.classList.remove("on"); setTimeout(() => d.remove(), 200); };
-  d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-x]")) cerrar(); });
-  d.querySelector("form").addEventListener("submit", e => { e.preventDefault(); const o = {}; new FormData(e.target).forEach((v, k) => { o[k] = String(v).trim(); }); if (onOk(o) !== false) cerrar(); });
-  setTimeout(() => d.querySelector("input,textarea")?.focus(), 60);
+  let hecho = false;
+  const cerrar = ok => { if (hecho) return; hecho = true; d.classList.remove("on"); setTimeout(() => d.remove(), 200); if (!ok) op.onCancel?.(); };
+  d.cerrar = cerrar;
+  d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-x]")) cerrar(false); });
+  d.addEventListener("keydown", e => { if (e.key === "Escape") cerrar(false); });
+  d.querySelector("form").addEventListener("submit", e => { e.preventDefault(); const o = {}; new FormData(e.target).forEach((v, k) => { o[k] = String(v).trim(); }); if (onOk(o) !== false) cerrar(true); });
+  setTimeout(() => (op.sinFoco ? d.querySelector("[type=submit]") : d.querySelector("input:not([type=checkbox]):not([type=hidden]),textarea") || d.querySelector("[type=submit]"))?.focus(), 60);
   return d;
+}
+// Confirmación antes de una acción importante: devuelve true si la persona acepta
+function confirmar(titulo, texto, okTxt = "Sí, continuar", peligro = false) {
+  return new Promise(res => dialogo(titulo, `<p class="dlg-p">${texto}</p>`, () => { res(true); }, okTxt, { peligro, onCancel: () => res(false), sinFoco: true }));
 }
 const hoyISO = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
 function fmtNumero(n) { const c = S.config || {}; return (c.prefijo || "SKT-TOP-") + String(n).padStart(c.digitos || 5, "0"); }
@@ -1834,6 +2469,9 @@ function aceptarUno(r) {
 async function aceptarVarios(ids) {
   if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
   let n = 0; const regs = ids.map(id => S.bandeja.todos().find(r => r.id === id)).filter(Boolean);
+  if (!regs.length) return;
+  const c0 = (S.config || {}).prefijo || "SKT-TOP-";
+  if (!await confirmar(`Aceptar ${regs.length}`, `Se ${regs.length === 1 ? "genera 1 código" : `generan ${regs.length} códigos`} ${esc(c0)}… nuevos, uno por liberación, y pasan a «En proceso». Los códigos no se pueden reutilizar.`, regs.length === 1 ? "Generar código" : `Generar ${regs.length} códigos`)) return;
   for (const r of regs) { const c = await generarCodigo(r, r.nombreLiberacion || r.descripcion); if (c) n++; else break; }
   S.bandeja.sel.clear(); if (n) toast(`${n} ${n === 1 ? "código generado" : "códigos generados"}`);
 }
@@ -1846,7 +2484,7 @@ function entregar(ids) {
   dialogo(n === 1 ? "Entregar a Calidad" : `Entregar ${n} a Calidad`, `<div class="grid"><div class="f"><label for="dFe">Fecha de entrega</label><input id="dFe" name="fecha" type="date" value="${hoyISO()}" required></div><div class="f"><label for="dCargo">N° de cargo <span class="opt">(opcional)</span></label><input id="dCargo" name="cargo" placeholder="Ej. 2025-11-06-01"></div></div>`,
     o => { if (!o.fecha) return false; cambiarEstado(ids, { fechaEntrega: Timestamp.fromDate(new Date(o.fecha + "T12:00:00")), numeroCargo: o.cargo }, "EC", o.cargo ? "Cargo " + o.cargo : "").then(k => { if (k) { toast(`${k} ${k === 1 ? "entregada" : "entregadas"} a Calidad`); S.bandeja.sel.clear(); S.bandeja.epHist = S.bandeja.epHist.filter(r => !ids.includes(r.id)); if (S.view === "bandeja") pintarBandeja(); if (!$("#sheet").hidden) cerrarFicha(); } }); }, "Entregar");
 }
-function reabrir(r) { cambiarEstado([r.id], { notaObservacion: "" }, "PT", "Devuelta a pendiente").then(k => { if (k) toast("Devuelta a pendientes"); }); }
+async function reabrir(r) { if (!await confirmar("Devolver a pendientes", `${esc(r.numero || "La liberación")} vuelve a «Pendiente topografía» y sale de «En proceso».`, "Devolver")) return; cambiarEstado([r.id], { notaObservacion: "" }, "PT", "Devuelta a pendiente").then(k => { if (k) toast("Devuelta a pendientes"); }); }
 
 function suscribirBandeja() {
   S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "in", ["PT", "OB"])), { includeMetadataChanges: true }, snap => {
@@ -1997,11 +2635,11 @@ function ajLugares() {
   const usados = new Set(); B.forEach(e => { usados.add(e.id); (e.subs || []).forEach(s => usados.add(s.id)); });
   const ejeTxt = id => { const e = S.ejes[id]; return e && e.puntos ? `Eje · ${Math.round(e.puntos.length / 3).toLocaleString("es-PE")} pts` : "Subir eje"; };
   $("#ajBody").innerHTML = `
-  <p class="muted small" style="margin:0 0 12px">Cada estructura agrupa sus sub-estructuras o frentes; lo que agregues aparece al instante en el formulario de campo, enlazado a su estructura. El rango de PK define el largo del perfil. «Subir eje» recibe el CSV del eje (PK, Este, Norte) para dibujar la planta. Desactivar oculta un lugar sin borrar sus registros.</p>
+  <p class="muted small" style="margin:0 0 12px">Cada estructura agrupa sus sub-estructuras o frentes; lo que agregues aparece al instante en el formulario de campo, enlazado a su estructura. El rango de PK define el largo del perfil. «Subir eje» recibe el CSV del eje (PK, Este, Norte) o el XML de Civil 3D con el alineamiento y sus secciones. Desactivar oculta un lugar sin borrar sus registros.</p>
   ${B.map((e, ei) => `<div class="card est ed ${e.activo === false ? "off-row" : ""}" data-e="${ei}">
     <div class="est-h"><input value="${esc(e.nombre)}" data-k="enom" aria-label="Nombre de la estructura"><button type="button" class="mini" data-k="eact">${e.activo === false ? "Activar" : "Desactivar"}</button></div>
     <div class="srow head"><span>Sub-estructura / frente</span><span>PK inicio</span><span>PK final</span><span></span><span></span></div>
-    ${(e.subs || []).map((s, si) => `<div class="srow ${s.activo === false ? "off-row" : ""}" data-s="${si}"><input class="sn" value="${esc(s.nombre)}" data-k="snom" aria-label="Nombre"><input class="mono" value="${esc(s.pkMin == null ? "" : fmtPk(s.pkMin))}" data-k="smin" placeholder="0+000" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(s.pkMax == null ? "" : fmtPk(s.pkMax))}" data-k="smax" placeholder="2+700" inputmode="decimal" aria-label="PK final"><label class="mini eje ${S.ejes[s.id] ? "tiene" : ""}"><input type="file" accept=".csv,.txt" hidden data-eje="${esc(s.id)}">${ejeTxt(s.id)}</label><button type="button" class="mini" data-k="sact">${s.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
+    ${(e.subs || []).map((s, si) => `<div class="srow ${s.activo === false ? "off-row" : ""}" data-s="${si}"><input class="sn" value="${esc(s.nombre)}" data-k="snom" aria-label="Nombre"><input class="mono" value="${esc(s.pkMin == null ? "" : fmtPk(s.pkMin))}" data-k="smin" placeholder="0+000" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(s.pkMax == null ? "" : fmtPk(s.pkMax))}" data-k="smax" placeholder="2+700" inputmode="decimal" aria-label="PK final"><label class="mini eje ${S.ejes[s.id] ? "tiene" : ""}"><input type="file" accept=".csv,.txt,.xml" hidden data-eje="${esc(s.id)}">${ejeTxt(s.id)}</label><button type="button" class="mini" data-k="sact">${s.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
     <div class="addrow"><input placeholder="Nueva sub-estructura de ${esc(e.nombre)}" data-k="snew" aria-label="Nueva sub-estructura"><button type="button" class="mini ok-btn" data-k="sadd">Agregar</button></div>
   </div>`).join("")}
   <div class="card est ed"><div class="flabel" style="font-weight:800;margin-bottom:8px">Nueva estructura</div>
@@ -2018,12 +2656,12 @@ function ajLugares() {
     if (k === "smin" || k === "smax") { const v = numONull(e.target.value); if (e.target.value.trim() && v == null) { toast("Escribe el PK como 2+700 o 2700.", "bad"); return; } sub[k === "smin" ? "pkMin" : "pkMax"] = v; if (v != null) e.target.value = fmtPk(v); }
     guardarLista("estructuras", B);
   });
-  body.addEventListener("click", e => {
+  body.addEventListener("click", async e => {
     const b = e.target.closest("button[data-k]"), ce = e.target.closest("[data-e]");
     if (b && ce) {
       const est = B[+ce.dataset.e], k = b.dataset.k;
-      if (k === "eact") { est.activo = est.activo === false; }
-      else if (k === "sact") { const s = est.subs[+b.closest("[data-s]").dataset.s]; s.activo = s.activo === false; }
+      if (k === "eact") { if (est.activo !== false && !await confirmar("Desactivar estructura", `«${esc(est.nombre)}» y sus frentes dejan de aparecer en el formulario y el panel. Sus registros se quedan; puedes activarla otra vez.`, "Desactivar", true)) return; est.activo = est.activo === false; }
+      else if (k === "sact") { const s = est.subs[+b.closest("[data-s]").dataset.s]; if (s.activo !== false && !await confirmar("Desactivar frente", `«${esc(s.nombre)}» deja de aparecer en el formulario y el panel. Sus registros se quedan; puedes activarlo otra vez.`, "Desactivar", true)) return; s.activo = s.activo === false; }
       else if (k === "sadd") { const inp = ce.querySelector('[data-k="snew"]'); const n = inp.value.trim(); if (!n) { inp.focus(); return; } (est.subs ||= []).push({ id: nuevoId(n, usados), nombre: n, pkMin: 0, pkMax: null }); }
       if (guardarLista("estructuras", B, k === "sadd" ? "Sub-estructura agregada" : "Guardado")) ajLugares(); return;
     }
@@ -2039,7 +2677,9 @@ function ajLugares() {
 async function subirEje(subId, file) {
   try {
     const sub = L.sub(subId);
+    if (/\.xml$/i.test(file.name)) { const d = leerXml(await file.text()); if (!xTodos(d, "Alignment").length) throw new Error("el XML no tiene alineamiento"); prevModelo(file, d, subId, sub); return; }
     const pts = leerEje(await file.text(), sub?.pkMin ?? 0);
+    if (S.ejes[subId] && !await confirmar("Reemplazar eje", `${esc(sub?.nombre || "")} ya tiene eje (${esc(S.ejes[subId].nombre || "")}). Se reemplaza por ${esc(file.name)}.`, "Reemplazar")) return;
     const flat = pts.flatMap(q => [Math.round(q[0] * 100) / 100, Math.round(q[1] * 1000) / 1000, Math.round(q[2] * 1000) / 1000]);
     S.ejes[subId] = { puntos: flat, nombre: file.name };
     setDoc(doc(db, "ejes", subId), { puntos: flat, nombre: file.name, editadoEn: serverTimestamp(), editadoPor: S.email })
@@ -2163,6 +2803,8 @@ function ajCapas() {
     const row = btn.closest("[data-i]");
     if (row && btn.dataset.k === "del") {
       const i = +row.dataset.i;
+      if (row.closest("#cCapas")) { const c0 = cfg.capas[i], nNa = cfg.noAplica.filter(x => x.capa === c0.nombre).length; if (!await confirmar("Quitar capa", `Se quita «${esc(c0.nombre)}» de la lista${nNa ? ` y ${nNa === 1 ? "su tramo" : `sus ${nNa} tramos`} que no se liberan` : ""}. Los registros con esa capa no cambian.`, "Quitar", true)) return; }
+      else { const x = cfg.noAplica[i]; if (!await confirmar("Quitar tramo", `El tramo ${esc(rangoPk(x.pkInicio, x.pkFin))}${x.capa ? " de " + esc(x.capa) : ""} vuelve a contarse como «falta liberar».`, "Quitar", true)) return; }
       if (row.closest("#cCapas")) { const [c] = cfg.capas.splice(i, 1); A.capSel.delete(c.nombre); cfg.noAplica = cfg.noAplica.filter(x => x.capa !== c.nombre); doc0.tipos[A.capTipo] = cfg; guardar(`«${c.nombre}» quitada`); }
       else { cfg.noAplica.splice(i, 1); guardar("Tramo quitado"); }
       ajCapas(); return;
@@ -2176,7 +2818,7 @@ function ajCapas() {
       if (!sel.length) return;
       if (bulk === "ocultar" || bulk === "mostrar") { sel.forEach(c => { if (bulk === "ocultar") c.oculta = true; else delete c.oculta; }); guardar(`${sel.length} ${sel.length === 1 ? "capa" : "capas"} ${bulk === "ocultar" ? "ocultas" : "visibles"}`); ajCapas(); return; }
       if (bulk === "quitar") {
-        if (!btn.dataset.ok) { btn.dataset.ok = "1"; btn.textContent = `¿Quitar ${sel.length}? Toca otra vez`; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.ok; btn.textContent = "Quitar"; } }, 4000); return; }
+        if (!await confirmar(`Quitar ${sel.length === 1 ? "1 capa" : sel.length + " capas"}`, `${sel.slice(0, 6).map(c => "«" + esc(c.nombre) + "»").join(", ")}${sel.length > 6 ? ` y ${sel.length - 6} más` : ""}. Los registros con esas capas no cambian.`, "Quitar", true)) return;
         const fuera = new Set(sel.map(c => c.nombre));
         cfg.capas = cfg.capas.filter(c => !fuera.has(c.nombre)); cfg.noAplica = cfg.noAplica.filter(x => !fuera.has(x.capa)); doc0.tipos[A.capTipo] = cfg;
         A.capSel = new Set(); guardar(`${fuera.size} ${fuera.size === 1 ? "capa quitada" : "capas quitadas"}`); ajCapas(); return;
@@ -2204,7 +2846,7 @@ function ajCapas() {
       }
       const fuera = new Set(cfg.capas.filter(c => { const k = numDe(c.nombre); return k >= de && k <= a; }).map(c => c.nombre));
       if (!fuera.size) { toast("No hay capas en ese rango."); return; }
-      if (!btn.dataset.ok) { btn.dataset.ok = "1"; btn.textContent = `¿Quitar ${fuera.size}?`; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.ok; btn.textContent = "Quitar"; } }, 4000); return; }
+      if (!await confirmar(`Quitar ${fuera.size === 1 ? "1 capa" : fuera.size + " capas"}`, `Las capas ${de} a ${a} que están en la lista. Los registros con esas capas no cambian.`, "Quitar", true)) return;
       cfg.capas = cfg.capas.filter(c => !fuera.has(c.nombre)); cfg.noAplica = cfg.noAplica.filter(x => !fuera.has(x.capa)); doc0.tipos[A.capTipo] = cfg;
       fuera.forEach(n => A.capSel.delete(n)); guardar(`${fuera.size} capas quitadas`); ajCapas(); return;
     }
@@ -2257,7 +2899,7 @@ function ajHistorico() {
   });
   $("#hImp").addEventListener("click", importarHist);
   $("#hBorrar").addEventListener("click", borrarHist);
-  $("#hRes2").addEventListener("click", async e => { const b = e.target; b.disabled = true; b.textContent = "Reconstruyendo…"; try { const n = await reconstruirResumen(); toast(`Resumen listo: ${n.toLocaleString("es-PE")} registros`); } catch (er) { toast("No se pudo: " + er.message, "bad"); } b.disabled = false; b.textContent = "Reconstruir resumen"; });
+  $("#hRes2").addEventListener("click", async e => { const b = e.target; if (!await confirmar("Reconstruir resumen", "Se leen todos los registros para rehacer el resumen del panel. Úsalo solo si el panel no cuadra; consume lecturas.", "Reconstruir")) return; b.disabled = true; b.textContent = "Reconstruyendo…"; try { const n = await reconstruirResumen(); toast(`Resumen listo: ${n.toLocaleString("es-PE")} registros`); } catch (er) { toast("No se pudo: " + er.message, "bad"); } b.disabled = false; b.textContent = "Reconstruir resumen"; });
 }
 function resumenHist(d) {
   const c = {}; d.registros.forEach(r => { c[r.estado] = (c[r.estado] || 0) + 1; });
@@ -2269,6 +2911,7 @@ async function importarHist() {
   const d = S.aj.hist; if (!d) return;
   if (!navigator.onLine) { toast("Se necesita señal para importar.", "bad"); return; }
   const btn = $("#hImp"), prog = $("#hProg"), est = $("#hEst");
+  if (!await confirmar("Importar histórico", `Se cargan ${d.registros.length.toLocaleString("es-PE")} registros del Excel. Si ya estaban, se actualizan sin duplicarse.`, "Importar")) return;
   btn.disabled = true; prog.hidden = false;
   const ts = ms => ms ? Timestamp.fromDate(new Date(ms)) : null;
   const regs = d.registros, LOTE = 400;
@@ -2300,7 +2943,7 @@ async function importarHist() {
 }
 async function borrarHist() {
   const btn = $("#hBorrar");
-  if (!btn.dataset.ok) { btn.dataset.ok = "1"; btn.textContent = "Toca otra vez para confirmar"; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.ok; btn.textContent = "Quitar registros importados"; } }, 4000); return; }
+  if (!await confirmar("Quitar registros importados", "Se borran todos los registros que vinieron del Excel. Los registrados en la app se quedan. No se puede deshacer, pero puedes volver a importar el archivo.", "Quitar importados", true)) return;
   btn.disabled = true; btn.textContent = "Quitando…";
   try {
     const snap = await getDocs(query(collection(db, "liberaciones"), where("origen", "==", "excel")));
@@ -2309,7 +2952,7 @@ async function borrarHist() {
     btn.textContent = "Actualizando el panel…"; await reconstruirResumen();
     toast(`${ids.length.toLocaleString("es-PE")} registros importados quitados`);
   } catch (e) { toast("No se pudo quitar: " + e.message, "bad"); }
-  btn.disabled = false; delete btn.dataset.ok; btn.textContent = "Quitar registros importados";
+  btn.disabled = false; btn.textContent = "Quitar registros importados";
 }
 
 function ajTopografos() {
@@ -2325,9 +2968,9 @@ function ajTopografos() {
   const L2 = $("#tpList");
   L2.addEventListener("change", e => { const r = e.target.closest("[data-i]"); if (r && e.target.dataset.k === "nom") { B[+r.dataset.i].nombre = e.target.value.trim(); guardarLista("topografos", B); } });
   L2.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.target.id === "tpId" || e.target.id === "tpNom") $("#tpAdd").click(); else e.target.blur(); } });
-  L2.addEventListener("click", e => {
+  L2.addEventListener("click", async e => {
     const b = e.target.closest('[data-k="act"]');
-    if (b) { const t = B[+b.closest("[data-i]").dataset.i]; t.activo = t.activo === false; if (guardarLista("topografos", B)) ajTopografos(); return; }
+    if (b) { const t = B[+b.closest("[data-i]").dataset.i]; if (t.activo !== false && !await confirmar("Desactivar topógrafo", `${esc(t.id)} · ${esc(t.nombre)} deja de aparecer en el formulario. Sus registros se quedan.`, "Desactivar", true)) return; t.activo = t.activo === false; if (guardarLista("topografos", B)) ajTopografos(); return; }
     if (e.target.id === "tpAdd") {
       const id = $("#tpId").value.trim().toUpperCase(), n = $("#tpNom").value.trim();
       if (!/^[A-ZÑ]{2,5}$/.test(id)) { toast("La clave debe tener de 2 a 5 letras.", "bad"); $("#tpId").focus(); return; }
@@ -2389,11 +3032,14 @@ function pintarUsuarios() {
     const row = e.target.closest("[data-uid]"); if (!row) return;
     const s = S.solicitudes.find(x => x.id === row.dataset.uid); if (!s) return;
     if (e.target.closest("[data-ap]")) {
+      const rolSel = row.querySelector('[data-k="rol"]').value;
+      if (!await confirmar("Aprobar acceso", `${esc(s.nombre || s.email)} entra como <b>${esc(ROLES[rolSel])}</b>.`, "Aprobar")) return;
       const b = writeBatch(db);
       b.set(doc(db, "usuarios", s.email.toLowerCase()), { nombre: s.nombre || s.email, rol: row.querySelector('[data-k="rol"]').value, topografoId: row.querySelector('[data-k="topo"]').value, activo: true, creadoEn: serverTimestamp() });
       b.delete(doc(db, "solicitudes", s.id));
       b.commit().then(() => toast("Acceso aprobado")).catch(err => toast("No se pudo aprobar: " + err.message, "bad"));
     } else if (e.target.closest("[data-rc]")) {
+      if (!await confirmar("Rechazar solicitud", `${esc(s.nombre || s.email)} no podrá entrar. Si vuelve a intentarlo, aparecerá otra solicitud.`, "Rechazar", true)) return;
       deleteDoc(doc(db, "solicitudes", s.id)).then(() => toast("Solicitud rechazada")).catch(err => toast(err.message, "bad"));
     }
   });
@@ -2403,15 +3049,17 @@ function pintarUsuarios() {
     setDoc(doc(db, "usuarios", m), { nombre: $("#uNom").value.trim() || m, rol: $("#uRol").value, topografoId: $("#uTopo").value, activo: true, creadoEn: serverTimestamp() }, { merge: true })
       .then(() => toast("Usuario agregado")).catch(err => toast("No se pudo agregar: " + err.message, "bad"));
   });
-  $("#usr").addEventListener("change", e => {
+  $("#usr").addEventListener("change", async e => {
     const row = e.target.closest("[data-mail]"); if (!row) return;
     const k = e.target.dataset.k; if (!k) return;
+    if (k === "rol") { const u = S.usuarios.find(x => x.id === row.dataset.mail); if (!await confirmar("Cambiar rol", `${esc(u?.nombre || row.dataset.mail)} pasa de ${esc(ROLES[u?.rol] || u?.rol || "")} a <b>${esc(ROLES[e.target.value])}</b>.`, "Cambiar")) { e.target.value = u?.rol || ""; return; } }
     updateDoc(doc(db, "usuarios", row.dataset.mail), k === "rol" ? { rol: e.target.value } : { topografoId: e.target.value })
       .then(() => toast("Actualizado")).catch(err => toast(err.message, "bad"));
   });
-  $("#usr").addEventListener("click", e => {
+  $("#usr").addEventListener("click", async e => {
     const b = e.target.closest("[data-act]"); if (!b) return;
     const row = b.closest("[data-mail]"); const u = S.usuarios.find(x => x.id === row.dataset.mail);
+    if (u.activo !== false && !await confirmar("Desactivar usuario", `${esc(u.nombre || u.id)} ya no podrá entrar. Sus registros se quedan; puedes activarlo otra vez.`, "Desactivar", true)) return;
     updateDoc(doc(db, "usuarios", u.id), { activo: u.activo === false }).then(() => toast(u.activo === false ? "Activado" : "Desactivado")).catch(err => toast(err.message, "bad"));
   });
 }
