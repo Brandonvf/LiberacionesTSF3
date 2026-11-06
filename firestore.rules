@@ -50,6 +50,8 @@ service cloud.firestore {
     match /contadores/{id} { allow read: if member(); allow write: if isGab() || isConf(); }
     match /ejes/{id}       { allow read: if member(); allow write: if isConf(); }
     match /capas/{id}      { allow read: if member(); allow write: if isConf(); }
+    // Resumen por frente para el panel (se actualiza junto con cada registro)
+    match /resumen/{id}    { allow read: if member(); allow write: if writer() || isConf(); }
 
     // Liberaciones y levantamientos
     match /liberaciones/{id} {

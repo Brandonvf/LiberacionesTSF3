@@ -248,6 +248,20 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .filters .f select,.filters .f input{min-height:44px;padding:9px 12px;font-size:15px}
 .filters .wide{grid-column:span 2}
 .filters>*{min-width:0}
+.mfil{grid-column:1/-1;display:contents}
+.mfil>summary{display:none}
+.mfil-g{display:contents}
+@media (max-width:759px){
+  .mfil{display:block;border-top:1px solid var(--line);padding-top:8px}
+  .mfil>summary{display:block;list-style:none;cursor:pointer;font-weight:800;font-size:13.5px;padding:6px 2px;color:var(--accent-strong)}
+  .mfil>summary::-webkit-details-marker{display:none}
+  .mfil>summary::before{content:"+ ";font-weight:800}
+  .mfil[open]>summary::before{content:"− "}
+  .mfil-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .mfil-g .wide{grid-column:1/-1}
+  .stat{padding:10px 12px}.stat b{font-size:21px}
+  .legend{font-size:11.5px;gap:4px 10px}
+}
 @media (max-width:720px){.filters{grid-template-columns:1fr 1fr}.filters .wide{grid-column:1/-1}}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
 @media (max-width:560px){.stats{grid-template-columns:1fr 1fr}}
@@ -276,18 +290,21 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .pl-ctl select{border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;min-height:40px;background:var(--surface);font-size:14px;max-width:100%}
 .rango{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 4px}
 .rango .rl{font-weight:800;font-size:13px}
-.rango input{width:96px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;min-height:40px;font-size:14px;background:var(--surface)}
-.rango input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rango input:not([type=checkbox]){width:96px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;min-height:40px;font-size:14px;background:var(--surface)}
+.rango input:not([type=checkbox]):focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .rango .mini{min-height:38px;padding:0 12px;font-size:12.5px}
 .rango .tog{margin-left:auto}
-@media (max-width:560px){.rango .tog{margin-left:0;width:100%}}
+@media (max-width:560px){.rango{gap:6px}.rango input:not([type=checkbox]){width:84px}.rango .tog{margin-left:0;width:100%;font-size:12.5px}}
+@media (max-width:759px){.view-panel .lead{display:none}}
 .capsel{margin:10px 0 2px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
 .capsel summary{list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px 8px 14px;cursor:pointer;font-size:13.5px;font-weight:700}
 .capsel summary::-webkit-details-marker{display:none}
 .capsel summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s;margin-right:2px}
 .capsel[open] summary::before{transform:rotate(45deg)}
 .capsel summary b{font-family:var(--f-disp);color:var(--accent-strong)}
-.cap-acc{display:flex;gap:6px;margin-left:auto}
+.cap-acc{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 8px}
+.cap-hint{margin-left:auto;font-weight:600}
+.capsel[open] .cap-hint{display:none}
 .cap-acc .mini{min-height:32px;padding:0 11px;font-size:12px}
 #pCapChips{padding:2px 12px 12px;display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto}
 .cgrp{display:flex;flex-direction:column;gap:6px}
@@ -335,6 +352,44 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .nota-g{font-size:12.5px;color:var(--muted);margin:6px 0 0}
 .tip{position:fixed;z-index:65;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 11px;font-size:12.5px;line-height:1.35;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:260px;opacity:0;transition:opacity .12s}
 .tip.on{opacity:1}
+
+/* Repaso: celular y datos */
+button{touch-action:manipulation}
+.sheet,.dlg,#pCapChips,.ctab,.lb{overscroll-behavior:contain}
+h1,h2,h3{text-wrap:balance}
+.item{content-visibility:auto;contain-intrinsic-size:auto 120px}
+.pill,.chip,.cchip{transition:background-color .18s,border-color .18s,color .18s,box-shadow .18s}
+.tabs button{transition:background-color .2s,color .2s,box-shadow .2s}
+.fnum{font-size:15px;font-weight:500}
+.sig{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;width:100%;text-align:left;border:1.5px dashed #8fc4ba;background:var(--accent-soft);color:var(--accent-strong);border-radius:14px;padding:10px 14px;margin:0 0 10px;font-size:13.5px;font-weight:700;min-height:48px}
+.sig b{font-size:15px;color:var(--ink)}
+.sig::before{content:"→";font-weight:800;font-size:16px}
+.qf-res{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:14px;margin:4px 0 10px}
+.qf-res b{color:var(--ob);font-family:var(--f-disp)}
+.qf-res .mini{margin-left:auto;min-height:34px;font-size:12.5px;padding:0 12px}
+.qflist{display:flex;flex-direction:column;gap:10px}
+.qf{border:1px solid var(--line);border-left:4px solid var(--ob);border-radius:14px;padding:11px 12px 10px;background:var(--surface)}
+.qf.ok{border-left-color:var(--ec)}
+.qf-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.qf-h b{font-family:var(--f-disp);font-size:15.5px;display:block}
+.qf-h .t{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.qf-pct{font-family:var(--f-disp);font-weight:800;font-size:19px;color:var(--ob);font-variant-numeric:tabular-nums}
+.qf-pct.full{color:var(--ec)}
+.tira{display:block;width:100%;height:22px;border-radius:6px;background:#f6f9f8;border:1px solid #cfdcd8;overflow:hidden}
+.qf-ej{display:flex;justify-content:space-between;font:500 11px var(--f-mono);color:var(--muted);margin:3px 0 8px}
+.qf-f{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.qf-ft{font-weight:800;color:var(--ob);font-size:13px;margin-right:2px}
+.qf .fpill{padding:7px 12px;font-size:13px;min-height:36px}
+.qf-mas{min-height:36px;font-size:12.5px}
+.qf-ok{font-size:13px;font-weight:800;color:var(--ec)}
+.pfila{display:grid;grid-template-columns:auto auto 1fr auto auto;gap:6px 10px;align-items:center;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 12px;font-size:13px}
+.pfila:hover{border-color:#b9d3cd}
+.pf-n{font-size:13px}
+.pf-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.pf-k{color:var(--ink)}
+.pf-f{color:var(--muted)}
+@media (max-width:620px){.pfila{grid-template-columns:auto 1fr auto}.pf-t{grid-column:1/-1;order:3}.pf-k{order:4;grid-column:1/3}.pf-f{order:5}}
+#pLista{gap:6px}
 
 /* Listas */
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
@@ -436,7 +491,7 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, runTransaction, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, runTransaction, setDoc, deleteField, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 window.__arranco = true;
 
@@ -529,17 +584,17 @@ const S = {
   listas: { estructuras: [], elementos: [], tipos: [], topografos: [], actividades: [] },
   mis: [], todos: [], solicitudes: [], usuarios: [],
   view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "" } },
-  editando: null, form: null, limiteTodos: 300, verTodos: 60,
+  editando: null, form: null, limiteTodos: 100, verTodos: 60,
   subs: [], dentro: false,
   aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {}, config: null,
-  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], ver: 60, todos() { return [...this.pend, ...this.ep]; } },
+  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, todos() { return [...this.pend, ...this.ep, ...this.epHist]; } },
   panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "" }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
              set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-S.panel.zoom = ls.get("lib.panelZoom", false); S.panel.vista = ls.get("lib.panelVista", "perfil");
+S.panel.zoom = ls.get("lib.panelZoom", false); S.panel.vista = ls.get("lib.panelVista", innerWidth < 760 ? "lista" : "perfil");
 
 /* ---------- Progresivas ---------- */
 function leerPk(t) {
@@ -625,7 +680,7 @@ onAuthStateChanged(auth, async u => {
   cortar(); S.perfil = null; S.dentro = false;
   // Al cambiar de cuenta en el mismo teléfono no se arrastra nada de la anterior
   S.form = null; S.editando = null; S.view = ""; S.mis = []; S.todos = []; S.solicitudes = []; S.usuarios = []; S.panelDatos = [];
-  S.bandeja.pend = []; S.bandeja.ep = []; S.bandeja.sel.clear(); S.bandeja.q = ""; S.aj.hist = null;
+  S.bandeja.pend = []; S.bandeja.ep = []; S.bandeja.epHist = []; S.bandeja.epHistOk = false; S.bandeja.sel.clear(); S.bandeja.q = ""; S.aj.hist = null; S._ficha = null;
   if (!u) { S.user = null; gate("entrar"); return; }
   S.user = u; S.email = (u.email || "").toLowerCase();
   gate("cargando");
@@ -702,9 +757,14 @@ function entrarApp() {
     S.subs.push(onSnapshot(collection(db, "solicitudes"), snap => { S.solicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() })); pintarNav(); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("solicitudes", e)));
     S.subs.push(onSnapshot(collection(db, "usuarios"), snap => { S.usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nombre || a.id).localeCompare(b.nombre || b.id)); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("usuarios", e)));
   }
+  getDoc(doc(db, "config", "general")).then(d => {
+    S.config = d.exists() ? d.data() : {};
+    if (puedeAjustes() && navigator.onLine && !S.config.resumenV) reconstruirResumen().then(n => { S.config.resumenV = 1; if (n) toast(`Panel preparado con ${n.toLocaleString("es-PE")} registros`); }).catch(e => console.warn("resumen", e));
+  }).catch(() => {});
   pintarCabecera();
-  const guardada = ls.get("lib.vista", "");
-  ir(vistas().some(v => v.id === guardada) ? guardada : vistas()[0].id);
+  const pedida = location.hash.slice(1), guardada = ls.get("lib.vista", "");
+  const v0 = [pedida, guardada].find(v => vistas().some(x => x.id === v)) || vistas()[0].id;
+  ir(v0, true); history.replaceState(null, "", "#" + v0);
 }
 let unsubTodos = null;
 function suscribirTodos() {
@@ -761,9 +821,10 @@ function pintarNav() {
 $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
 $("#btnSalir").addEventListener("click", () => { cortar(); signOut(auth); });
 
-function ir(v) {
+function ir(v, desdeHistorial) {
   if (S.view === "nueva" && v !== "nueva") { if (S.editando) S.form = null; else guardarBorrador(); }
   S.view = v; ls.set("lib.vista", v);
+  if (!desdeHistorial && location.hash.slice(1) !== v) history.pushState(null, "", "#" + v);
   if (v !== "nueva") S.editando = null;
   pintarNav(); render(); scrollTo({ top: 0 });
 }
@@ -882,6 +943,7 @@ function pintarForm() {
     </div>
     <div class="card section">
       <h2><span class="n">3</span>Progresiva y cota</h2>
+      ${(() => { const u = ls.get(ULT(), {}); return !E && !f.sinPk && !f.pkInicio && u.pkFin != null && u.largo > 0 && u.subestructuraId === f.subestructuraId && u.tipoId === f.tipoId ? `<button type="button" class="sig" id="bSig"><span>Siguiente tramo</span><b class="mono">${fmtPk(u.pkFin)} – ${fmtPk(u.pkFin + u.largo)}</b>${u.capa ? `<span>${esc(u.capa)}</span>` : ""}</button>` : ""; })()}
       <label class="check"><input type="checkbox" id="iSinPk" ${f.sinPk ? "checked" : ""}> No aplica progresiva (caseta, punto, ubicación)</label>
       <div class="grid" id="gPk" ${f.sinPk ? "hidden" : ""}>
         <div class="f"><label for="iPk1">PK inicio</label><input id="iPk1" name="pkInicio" class="mono" inputmode="decimal" placeholder="2+140" value="${esc(f.pkInicio)}" autocomplete="off"></div>
@@ -931,6 +993,8 @@ function conectarForm() {
   $("#iEle").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && t.elementoId !== f.elementoId) f.tipoId = ""; pintarForm(); $("#iTipo")?.focus(); });
   $("#iTipo").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && !f.elementoId) f.elementoId = t.elementoId; pintarForm(); });
   $("#iSinPk").addEventListener("change", e => { $("#gPk").hidden = e.target.checked; });
+  $("#bSig")?.addEventListener("click", () => { const u = ls.get(ULT(), {}); leerCampos(); f.pkInicio = fmtPk(u.pkFin); f.pkFin = fmtPk(u.pkFin + u.largo); if (!f.capa && u.capa) f.capa = u.capa; pintarForm(); $("#iDesc")?.focus(); });
+  $("#iCapa").addEventListener("blur", e => { const v = normCapa(e.target.value, f.subestructuraId, f.tipoId); if (v !== e.target.value.trim()) e.target.value = v; });
   $("#bVar").addEventListener("click", () => { $("#iCota").value = "Variable"; });
   for (const id of ["iPk1", "iPk2"]) $("#" + id).addEventListener("blur", e => { const v = leerPk(e.target.value); if (v != null && !isNaN(v)) e.target.value = fmtPk(v); });
   fm.addEventListener("click", e => {
@@ -989,17 +1053,19 @@ function marcarErrores(err) {
 }
 
 function guardar() {
+  const bg0 = $("#bGuardar"); if (bg0 && bg0.disabled) return;
   leerCampos();
   const f = S.form, E = S.editando;
   const { err, p1, p2, area } = validar(f);
   if (Object.keys(err).length) { marcarErrores(err); toast("Revisa los campos marcados.", "bad"); return; }
   const esLib = f.actividad === "LIB";
+  const bg = $("#bGuardar"); if (bg) { bg.disabled = true; bg.textContent = "Guardando…"; }
   const datos = {
     actividad: f.actividad, fechaCampo: Timestamp.fromDate(new Date(f.fechaCampo)), topografoId: f.topografoId,
     estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId || "", tipoId: f.tipoId || "",
     pkInicio: f.sinPk || p1 == null || isNaN(p1) ? null : p1,
     pkFin: f.sinPk || p1 == null || isNaN(p1) ? null : (p2 == null || isNaN(p2) ? p1 : p2),
-    cota: f.cota.trim(), capa: f.capa.trim(), area, descripcion: f.descripcion.trim(), observaciones: f.observaciones.trim(),
+    cota: f.cota.trim(), capa: normCapa(f.capa, f.subestructuraId, f.tipoId), area, descripcion: f.descripcion.trim(), observaciones: f.observaciones.trim(),
     linksCsv: f.linksCsv, linksFotos: f.linksFotos,
     archivos: f.archivos.map(a => ({ id: a.id, tipo: a.tipo, nombre: a.nombre, tam: a.tam || 0, ...(a.lineas ? { lineas: a.lineas } : {}) })),
     editadoEn: serverTimestamp(), editadoPor: S.email
@@ -1014,11 +1080,13 @@ function guardar() {
     else a = E.estado;
     datos.estado = a;
     b.update(ref, datos);
+    resumenEn(b, E.id, { ...E, ...datos }, E.subestructuraId);
   } else {
     ref = doc(collection(db, "liberaciones"));
     a = esLib ? "PT" : "NA";
     b.set(ref, { ...datos, numero: "", nombreLiberacion: "", generadoPor: "", estado: a, notaObservacion: "",
       fechaLiberacion: null, fechaEntrega: null, numeroCargo: "", creadoEn: serverTimestamp(), creadoPor: S.email, origen: "app" });
+    resumenEn(b, ref.id, { ...datos, numero: "", estado: a });
   }
   for (const x of f.archivos.filter(x => x.nuevo))
     b.set(doc(db, "archivos", x.id), { liberacionId: ref.id, tipo: x.tipo, nombre: x.nombre, tam: x.tam || 0, datos: x.datos, creadoPor: S.email, creadoEn: serverTimestamp() });
@@ -1026,13 +1094,16 @@ function guardar() {
   b.set(doc(collection(db, "historial")), { liberacionId: ref.id, accion: E ? "editado" : "creado", de, a,
     usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "" });
   b.commit().catch(e => { console.error(e); toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso para este cambio." : e.message), "bad"); });
-  ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId });
+  ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId,
+    capa: datos.capa, pkFin: datos.pkFin, largo: datos.pkFin != null ? Math.round((datos.pkFin - datos.pkInicio) * 100) / 100 : null });
   toast(navigator.onLine ? (E ? "Cambios guardados" : "Liberación guardada") : "Guardado en el teléfono. Se subirá cuando haya señal.", navigator.onLine ? "" : "pend");
   if (E) { S.editando = null; S.form = null; ir(E.creadoPor === S.email ? "mis" : "todos"); return; }
   ls.set(BORR(), null);
   const sig = formVacio();
   sig.fechaCampo = f.fechaCampo;
   S.form = sig; pintarForm(); scrollTo({ top: 0, behavior: "smooth" });
+  // Un segundo toque rápido no debe caer sobre el formulario nuevo
+  const nb = $("#bGuardar"); if (nb) { nb.disabled = true; nb.textContent = "Guardado ✓"; setTimeout(() => { if (nb.isConnected) { nb.disabled = false; nb.textContent = "Guardar liberación"; } }, 700); }
 }
 
 /* ---------- Listas de registros ---------- */
@@ -1049,7 +1120,7 @@ function pintarLista(cual) {
   const chips = [["", "Todos", datos.length], ...["PT", "EP", "EC", "OB", "NA"].map(k => [k, ESTADOS[k], cuenta[k] || 0])].filter(c => c[0] === "" || c[2] > 0 || c[0] === fl.st);
   $("#view").innerHTML = `
   <h1 class="view-title">${cual === "mis" ? "Mis registros" : "Registros"}</h1>
-  <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado." : `Últimos ${datos.length} registros de todos los topógrafos.`}</p>
+  <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado." : `Últimos ${datos.length} registros de todos. Para buscar en el histórico completo usa Ajustes → Exportar o el Panel.`}</p>
   <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar N°, PK, tipo, frente…" value="${esc(fl.q)}" aria-label="Buscar"></div>
   <div class="chips" role="group" aria-label="Filtrar por estado">${chips.map(([k, t, n]) => `<button type="button" class="chip" data-st="${k}" aria-pressed="${fl.st === k}">${esc(t)}<span class="c">${n}</span></button>`).join("")}</div>
   <div class="list" id="lista">${vis.length ? vis.slice(0, lim).map((r, i) => tarjeta(r, i)).join("") : `<div class="empty card"><b>${datos.length ? "Nada coincide con el filtro" : "Aún no hay registros"}</b>${datos.length ? "Prueba con otra búsqueda." : cual === "mis" ? "Lo que guardes en «Nueva» aparecerá aquí." : "Los registros de campo aparecerán aquí al instante."}</div>`}</div>
@@ -1059,7 +1130,7 @@ function pintarLista(cual) {
   $(".chips").addEventListener("click", e => { const c = e.target.closest("[data-st]"); if (c) { fl.st = c.dataset.st; pintarLista(cual); } });
   $("#lista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFicha(datos.find(r => r.id === it.dataset.id)); });
   $("#bMas")?.addEventListener("click", () => { S.verTodos += 100; pintarLista(cual); });
-  $("#bMasSrv")?.addEventListener("click", () => { S.limiteTodos += 300; S.verTodos += 100; suscribirTodos(); });
+  $("#bMasSrv")?.addEventListener("click", () => { S.limiteTodos += 100; S.verTodos += 100; suscribirTodos(); });
 }
 function resumenArch(r) {
   const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c;
@@ -1088,8 +1159,8 @@ function abrirFicha(r) {
   const fila = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
   const links = (arr) => (arr || []).map(l => `<div class="link"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ""))}</a></div>`).join("");
   sh.innerHTML = `<div class="grab"></div><div class="wrap">
-    <div class="r1" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${r.numero ? `<span class="mono">${esc(r.numero)}</span>` : '<span class="muted">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? '<span class="pend-tag" style="margin-left:0">Por subir</span>' : ""}</div>
-    <h3>${esc(r.nombreLiberacion || r.descripcion)}</h3>
+    <div class="r1" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${r.numero ? `<span class="mono fnum">${esc(r.numero)}</span><button type="button" class="mini" id="fCopiar" aria-label="Copiar código ${esc(r.numero)}">Copiar</button>` : '<span class="muted">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? '<span class="pend-tag" style="margin-left:0">Por subir</span>' : ""}</div>
+    <h3 id="fTit">${esc(r.nombreLiberacion || r.descripcion)}</h3>
     ${r.nombreLiberacion ? `<p class="muted" style="margin:0">${esc(r.descripcion)}</p>` : ""}
     ${r.estado === "OB" && r.notaObservacion ? `<div class="item nota" style="animation:none">Observación: ${esc(r.notaObservacion)}</div>` : ""}
     <dl class="kv">
@@ -1119,9 +1190,12 @@ function abrirFicha(r) {
       <button type="button" class="btn sec ${puedeEditar(r) ? "" : "block"}" id="fCerrar">Cerrar</button>
     </div>
   </div>`;
-  sh.hidden = false; sc.hidden = false;
+  const yaAbierta = !sh.hidden;
+  sh.hidden = false; sc.hidden = false; sh.setAttribute("aria-labelledby", "fTit"); S._ficha = r;
+  if (!yaAbierta) history.pushState({ ficha: 1 }, "", location.href);
   requestAnimationFrame(() => { sh.classList.add("on"); sc.classList.add("on"); });
-  $("#fCerrar").addEventListener("click", cerrarFicha);
+  $("#fCerrar").addEventListener("click", () => cerrarFicha());
+  $("#fCopiar")?.addEventListener("click", () => { const t = r.numero; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast(`${t} copiado`)).catch(() => toast(t)); });
   $("#fAceptar")?.addEventListener("click", () => aceptarUno(r));
   $("#fObservar")?.addEventListener("click", () => observar(r));
   $("#fEntregar")?.addEventListener("click", () => entregar([r.id]));
@@ -1161,33 +1235,163 @@ function verFoto(src, nombre) {
     if (e.target.closest("[data-x]") || e.target === lb) { lb.classList.remove("on"); setTimeout(() => lb.remove(), 250); }
   });
 }
-function cerrarFicha() {
-  const sh = $("#sheet"), sc = $("#scrim");
+function cerrarFicha(desdeHistorial) {
+  if (!desdeHistorial && history.state && history.state.ficha) { history.back(); return; }
+  const sh = $("#sheet"), sc = $("#scrim"); S._ficha = null;
   sh.classList.remove("on"); sc.classList.remove("on");
   if (unsubHist) { unsubHist(); unsubHist = null; }
   if (unsubArch) { unsubArch(); unsubArch = null; }
   setTimeout(() => { sh.hidden = true; sc.hidden = true; }, 300);
 }
-$("#scrim").addEventListener("click", cerrarFicha);
-addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden) cerrarFicha(); });
+$("#scrim").addEventListener("click", () => cerrarFicha());
+// «Atrás» del celular: primero cierra la ficha; si no hay ficha, vuelve a la pantalla anterior
+addEventListener("popstate", () => {
+  if (!$("#sheet").hidden) { cerrarFicha(true); return; }
+  const v = location.hash.slice(1);
+  if (S.dentro && v && v !== S.view && vistas().some(x => x.id === v)) ir(v, true);
+});
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden && !document.querySelector(".dlg")) cerrarFicha(); });
 
 /* ---------- Usuarios (solo administrador) ---------- */
 function selRol(v, extra = "") { return `<select ${extra} aria-label="Rol">${Object.entries(ROLES).map(([k, t]) => `<option value="${k}" ${k === v ? "selected" : ""}>${t}</option>`).join("")}</select>`; }
 function selTopo(v, extra = "") { return `<select ${extra} aria-label="Topógrafo"><option value="">Sin clave de topógrafo</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${t.id === v ? "selected" : ""}>${esc(t.id)} · ${esc(t.nombre)}</option>`).join("")}</select>`; }
+/* ---------- Resumen por frente: el panel lee 1 documento por frente en vez de cada registro ---------- */
+// [tipo, capa, pkInicio, pkFin, estado, fechaCampo(ms), numero, actividad, topógrafo]
+const compacto = d => [d.tipoId || "", (d.capa || "").trim(), d.pkInicio ?? null, d.pkFin ?? null, d.estado || "", toDate(d.fechaCampo)?.getTime() || 0, d.numero || "", d.actividad || "", d.topografoId || ""];
+// w puede ser un lote (writeBatch) o una transacción: ambos tienen set(ref, datos, opciones)
+function resumenEn(w, id, d, subAnterior) {
+  if (subAnterior && subAnterior !== d.subestructuraId) w.set(doc(db, "resumen", subAnterior), { r: { [id]: deleteField() } }, { merge: true });
+  if (d.subestructuraId) w.set(doc(db, "resumen", d.subestructuraId), { r: { [id]: compacto(d) } }, { merge: true });
+}
+function desempacar(sid, estId, m) {
+  return Object.entries(m || {}).map(([id, a]) => ({ id, tipoId: a[0], capa: a[1], pkInicio: a[2], pkFin: a[3], estado: a[4], fechaCampo: a[5] || null, numero: a[6], actividad: a[7], topografoId: a[8], subestructuraId: sid, estructuraId: estId, _res: true }));
+}
+async function reconstruirResumen() {
+  const snap = await getDocs(collection(db, "liberaciones"));
+  const por = {};
+  snap.docs.forEach(d => { const r = d.data(); if (!r.subestructuraId || r.estado === "X") return; (por[r.subestructuraId] ||= {})[d.id] = compacto(r); });
+  const prev = await getDocs(collection(db, "resumen"));
+  const ops = [...Object.entries(por).map(([sid, m]) => ["set", sid, m]), ...prev.docs.filter(d => !por[d.id]).map(d => ["del", d.id])];
+  for (let i = 0; i < ops.length; i += 20) {
+    const b = writeBatch(db);
+    ops.slice(i, i + 20).forEach(([k, sid, m]) => k === "set" ? b.set(doc(db, "resumen", sid), { r: m, editadoEn: serverTimestamp() }) : b.delete(doc(db, "resumen", sid)));
+    await b.commit();
+  }
+  await setDoc(doc(db, "config", "general"), { resumenV: 1 }, { merge: true });
+  return snap.size;
+}
+// Abre la ficha completa de un registro: si no está en memoria, lo lee (1 lectura)
+function abrirFichaId(id) {
+  const local = [...S.mis, ...S.todos, ...S.bandeja.todos()].find(r => r.id === id);
+  if (local) { abrirFicha(local); return; }
+  getDoc(doc(db, "liberaciones", id)).then(d => { if (d.exists()) abrirFicha(fila(d)); else toast("Ese registro ya no existe.", "bad"); }).catch(e => toast("No se pudo abrir: " + e.message, "bad"));
+}
+function filaPanel(r) {
+  return `<button type="button" class="pfila" data-id="${esc(r.id)}"><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span><span class="pf-n mono">${esc(r.numero || "Sin número")}</span><span class="pf-t">${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}</span><span class="pf-k mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><span class="pf-f">${esc(fmtFecha(r.fechaCampo, false))}</span></button>`;
+}
+
+/* ---------- Rango visible de progresiva (compartido por el perfil y la lista) ---------- */
+function rangoPanel(sub, conPk, visRecs) {
+  const P = S.panel, vals = conPk.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
+  let fr0 = sub.pkMin, fr1 = sub.pkMax;
+  if (fr0 == null) fr0 = vals.length ? Math.min(...vals) : 0;
+  if (fr1 == null) fr1 = vals.length ? Math.max(...vals) : fr0 + 100;
+  if (fr1 - fr0 < 10) fr1 = fr0 + 10;
+  let x0 = fr0, x1 = fr1;
+  const d = numONull(P.pkDesde), h = numONull(P.pkHasta);
+  if (d != null || h != null) { if (d != null) x0 = d; if (h != null) x1 = h; if (x1 <= x0) x1 = x0 + 10; }
+  else if (P.zoom) {
+    const vv = visRecs.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
+    if (vv.length) { const a = Math.max(fr0, Math.min(...vv)), b = Math.min(fr1, Math.max(...vv)), m = Math.max(5, (b - a) * 0.04); x0 = Math.max(fr0, a - m); x1 = Math.min(fr1, b + m); if (x1 - x0 < 10) x1 = x0 + 10; }
+  }
+  return { x0, x1, fr0, fr1 };
+}
+
+/* ---------- Vista «Qué falta»: pensada para el celular del operario ---------- */
+function dibujarLista(sub, recs, bandas, totalBandas) {
+  const P = S.panel, box = $("#chart");
+  const conPk = recs.filter(r => r.pkInicio != null), sinPk = recs.length - conPk.length;
+  $("#pInfo").hidden = true; const fb = $("#pFalta"); if (fb) fb.hidden = true;
+  if (!bandas.length) {
+    box.innerHTML = `<div class="empty"><b>${S.panelCargando ? "Cargando…" : totalBandas ? "Todas las capas están ocultas" : "Sin liberaciones en este frente"}</b>${S.panelCargando ? "" : totalBandas ? "Elige qué capas ver en «Capas visibles»." : "Cuando se registren liberaciones aparecerán aquí."}</div>`;
+    $("#pNota").textContent = ""; return;
+  }
+  const { x0, x1 } = rangoPanel(sub, conPk, bandas.flatMap(b => b.rs));
+  const largo = x1 - x0, huecosT = [], X = v => (v - x0) / largo * 1000;
+  const filas = bandas.slice().reverse().map(b => {
+    const iv = b.rs.map(r => [r.pkInicio, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)]);
+    const naIv = b.na.map(x => [x.pkInicio, x.pkFin]);
+    const clip = q => [Math.max(x0, q[0]), Math.min(x1, q[1])];
+    const lib = unionLen(iv.map(clip)), base = Math.max(0.1, largo - unionLen(naIv.map(clip)));
+    const gs = huecos([...iv, ...naIv], x0, x1).map(([a, e]) => { huecosT.push({ a, b: e, nombre: b.nombre, key: b.key, banda: b }); return huecosT.length - 1; });
+    const falta = gs.reduce((t, k) => t + huecosT[k].b - huecosT[k].a, 0);
+    return { b, lib, pct: Math.min(100, Math.round(lib / base * 100)), gs, falta };
+  });
+  P._huecos = huecosT; P._exp ||= new Set();
+  const conFalta = filas.filter(f => f.gs.length), completas = filas.length - conFalta.length;
+  const vis = P.verCompletas ? filas : conFalta;
+  const totalFalta = conFalta.reduce((t, f) => t + f.falta, 0);
+  const tira = f => `<svg class="tira" viewBox="0 0 1000 20" preserveAspectRatio="none" aria-hidden="true">
+    ${f.gs.map(k => { const g = huecosT[k], xa = X(g.a), w = Math.max(10, X(g.b) - xa); return `<rect x="${(w === 10 ? xa - 4 : xa).toFixed(1)}" y="1" width="${w.toFixed(1)}" height="18" fill="#fde4dc" stroke="#d4553a" stroke-width="1.3" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>`; }).join("")}
+    ${f.b.na.map(x => { const a = Math.max(x0, x.pkInicio), e = Math.min(x1, x.pkFin); return e > a ? `<rect x="${X(a).toFixed(1)}" y="0" width="${(X(e) - X(a)).toFixed(1)}" height="20" fill="#c4ceca"/>` : ""; }).join("")}
+    ${f.b.rs.map(r => { const a = Math.max(x0, r.pkInicio), e = Math.min(x1, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)); if (e < x0 || a > x1) return ""; const xa = X(a), w = Math.max(6, X(e) - xa); return `<rect x="${xa.toFixed(1)}" y="0" width="${w.toFixed(1)}" height="20" fill="${COLOR[r.estado] || COLOR.PT}" stroke="#fff" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }).join("")}
+  </svg>`;
+  const pill = k => { const g = huecosT[k]; return `<button type="button" class="fpill mono" data-falta="${k}">${esc(rangoPk(g.a, g.b))} <span>${mts(g.b - g.a)}</span></button>`; };
+  box.innerHTML = `<div class="qf-res">${conFalta.length ? `<b>Falta liberar ${mts(totalFalta)}</b> en ${conFalta.length} ${conFalta.length === 1 ? "capa" : "capas"}` : "<b>Todo liberado</b> en las capas visibles"} <span class="muted">· PK ${fmtPk(x0)} a ${fmtPk(x1)}</span>${completas ? `<button type="button" class="mini" id="qfComp">${P.verCompletas ? "Ocultar" : "Ver"} ${completas} ${completas === 1 ? "completa" : "completas"}</button>` : ""}</div>
+  <div class="qflist">${vis.map(f => {
+    const exp = P._exp.has(f.b.key), lim = exp ? f.gs.length : 4;
+    return `<div class="qf ${f.gs.length ? "" : "ok"}">
+      <div class="qf-h"><div><b>${esc(f.b.capa ? f.b.corto : f.b.nombre)}</b>${f.b.capa ? `<span class="t">${esc(f.b.t.nombre)}</span>` : ""}</div><span class="qf-pct ${f.pct >= 100 ? "full" : ""}">${f.pct}%</span></div>
+      ${tira(f)}
+      <div class="qf-ej"><span>${fmtPk(x0)}</span><span>${fmtPk(x1)}</span></div>
+      ${f.gs.length ? `<div class="qf-f"><span class="qf-ft">Falta ${mts(f.falta)}:</span>${f.gs.slice(0, lim).map(pill).join("")}${f.gs.length > lim ? `<button type="button" class="mini qf-mas" data-exp="${esc(f.b.key)}">+${f.gs.length - lim} más</button>` : ""}</div>` : `<div class="qf-ok">Completa en este tramo</div>`}
+    </div>`; }).join("")}</div>`;
+  $("#pNota").textContent = (sinPk ? `+${sinPk} sin progresiva · ` : "") + (escribe() ? "Toca un tramo que falta para registrarlo con los datos ya llenos." : "Toca un tramo que falta para verlo en el perfil.");
+  $("#qfComp")?.addEventListener("click", () => { P.verCompletas = !P.verCompletas; actualizarPanel(); });
+  box.querySelector(".qflist").addEventListener("click", e => {
+    const m = e.target.closest("[data-exp]"); if (m) { P._exp.add(m.dataset.exp); actualizarPanel(); return; }
+    const p = e.target.closest("[data-falta]"); if (p) accionHueco(huecosT[+p.dataset.falta], sub);
+  });
+}
+function accionHueco(g, sub) {
+  const b = g.banda, t = b.t;
+  const cuerpo = `<dl class="kv" style="margin:4px 0 0"><dt>Frente</dt><dd>${esc(sub.nombre)}</dd><dt>Tipo</dt><dd>${esc(t.nombre)}</dd>${b.capa ? `<dt>Capa</dt><dd>${esc(b.capa)}${b.cota ? " · cota " + esc(b.cota) : ""}</dd>` : ""}<dt>Tramo</dt><dd class="mono">${esc(rangoPk(g.a, g.b))} · ${mts(g.b - g.a)}</dd></dl>`;
+  if (escribe()) dialogo("Falta liberar", cuerpo + `<p class="muted small" style="margin:10px 0 0">Se abre «Nueva» con estos datos; ajusta el PK si liberaste solo una parte.</p>`, () => irNuevaCon(sub, t, b.capa, g.a, g.b), "Registrar este tramo");
+  else dialogo("Falta liberar", cuerpo, () => { S.panel.vista = "perfil"; ls.set("lib.panelVista", "perfil"); pintarPanel(); }, "Ver en el perfil");
+}
+function irNuevaCon(sub, t, capa, a, b) {
+  const est = estDeSub(sub.id);
+  S.editando = null; S.form = formVacio();
+  Object.assign(S.form, { actividad: "LIB", estructuraId: est.id, subestructuraId: sub.id, elementoId: t.elementoId || "", tipoId: t.id, capa: capa || "", pkInicio: fmtPk(a), pkFin: fmtPk(b), sinPk: false,
+    descripcion: `Liberación de ${t.nombre.toLowerCase()}${capa ? " " + capa.toLowerCase() : ""} ${sub.nombre}` });
+  ir("nueva"); toast("Tramo cargado: revisa y guarda");
+}
+
+/* ---------- Capas escritas de forma pareja («capa 15», «15» → «Capa 15») ---------- */
+function normCapa(t, subId, tipoId) {
+  let s = String(t || "").trim().replace(/\s+/g, " "); if (!s) return "";
+  const m = s.match(/^(?:c(?:apa)?\.?\s*(?:n[°º.]?\s*)?)?(\d+)$/i); if (m) s = "Capa " + parseInt(m[1], 10);
+  const c = cfgTipo(subId, tipoId).capas.find(x => x.nombre.toLowerCase() === s.toLowerCase());
+  return c ? c.nombre : s;
+}
+
 /* ---------- Panel: perfil por capas y planta ---------- */
 const COLOR = { PT: "#8a99a6", EP: "#e0a030", EC: "#2e9a5c", OB: "#d4553a" };
-let unsubPanel = null;
+let unsubPanel = [];
 function subsConDatos() { const out = []; for (const e of S.listas.estructuras) for (const s of e.subs || []) if (s.activo !== false && e.activo !== false) out.push({ e, s }); return out; }
 function estDeSub(subId) { return S.listas.estructuras.find(e => (e.subs || []).some(s => s.id === subId)); }
 function suscribirPanel(estId) {
-  if (S.panelEst === estId && unsubPanel) return;
-  if (unsubPanel) unsubPanel();
+  if (S.panelEst === estId && unsubPanel.length) return;
+  unsubPanel.forEach(u => u()); unsubPanel = [];
   S.panelEst = estId; S.panelDatos = []; S.panelCargando = true;
-  unsubPanel = onSnapshot(query(collection(db, "liberaciones"), where("estructuraId", "==", estId)), { includeMetadataChanges: true }, snap => {
-    S.panelDatos = snap.docs.map(fila); S.panelCargando = false;
+  const subs = (L.est(estId)?.subs || []).map(s => s.id), porSub = {};
+  if (!subs.length) S.panelCargando = false;
+  subs.forEach(sid => unsubPanel.push(onSnapshot(doc(db, "resumen", sid), snap => {
+    porSub[sid] = desempacar(sid, estId, snap.exists() ? snap.data().r : {});
+    S.panelDatos = Object.values(porSub).flat(); S.panelCargando = Object.keys(porSub).length < subs.length;
     if (S.view === "panel") actualizarPanel();
-  }, e => { console.warn("panel", e); S.panelCargando = false; });
-  S.subs.push(() => { if (unsubPanel) { unsubPanel(); unsubPanel = null; S.panelEst = ""; } });
+  }, e => { console.warn("panel", e); porSub[sid] = []; S.panelCargando = false; })));
+  S.subs.push(() => { unsubPanel.forEach(u => u()); unsubPanel = []; S.panelEst = ""; });
 }
 const natural = (a, b) => String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" });
 const hoyStr = () => new Date().toDateString();
@@ -1211,22 +1415,25 @@ function pintarPanel() {
   if (!P.subId || !lista.some(x => x.s.id === P.subId)) { const g = ls.get("lib.panelSub", ""); P.subId = lista.some(x => x.s.id === g) ? g : lista[0].s.id; }
   suscribirPanel(estDeSub(P.subId).id);
   const planta = P.vista === "planta";
+  const movilP = innerWidth < 760, hayFiltro = !!(P.desde || P.hasta || P.st || P.topo || P.hoy);
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
   $("#view").innerHTML = `
   <h1 class="view-title">Panel de liberaciones</h1>
-  <p class="lead">Lo liberado y lo que falta liberar, capa por capa y por progresiva. Se actualiza al instante.</p>
+  <p class="lead" ${movilP ? "hidden" : ""}>Lo liberado y lo que falta liberar, capa por capa y por progresiva. Se actualiza al instante.</p>
   <div class="card filters">
     <div class="f wide"><label for="pSub">Frente</label><select id="pSub">${grupos}</select></div>
+    <details class="mfil" id="pMas" ${movilP && !hayFiltro ? "" : "open"}><summary>${hayFiltro ? "Filtros activos" : "Más filtros"}<span class="muted small"> · fechas, estado, topógrafo</span></summary><div class="mfil-g">
     <div class="f"><label for="pDesde">Desde</label><input id="pDesde" type="date" value="${esc(P.desde)}"></div>
     <div class="f"><label for="pHasta">Hasta</label><input id="pHasta" type="date" value="${esc(P.hasta)}"></div>
     <div class="f"><label for="pSt">Estado</label><select id="pSt"><option value="">Todos</option>${["PT", "EP", "EC", "OB"].map(k => `<option value="${k}" ${P.st === k ? "selected" : ""}>${ESTADOS[k]}</option>`).join("")}</select></div>
     <div class="f"><label for="pTopo">Topógrafo</label><select id="pTopo"><option value="">Todos</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${P.topo === t.id ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
     <div class="f wide" style="display:flex;align-items:flex-end;gap:8px"><button type="button" class="mini" id="pHoy" aria-pressed="${P.hoy}" style="flex:1;${P.hoy ? "background:var(--ink);color:#fff;border-color:var(--ink)" : ""}">Solo hoy</button><button type="button" class="mini" id="pLimpiar" style="flex:1">Limpiar filtros</button></div>
+    </div></details>
   </div>
-  <div class="stats" id="pStats"></div>
+  ${movilP ? "" : '<div class="stats" id="pStats"></div>'}
   <div class="card chartbox">
     <div class="chart-h">
-      <div class="tabs" style="margin:0" role="group" aria-label="Vista"><button type="button" data-vista="perfil" aria-pressed="${!planta}">Perfil por capas</button><button type="button" data-vista="planta" aria-pressed="${planta}">Planta</button></div>
+      <div class="tabs" style="margin:0" role="group" aria-label="Vista"><button type="button" data-vista="lista" aria-pressed="${P.vista === "lista"}">Qué falta</button><button type="button" data-vista="perfil" aria-pressed="${P.vista === "perfil"}">Perfil</button><button type="button" data-vista="planta" aria-pressed="${planta}">Planta</button></div>
       ${planta ? `<div class="pl-ctl"><select id="pTipoPl" aria-label="Tipo a mostrar en planta"></select><select id="pCapaPl" aria-label="Capa a mostrar en planta"></select></div>` : ""}
     </div>
     ${planta ? "" : `<div class="rango">
@@ -1237,7 +1444,7 @@ function pintarPanel() {
       <button type="button" class="mini" id="pPkX" ${P.pkDesde || P.pkHasta ? "" : "hidden"}>Todo el frente</button>
       <label class="tog"><input type="checkbox" id="pZoom" ${P.zoom ? "checked" : ""}>Acercar a lo registrado</label>
     </div>
-    <details class="capsel" id="pCapSel" ${ls.get("lib.capSelAbierto", innerWidth >= 760) ? "open" : ""}><summary><span id="pCapRes">Capas</span><span class="cap-acc"><button type="button" class="mini" data-cap="todas">Todas</button><button type="button" class="mini" data-cap="ninguna">Ninguna</button><button type="button" class="mini" data-cap="ultimas">Últimas 5</button></span></summary><div id="pCapChips"></div></details>`}
+    <details class="capsel" id="pCapSel" ${ls.get("lib.capSelAbierto", innerWidth >= 760) ? "open" : ""}><summary><span id="pCapRes">Capas</span><span class="muted small cap-hint">Toca para elegir qué capas ver</span></summary><div class="cap-acc" id="pCapAcc"><button type="button" class="mini" data-cap="todas">Todas</button><button type="button" class="mini" data-cap="ninguna">Ninguna</button><button type="button" class="mini" data-cap="ultimas">Últimas 5 por tipo</button></div><div id="pCapChips"></div></details>`}
     <h2 class="chart-t" id="pTit"></h2>
     <div class="legend"><span><i class="falta-i"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
     <div id="chart"></div>
@@ -1245,6 +1452,7 @@ function pintarPanel() {
     <p class="nota-g" id="pNota"></p>
   </div>
   ${planta ? "" : `<div class="card section falta-box" id="pFalta" hidden></div>`}
+  ${movilP ? '<div class="stats" id="pStats" style="margin-top:12px"></div>' : ""}
   <h2 class="sub" id="pListaT" style="font-size:16px;margin:18px 0 10px"></h2>
   <div class="list" id="pLista"></div>`;
   const set = (k, v) => { P[k] = v; actualizarPanel(); };
@@ -1256,7 +1464,7 @@ function pintarPanel() {
   $(".chart-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-vista]"); if (b) { P.vista = b.dataset.vista; ls.set("lib.panelVista", P.vista); pintarPanel(); } });
   $("#pHoy").addEventListener("click", () => { P.hoy = !P.hoy; pintarPanel(); });
   $("#pLimpiar").addEventListener("click", () => { Object.assign(P, { desde: "", hasta: "", st: "", topo: "", capa: "", hoy: false, pkDesde: "", pkHasta: "" }); pintarPanel(); });
-  $("#pLista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFicha(S.panelDatos.find(r => r.id === it.dataset.id)); });
+  $("#pLista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFichaId(it.dataset.id); });
   if (planta) {
     $("#pTipoPl").addEventListener("change", e => { P.tipoPl = e.target.value; P.capa = ""; actualizarPanel(); });
     $("#pCapaPl").addEventListener("change", e => set("capa", e.target.value));
@@ -1268,7 +1476,7 @@ function pintarPanel() {
     $("#pPkX").addEventListener("click", () => { P.pkDesde = ""; P.pkHasta = ""; $("#pPk1").value = ""; $("#pPk2").value = ""; $("#pPkX").hidden = true; actualizarPanel(); });
     $("#pZoom").addEventListener("change", e => { set("zoom", e.target.checked); ls.set("lib.panelZoom", e.target.checked); });
     $("#pCapSel").addEventListener("toggle", e => ls.set("lib.capSelAbierto", e.target.open));
-    $("#pCapSel summary").addEventListener("click", e => { const b = e.target.closest("[data-cap]"); if (!b) return; e.preventDefault(); accionCapas(b.dataset.cap); });
+    $("#pCapAcc").addEventListener("click", e => { const b = e.target.closest("[data-cap]"); if (b) accionCapas(b.dataset.cap); });
     $("#pCapChips").addEventListener("click", e => {
       const c = e.target.closest("[data-key]"); if (c) { alternarCapa(c.dataset.key); return; }
       const g = e.target.closest("[data-grupo]"); if (g) alternarGrupo(g.dataset.grupo);
@@ -1355,13 +1563,13 @@ function actualizarPanel() {
     pintarChips(bandas);
     $("#pTit").textContent = sub.nombre;
     const visibles = bandas.filter(esVisible);
-    dibujarPerfil(sub, recs, visibles, bandas.length);
+    if (P.vista === "lista") dibujarLista(sub, recs, visibles, bandas.length); else dibujarPerfil(sub, recs, visibles, bandas.length);
     const claves = new Set(visibles.map(b => b.key));
     lst = recs.filter(r => r.pkInicio == null || claves.has(bandaKey(r.tipoId, (r.capa || "").trim())) || claves.has(bandaKey(r.tipoId, "")) && !(r.capa || "").trim());
   }
   lst = lst.slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
   $("#pListaT").textContent = S.panelCargando ? "Cargando…" : `${lst.length} liberaciones con estos filtros`;
-  $("#pLista").innerHTML = lst.slice(0, 40).map(tarjeta).join("") + (lst.length > 40 ? `<p class="muted small" style="text-align:center">Se muestran las 40 más recientes.</p>` : "");
+  $("#pLista").innerHTML = lst.slice(0, 40).map(filaPanel).join("") + (lst.length > 40 ? `<p class="muted small" style="text-align:center;margin:8px 0">Se muestran las 40 más recientes.</p>` : "");
 }
 function paso(span, px) {
   const obj = span / Math.max(2, px / 78);
@@ -1389,7 +1597,7 @@ function conectarTramos(svg, attr) {
   svg.addEventListener("click", e => {
     const lab = e.target.closest("[data-oculta]"); if (lab) { const b = (S.panel._bandas || []).find(x => x.key === lab.dataset.oculta); alternarCapa(lab.dataset.oculta); if (b) toast(`${b.nombre} oculta. Vuelve a mostrarla en «Capas».`); return; }
     const h = e.target.closest("[data-gap]"); if (h) { const g = (S.panel._huecos || [])[+h.dataset.gap]; if (g) { const inf = $("#pInfo"); inf.hidden = false; inf.innerHTML = textoHueco(g).replace(/<br>/g, " · "); } return; }
-    const s = e.target.closest(attr); if (s) { tip.classList.remove("on"); abrirFicha(S.panelDatos.find(r => r.id === s.dataset.id)); }
+    const s = e.target.closest(attr); if (s) { tip.classList.remove("on"); abrirFichaId(s.dataset.id); }
   });
   svg.addEventListener("pointermove", e => {
     if (e.pointerType === "touch") { tip.classList.remove("on"); return; }
@@ -1414,19 +1622,8 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
   const P = S.panel, box = $("#chart"); const W = Math.max(300, box.clientWidth), movil = W < 560;
   const conPk = recs.filter(r => r.pkInicio != null), sinPk = recs.length - conPk.length;
   const visRecs = bandas.flatMap(b => b.rs);
-  const vals = conPk.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
   // Rango del frente: el que se definió en Ajustes → Lugares; solo si falta, se toma de los registros
-  let fr0 = sub.pkMin, fr1 = sub.pkMax;
-  if (fr0 == null) fr0 = vals.length ? Math.min(...vals) : 0;
-  if (fr1 == null) fr1 = vals.length ? Math.max(...vals) : fr0 + 100;
-  if (fr1 - fr0 < 10) fr1 = fr0 + 10;
-  let x0 = fr0, x1 = fr1;
-  const d = numONull(P.pkDesde), h = numONull(P.pkHasta);
-  if (d != null || h != null) { if (d != null) x0 = d; if (h != null) x1 = h; if (x1 <= x0) x1 = x0 + 10; }
-  else if (P.zoom) {
-    const vv = visRecs.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
-    if (vv.length) { const a = Math.max(fr0, Math.min(...vv)), b = Math.min(fr1, Math.max(...vv)), m = Math.max(5, (b - a) * 0.04); x0 = Math.max(fr0, a - m); x1 = Math.min(fr1, b + m); if (x1 - x0 < 10) x1 = x0 + 10; }
-  }
+  const { x0, x1, fr0, fr1 } = rangoPanel(sub, conPk, visRecs);
   const fueraFrente = conPk.filter(r => (r.pkFin ?? r.pkInicio) < fr0 || r.pkInicio > fr1).length;
   const ocultosTipo = conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)).length;
   const fueraInfo = $("#pFalta");
@@ -1613,6 +1810,7 @@ async function generarCodigo(r, nombre) {
       const n = (c.exists() ? c.data().ultimo || 0 : 0) + 1, numero = fmtNumero(n);
       tx.set(cRef, { ultimo: n }, { merge: true });
       tx.update(lRef, { numero, estado: "EP", nombreLiberacion: nombre || d.nombreLiberacion || "", generadoPor: S.perfil?.nombre || S.email, fechaLiberacion: serverTimestamp(), notaObservacion: "", editadoEn: serverTimestamp(), editadoPor: S.email });
+      resumenEn(tx, r.id, { ...d, numero, estado: "EP" });
       tx.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: d.estado, a: "EP", usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "Código " + numero + " generado" });
       return numero;
     });
@@ -1620,9 +1818,10 @@ async function generarCodigo(r, nombre) {
 }
 function cambiarEstado(ids, datos, a, nota) {
   const b = writeBatch(db);
-  const regs = ids.map(id => S.bandeja.todos().find(r => r.id === id) || S.panelDatos.find(r => r.id === id) || S.todos.find(r => r.id === id)).filter(Boolean);
+  const regs = ids.map(id => S.bandeja.todos().find(r => r.id === id) || S.todos.find(r => r.id === id) || S.mis.find(r => r.id === id) || S._ficha?.id === id && S._ficha || S.panelDatos.find(r => r.id === id)).filter(Boolean);
   regs.forEach(r => {
     b.update(doc(db, "liberaciones", r.id), { ...datos, estado: a, editadoEn: serverTimestamp(), editadoPor: S.email });
+    resumenEn(b, r.id, { ...r, ...datos, estado: a });
     b.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: r.estado, a, usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: nota || "" });
   });
   return b.commit().then(() => regs.length).catch(e => { toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return 0; });
@@ -1645,7 +1844,7 @@ function observar(r) {
 function entregar(ids) {
   const n = ids.length;
   dialogo(n === 1 ? "Entregar a Calidad" : `Entregar ${n} a Calidad`, `<div class="grid"><div class="f"><label for="dFe">Fecha de entrega</label><input id="dFe" name="fecha" type="date" value="${hoyISO()}" required></div><div class="f"><label for="dCargo">N° de cargo <span class="opt">(opcional)</span></label><input id="dCargo" name="cargo" placeholder="Ej. 2025-11-06-01"></div></div>`,
-    o => { if (!o.fecha) return false; cambiarEstado(ids, { fechaEntrega: Timestamp.fromDate(new Date(o.fecha + "T12:00:00")), numeroCargo: o.cargo }, "EC", o.cargo ? "Cargo " + o.cargo : "").then(k => { if (k) { toast(`${k} ${k === 1 ? "entregada" : "entregadas"} a Calidad`); S.bandeja.sel.clear(); if (!$("#sheet").hidden) cerrarFicha(); } }); }, "Entregar");
+    o => { if (!o.fecha) return false; cambiarEstado(ids, { fechaEntrega: Timestamp.fromDate(new Date(o.fecha + "T12:00:00")), numeroCargo: o.cargo }, "EC", o.cargo ? "Cargo " + o.cargo : "").then(k => { if (k) { toast(`${k} ${k === 1 ? "entregada" : "entregadas"} a Calidad`); S.bandeja.sel.clear(); S.bandeja.epHist = S.bandeja.epHist.filter(r => !ids.includes(r.id)); if (S.view === "bandeja") pintarBandeja(); if (!$("#sheet").hidden) cerrarFicha(); } }); }, "Entregar");
 }
 function reabrir(r) { cambiarEstado([r.id], { notaObservacion: "" }, "PT", "Devuelta a pendiente").then(k => { if (k) toast("Devuelta a pendientes"); }); }
 
@@ -1653,19 +1852,19 @@ function suscribirBandeja() {
   S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "in", ["PT", "OB"])), { includeMetadataChanges: true }, snap => {
     S.bandeja.pend = snap.docs.map(fila).filter(r => r.actividad === "LIB"); pintarNav(); if (S.view === "bandeja") pintarBandeja();
   }, e => console.warn("bandeja", e)));
-  S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "==", "EP")), { includeMetadataChanges: true }, snap => {
+  S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "==", "EP"), where("origen", "==", "app")), { includeMetadataChanges: true }, snap => {
     S.bandeja.ep = snap.docs.map(fila); if (S.view === "bandeja") pintarBandeja();
   }, e => console.warn("bandeja ep", e)));
   getDoc(doc(db, "config", "general")).then(d => { if (d.exists()) S.config = d.data(); }).catch(() => {});
 }
 function pintarBandeja() {
   const B = S.bandeja, t = B.tab;
-  const fuente = t === "EP" ? B.ep : B.pend.filter(r => r.estado === t);
+  const fuente = t === "EP" ? [...B.ep, ...B.epHist] : B.pend.filter(r => r.estado === t);
   const q = B.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const vis = fuente.filter(r => { if (!q.length) return true; const s = textoBusqueda(r); return q.every(x => s.includes(x)); })
     .sort((a, b) => (toDate(t === "EP" ? b.fechaLiberacion || b.fechaCampo : a.fechaCampo)?.getTime() || 0) - (toDate(t === "EP" ? a.fechaLiberacion || a.fechaCampo : b.fechaCampo)?.getTime() || 0));
   B.sel = new Set([...B.sel].filter(id => fuente.some(r => r.id === id)));
-  const nPT = B.pend.filter(r => r.estado === "PT").length, nOB = B.pend.length - nPT, nEP = B.ep.length, ns = B.sel.size;
+  const nPT = B.pend.filter(r => r.estado === "PT").length, nOB = B.pend.length - nPT, nEP = B.ep.length + B.epHist.length, ns = B.sel.size;
   const lim = B.ver || 60;
   $("#view").innerHTML = `
   <h1 class="view-title">Bandeja de gabinete</h1>
@@ -1676,7 +1875,11 @@ function pintarBandeja() {
     ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
   ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
   <div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>
-  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}`;
+  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}
+  ${t === "EP" && !B.epHistOk ? `<button class="btn sec more" id="bHist" type="button">Cargar también las del histórico sin entregar</button>` : ""}`;
+  $("#bHist")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Cargando…";
+    try { const sn = await getDocs(query(collection(db, "liberaciones"), where("estado", "==", "EP"), where("origen", "==", "excel"))); B.epHist = sn.docs.map(fila); B.epHistOk = true; pintarBandeja(); toast(`${B.epHist.length.toLocaleString("es-PE")} del histórico cargadas`); }
+    catch (er) { toast("No se pudo cargar: " + er.message, "bad"); e.target.disabled = false; } });
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-bt]"); if (b) { B.tab = b.dataset.bt; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
   const bq = $("#bq"); bq.addEventListener("input", () => { B.q = bq.value; const pos = bq.selectionStart; pintarBandeja(); const n = $("#bq"); n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} });
   const todo = (on) => { vis.slice(0, lim).forEach(r => on ? B.sel.add(r.id) : B.sel.delete(r.id)); pintarBandeja(); };
@@ -2041,7 +2244,9 @@ function ajHistorico() {
     <div class="prog" id="hProg" hidden><i></i></div><p class="small muted" id="hEst" style="margin:0 0 8px"></p>
   </div>
   <div class="card section"><h2>Quitar lo importado</h2><p class="muted small" style="margin:0 0 10px">Borra solo los registros que vinieron del Excel; lo registrado en la app no se toca.</p>
-    <div class="actions" style="margin:0 0 10px"><button type="button" class="btn warn" id="hBorrar">Quitar registros importados</button></div></div>`;
+    <div class="actions" style="margin:0 0 10px"><button type="button" class="btn warn" id="hBorrar">Quitar registros importados</button></div></div>
+  <div class="card section"><h2>Resumen del panel</h2><p class="muted small" style="margin:0 0 10px">El panel lee un resumen por frente para gastar pocas lecturas. Se actualiza solo con cada registro; usa este botón solo si ves algo raro en el panel.</p>
+    <div class="actions" style="margin:0 0 10px"><button type="button" class="btn sec" id="hRes2">Reconstruir resumen</button></div></div>`;
   $("#hFile").addEventListener("change", async e => {
     const f = e.target.files[0]; e.target.value = ""; if (!f) return;
     try {
@@ -2052,6 +2257,7 @@ function ajHistorico() {
   });
   $("#hImp").addEventListener("click", importarHist);
   $("#hBorrar").addEventListener("click", borrarHist);
+  $("#hRes2").addEventListener("click", async e => { const b = e.target; b.disabled = true; b.textContent = "Reconstruyendo…"; try { const n = await reconstruirResumen(); toast(`Resumen listo: ${n.toLocaleString("es-PE")} registros`); } catch (er) { toast("No se pudo: " + er.message, "bad"); } b.disabled = false; b.textContent = "Reconstruir resumen"; });
 }
 function resumenHist(d) {
   const c = {}; d.registros.forEach(r => { c[r.estado] = (c[r.estado] || 0) + 1; });
@@ -2068,13 +2274,15 @@ async function importarHist() {
   const regs = d.registros, LOTE = 400;
   try {
     for (let i = 0; i < regs.length; i += LOTE) {
-      const b = writeBatch(db);
+      const b = writeBatch(db), res = {};
       regs.slice(i, i + LOTE).forEach(r => {
+        if (r.subestructuraId) (res[r.subestructuraId] ||= {})[r.id] = compacto({ ...r, fechaCampo: r.fechaCampo || 0 });
         const { id, fechaCampo, fechaLiberacion, fechaEntrega, ...resto } = r;
         b.set(doc(db, "liberaciones", id), { ...resto, fechaCampo: ts(fechaCampo), fechaLiberacion: ts(fechaLiberacion), fechaEntrega: ts(fechaEntrega),
           nombreLiberacion: "", notaObservacion: "", linksCsv: [], linksFotos: [], archivos: [],
           creadoEn: ts(fechaCampo) || serverTimestamp(), creadoPor: "importado", editadoEn: serverTimestamp(), editadoPor: S.email, origen: "excel" });
       });
+      Object.entries(res).forEach(([sid, m]) => b.set(doc(db, "resumen", sid), { r: m }, { merge: true }));
       await b.commit();
       const hechos = Math.min(regs.length, i + LOTE);
       prog.firstElementChild.style.width = (hechos / regs.length * 100).toFixed(1) + "%";
@@ -2098,6 +2306,7 @@ async function borrarHist() {
     const snap = await getDocs(query(collection(db, "liberaciones"), where("origen", "==", "excel")));
     const ids = snap.docs.map(d => d.id);
     for (let i = 0; i < ids.length; i += 400) { const b = writeBatch(db); ids.slice(i, i + 400).forEach(id => b.delete(doc(db, "liberaciones", id))); await b.commit(); }
+    btn.textContent = "Actualizando el panel…"; await reconstruirResumen();
     toast(`${ids.length.toLocaleString("es-PE")} registros importados quitados`);
   } catch (e) { toast("No se pudo quitar: " + e.message, "bad"); }
   btn.disabled = false; delete btn.dataset.ok; btn.textContent = "Quitar registros importados";

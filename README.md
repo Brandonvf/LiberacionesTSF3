@@ -6,4 +6,4 @@ Registro de liberaciones topográficas de la presa de relaves: los topógrafos r
 - `sw.js`: permite abrir la app sin señal.
 - `firestore.rules`: reglas de seguridad. Se copian en Firebase → Firestore Database → Reglas → Publicar.
 
-Incluye: acceso con Google y roles, registro en campo sin señal con CSV y fotos, mis registros, ficha con historial, panel con perfil por capas y planta (eje por frente), y ajustes (usuarios, lugares con ejes, capas y tramos que no se liberan, topógrafos, tipos).
+Incluye: acceso con Google y roles (operario, topógrafo, gabinete, jefe, administrador), registro en campo sin señal con CSV y fotos, bandeja de gabinete con código SKT-TOP único, panel («Qué falta», perfil por capas y planta) que lee un resumen por frente, ajustes y exportación a CSV.
