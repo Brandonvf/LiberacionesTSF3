@@ -155,6 +155,34 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .srow.head{border-top:0;padding:0 0 4px;font-size:12px;font-weight:700;color:var(--muted)}
 .srow .mono{font-size:14px}
 .trow{display:grid;grid-template-columns:1fr 150px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.cnt{background:var(--surface-2);color:var(--muted);border-radius:999px;padding:1px 9px;font-size:12.5px;margin-left:4px}
+.cap-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.cap-tools input{flex:1;min-width:160px}
+.cap-bulk{display:none;align-items:center;gap:6px;flex-wrap:wrap;background:var(--ink);color:#fff;border-radius:14px;padding:6px 8px 6px 14px;margin-bottom:8px;font-size:13px}
+.cap-bulk.on{display:flex;animation:entra .2s both}
+.cap-bulk .mini{background:#2b3a36;color:#fff;border-color:#3d4f4a}
+.cap-bulk .warn-mini{background:var(--ob);border-color:var(--ob)}
+.warn-mini{color:var(--ob)}
+.cota-serie{display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:var(--accent-soft);border-radius:14px;padding:8px 10px;margin-bottom:8px}
+.cota-serie input{width:90px}
+.ctab{display:flex;flex-direction:column;max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
+.ct-row{display:grid;grid-template-columns:34px 1fr 110px 86px 34px;gap:6px;align-items:center;padding:5px 8px;border-top:1px solid var(--line)}
+.ct-row:first-child{border-top:0}
+.ct-row.head{position:sticky;top:0;background:var(--surface);z-index:1;font-size:12px;font-weight:700;color:var(--muted)}
+.ct-row.sel{background:#eef7f5}
+.ct-row.oc input{color:var(--muted)}
+.ct-row input:not([type=checkbox]){min-height:36px;padding:6px 10px;font-size:14px}
+.ck{display:grid;place-items:center}
+.ck input{width:19px;height:19px;accent-color:var(--accent)}
+.vis-t{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;font-size:12px;font-weight:800;min-height:30px;color:var(--muted)}
+.vis-t[aria-pressed="true"]{background:var(--accent-soft);border-color:#8fc4ba;color:var(--accent-strong)}
+.x-btn{border:0;background:var(--surface-2);border-radius:999px;width:30px;height:30px;font-weight:800;color:var(--muted)}
+.x-btn:hover{background:var(--ob-bg);color:var(--ob)}
+.cap-add{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:4px 0 8px}
+.cap-add .flabel{font-weight:800;font-size:13px;margin-bottom:6px}
+.cap-add .inrow{align-items:center;gap:6px}
+.cap-add .inrow .mini{min-height:40px}
+@media (max-width:720px){.cap-add{grid-template-columns:1fr}.ct-row{grid-template-columns:28px 1fr 76px 64px 30px;gap:5px;padding:5px 6px}.ct-row input:not([type=checkbox]){padding:6px 8px}.vis-t{font-size:11.5px}}
 .crow{display:grid;grid-template-columns:1fr 130px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .crow.head,.nrow.head{border-top:0;padding:0 0 4px;font-size:12px;font-weight:700;color:var(--muted)}
 .nrow{display:grid;grid-template-columns:150px 100px 100px 90px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
@@ -231,6 +259,54 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 #chart path.tramo{cursor:pointer}
 #chart path.tramo:hover{opacity:.75}
 .chart-t{font-family:var(--f-disp);font-size:16px;font-weight:800;margin:10px 0 0}
+.pl-ctl{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.pl-ctl select{border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;min-height:40px;background:var(--surface);font-size:14px;max-width:100%}
+.rango{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0 4px}
+.rango .rl{font-weight:800;font-size:13px}
+.rango input{width:96px;border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;min-height:40px;font-size:14px;background:var(--surface)}
+.rango input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.rango .mini{min-height:38px;padding:0 12px;font-size:12.5px}
+.rango .tog{margin-left:auto}
+@media (max-width:560px){.rango .tog{margin-left:0;width:100%}}
+.capsel{margin:10px 0 2px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.capsel summary{list-style:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px 8px 14px;cursor:pointer;font-size:13.5px;font-weight:700}
+.capsel summary::-webkit-details-marker{display:none}
+.capsel summary::before{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s;margin-right:2px}
+.capsel[open] summary::before{transform:rotate(45deg)}
+.capsel summary b{font-family:var(--f-disp);color:var(--accent-strong)}
+.cap-acc{display:flex;gap:6px;margin-left:auto}
+.cap-acc .mini{min-height:32px;padding:0 11px;font-size:12px}
+#pCapChips{padding:2px 12px 12px;display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto}
+.cgrp{display:flex;flex-direction:column;gap:6px}
+.cgrp-t{align-self:flex-start;border:0;background:transparent;font-weight:800;font-size:13px;font-family:var(--f-disp);color:var(--ink);padding:2px 0;display:flex;gap:6px;align-items:center}
+.cgrp-t::before{content:"";width:16px;height:16px;border-radius:5px;border:2px solid var(--accent);background:var(--accent);box-shadow:inset 0 0 0 2px #fff}
+.cgrp-t[aria-pressed="false"]::before{background:transparent;box-shadow:none;border-color:var(--line)}
+.cgrp-t span{color:var(--muted);font-weight:700;font-size:12px}
+.cchips{display:flex;flex-wrap:wrap;gap:5px;padding-left:22px}
+.cchip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:700;color:var(--muted);transition:all .15s;position:relative}
+.cchip.con::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--ec)}
+.cchip[aria-pressed="true"]{background:var(--accent-soft);border-color:#8fc4ba;color:var(--accent-strong)}
+.legend i.falta-i{background:repeating-linear-gradient(45deg,#fdf3f0 0 3px,#f0c4b8 3px 5px);border:1.2px dashed #d4553a}
+#chart rect.hueco{cursor:pointer}
+#chart rect.hueco:hover{stroke-width:2}
+#chart rect.hueco.flash{animation:flash 1.4s ease 2}
+@keyframes flash{0%,100%{stroke-width:1.2}40%{stroke-width:4;stroke:#b8321a}}
+#chart .lab-hit{cursor:pointer}
+#chart .lab-hit:hover .lab2{fill:var(--ob);text-decoration:line-through}
+#chart .pct.full{fill:var(--ec)}
+.pinfo{margin:8px 0 0;background:var(--ob-bg);color:var(--ob);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:700}
+.falta-box h2{flex-wrap:wrap}
+.ftab{display:flex;flex-direction:column}
+.frow{display:grid;grid-template-columns:200px 90px 1fr;gap:10px;align-items:start;padding:9px 0;border-top:1px solid var(--line)}
+.frow:first-child{border-top:0}
+.fcap b{display:block;font-size:14px}
+.fcap span{font-size:12px;color:var(--muted)}
+.fm{font-weight:500;color:var(--ob);font-size:14px;padding-top:1px}
+.fpills{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.fpill{border:1.2px dashed #d4553a;background:#fdf3f0;color:#8c2a16;border-radius:999px;padding:3px 10px;font-size:12px}
+.fpill span{color:#b8321a;opacity:.75;margin-left:2px}
+.fpill:hover{background:#fbe3dc}
+@media (max-width:560px){.frow{grid-template-columns:1fr auto}.fpills{grid-column:1/-1}}
 .legend i.nolib{background:#c4ceca;border:1px solid #aebab5}
 #chart .nolib-t{font:800 10.5px var(--f-body);fill:#56655f;letter-spacing:.02em}
 .legend i.hatch{background:repeating-linear-gradient(45deg,#f4f8f7 0 3px,#c9d8d3 3px 5px);border:1px solid #c9d8d3}
@@ -443,7 +519,7 @@ const S = {
   editando: null, form: null, limiteTodos: 300, verTodos: 60,
   subs: [], dentro: false,
   aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {},
-  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "" }, panelDatos: [], panelSub: ""
+  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "" }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -1097,16 +1173,17 @@ function filtrarPanel(conFiltros = true, subId = S.panel.subId) {
     if (d0 && t < d0) return false; if (d1 && t > d1) return false;
     if (P.st && r.estado !== P.st) return false;
     if (P.topo && r.topografoId !== P.topo) return false;
-    if (P.capa && (r.capa || "").trim() !== P.capa) return false;
     if (P.hoy && toDate(r.fechaCampo)?.toDateString() !== hoyStr()) return false;
     return true;
   });
 }
 function pintarPanel() {
   const P = S.panel, lista = subsConDatos();
+  P._animado = "";
   if (!lista.length) { $("#view").innerHTML = '<h1 class="view-title">Panel</h1><div class="card empty"><b>Cargando listas…</b></div>'; return; }
   if (!P.subId || !lista.some(x => x.s.id === P.subId)) { const g = ls.get("lib.panelSub", ""); P.subId = lista.some(x => x.s.id === g) ? g : lista[0].s.id; }
   suscribirPanel(estDeSub(P.subId).id);
+  const planta = P.vista === "planta";
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
   $("#view").innerHTML = `
   <h1 class="view-title">Panel de liberaciones</h1>
@@ -1117,67 +1194,145 @@ function pintarPanel() {
     <div class="f"><label for="pHasta">Hasta</label><input id="pHasta" type="date" value="${esc(P.hasta)}"></div>
     <div class="f"><label for="pSt">Estado</label><select id="pSt"><option value="">Todos</option>${["PT", "EP", "EC", "OB"].map(k => `<option value="${k}" ${P.st === k ? "selected" : ""}>${ESTADOS[k]}</option>`).join("")}</select></div>
     <div class="f"><label for="pTopo">Topógrafo</label><select id="pTopo"><option value="">Todos</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${P.topo === t.id ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
-    <div class="f"><label for="pCapa">Capa</label><select id="pCapa"></select></div>
-    <div class="f" style="display:flex;align-items:flex-end;gap:8px"><button type="button" class="mini" id="pHoy" aria-pressed="${P.hoy}" style="flex:1;${P.hoy ? "background:var(--ink);color:#fff;border-color:var(--ink)" : ""}">Hoy</button><button type="button" class="mini" id="pLimpiar" style="flex:1">Limpiar</button></div>
+    <div class="f wide" style="display:flex;align-items:flex-end;gap:8px"><button type="button" class="mini" id="pHoy" aria-pressed="${P.hoy}" style="flex:1;${P.hoy ? "background:var(--ink);color:#fff;border-color:var(--ink)" : ""}">Solo hoy</button><button type="button" class="mini" id="pLimpiar" style="flex:1">Limpiar filtros</button></div>
   </div>
   <div class="stats" id="pStats"></div>
   <div class="card chartbox">
     <div class="chart-h">
-      <div class="tabs" style="margin:0" role="group" aria-label="Vista"><button type="button" data-vista="perfil" aria-pressed="${P.vista !== "planta"}">Perfil por capas</button><button type="button" data-vista="planta" aria-pressed="${P.vista === "planta"}">Planta</button></div>
-      <span style="margin-left:auto"></span>
-      <label class="tog" id="tZoom" ${P.vista === "planta" ? "hidden" : ""}><input type="checkbox" id="pZoom" ${P.zoom ? "checked" : ""}>Acercar a lo registrado</label>
-      <label class="tog" id="tTodas" ${P.vista === "planta" ? "hidden" : ""}><input type="checkbox" id="pTodas" ${P.todas ? "checked" : ""}>Capas sin registros</label>
-      <div class="f" id="tTipo" ${P.vista === "planta" ? "" : "hidden"} style="min-width:220px"><select id="pTipoPl" aria-label="Capa a mostrar en planta"></select></div>
+      <div class="tabs" style="margin:0" role="group" aria-label="Vista"><button type="button" data-vista="perfil" aria-pressed="${!planta}">Perfil por capas</button><button type="button" data-vista="planta" aria-pressed="${planta}">Planta</button></div>
+      ${planta ? `<div class="pl-ctl"><select id="pTipoPl" aria-label="Tipo a mostrar en planta"></select><select id="pCapaPl" aria-label="Capa a mostrar en planta"></select></div>` : ""}
     </div>
+    ${planta ? "" : `<div class="rango">
+      <span class="rl">Progresiva</span>
+      <input id="pPk1" class="mono" inputmode="decimal" placeholder="desde" value="${esc(P.pkDesde)}" aria-label="PK desde">
+      <span class="muted">a</span>
+      <input id="pPk2" class="mono" inputmode="decimal" placeholder="hasta" value="${esc(P.pkHasta)}" aria-label="PK hasta">
+      <button type="button" class="mini" id="pPkX" ${P.pkDesde || P.pkHasta ? "" : "hidden"}>Todo el frente</button>
+      <label class="tog"><input type="checkbox" id="pZoom" ${P.zoom ? "checked" : ""}>Acercar a lo registrado</label>
+    </div>
+    <details class="capsel" id="pCapSel" ${ls.get("lib.capSelAbierto", innerWidth >= 760) ? "open" : ""}><summary><span id="pCapRes">Capas</span><span class="cap-acc"><button type="button" class="mini" data-cap="todas">Todas</button><button type="button" class="mini" data-cap="ninguna">Ninguna</button><button type="button" class="mini" data-cap="ultimas">Últimas 5</button></span></summary><div id="pCapChips"></div></details>`}
     <h2 class="chart-t" id="pTit"></h2>
-    <div class="legend"><span><i class="hatch"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
+    <div class="legend"><span><i class="falta-i"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
     <div id="chart"></div>
+    <div class="pinfo" id="pInfo" hidden></div>
     <p class="nota-g" id="pNota"></p>
   </div>
+  ${planta ? "" : `<div class="card section falta-box" id="pFalta" hidden></div>`}
   <h2 class="sub" id="pListaT" style="font-size:16px;margin:18px 0 10px"></h2>
   <div class="list" id="pLista"></div>`;
   const set = (k, v) => { P[k] = v; actualizarPanel(); };
-  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.capa = ""; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); actualizarPanel(); });
+  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.capa = ""; P.pkDesde = ""; P.pkHasta = ""; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); pintarPanel(); });
   $("#pDesde").addEventListener("change", e => set("desde", e.target.value));
   $("#pHasta").addEventListener("change", e => set("hasta", e.target.value));
   $("#pSt").addEventListener("change", e => set("st", e.target.value));
   $("#pTopo").addEventListener("change", e => set("topo", e.target.value));
-  $("#pCapa").addEventListener("change", e => set("capa", e.target.value));
-  $("#pTodas").addEventListener("change", e => set("todas", e.target.checked));
-  $("#pZoom").addEventListener("change", e => { set("zoom", e.target.checked); ls.set("lib.panelZoom", e.target.checked); });
-  $("#pTipoPl").addEventListener("change", e => set("tipoPl", e.target.value));
   $(".chart-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-vista]"); if (b) { P.vista = b.dataset.vista; ls.set("lib.panelVista", P.vista); pintarPanel(); } });
   $("#pHoy").addEventListener("click", () => { P.hoy = !P.hoy; pintarPanel(); });
-  $("#pLimpiar").addEventListener("click", () => { Object.assign(P, { desde: "", hasta: "", st: "", topo: "", capa: "", hoy: false }); pintarPanel(); });
+  $("#pLimpiar").addEventListener("click", () => { Object.assign(P, { desde: "", hasta: "", st: "", topo: "", capa: "", hoy: false, pkDesde: "", pkHasta: "" }); pintarPanel(); });
   $("#pLista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFicha(S.panelDatos.find(r => r.id === it.dataset.id)); });
+  if (planta) {
+    $("#pTipoPl").addEventListener("change", e => { P.tipoPl = e.target.value; P.capa = ""; actualizarPanel(); });
+    $("#pCapaPl").addEventListener("change", e => set("capa", e.target.value));
+  } else {
+    const pk = (k, el) => { const t = el.value.trim(); if (t && numONull(t) == null) { toast("Escribe el PK como 0+020 o 20.", "bad"); return; } if (t) el.value = fmtPk(numONull(t)); P[k] = t ? el.value : ""; $("#pPkX").hidden = !(P.pkDesde || P.pkHasta); actualizarPanel(); };
+    $("#pPk1").addEventListener("change", e => pk("pkDesde", e.target));
+    $("#pPk2").addEventListener("change", e => pk("pkHasta", e.target));
+    for (const id of ["#pPk1", "#pPk2"]) $(id).addEventListener("keydown", e => { if (e.key === "Enter") e.target.blur(); });
+    $("#pPkX").addEventListener("click", () => { P.pkDesde = ""; P.pkHasta = ""; $("#pPk1").value = ""; $("#pPk2").value = ""; $("#pPkX").hidden = true; actualizarPanel(); });
+    $("#pZoom").addEventListener("change", e => { set("zoom", e.target.checked); ls.set("lib.panelZoom", e.target.checked); });
+    $("#pCapSel").addEventListener("toggle", e => ls.set("lib.capSelAbierto", e.target.open));
+    $("#pCapSel summary").addEventListener("click", e => { const b = e.target.closest("[data-cap]"); if (!b) return; e.preventDefault(); accionCapas(b.dataset.cap); });
+    $("#pCapChips").addEventListener("click", e => {
+      const c = e.target.closest("[data-key]"); if (c) { alternarCapa(c.dataset.key); return; }
+      const g = e.target.closest("[data-grupo]"); if (g) alternarGrupo(g.dataset.grupo);
+    });
+    $("#pFalta").addEventListener("click", e => { const b = e.target.closest("[data-gap]"); if (b) resaltarHueco(b.dataset.gap); });
+  }
   actualizarPanel();
 }
+
+/* --- Capas visibles: cada frente recuerda qué capas se ven --- */
+const bandaKey = (tipoId, capa) => tipoId + "|" + (capa || "");
+function visCapas() { const P = S.panel; if (!P._vis || P._visSub !== P.subId) { P._vis = ls.get("lib.vis." + P.subId, {}); P._visSub = P.subId; } return P._vis; }
+function guardarVis() { ls.set("lib.vis." + S.panel.subId, S.panel._vis || {}); }
+function esVisible(b) { const v = visCapas(); return b.key in v ? v[b.key] : !b.oculta; }
+function alternarCapa(key) { const b = (S.panel._bandas || []).find(x => x.key === key); if (!b) return; visCapas()[key] = !esVisible(b); guardarVis(); actualizarPanel(); }
+function alternarGrupo(tipoId) {
+  const bs = (S.panel._bandas || []).filter(b => b.t.id === tipoId); const alguno = bs.some(esVisible);
+  bs.forEach(b => { visCapas()[b.key] = !alguno; }); guardarVis(); actualizarPanel();
+}
+function accionCapas(acc) {
+  const bs = S.panel._bandas || [], v = visCapas();
+  if (acc === "todas") bs.forEach(b => { v[b.key] = true; });
+  if (acc === "ninguna") bs.forEach(b => { v[b.key] = false; });
+  if (acc === "ultimas") {
+    const porTipo = new Map(); bs.forEach(b => { if (!porTipo.has(b.t.id)) porTipo.set(b.t.id, []); porTipo.get(b.t.id).push(b); });
+    porTipo.forEach(arr => { const conCapa = arr.filter(b => b.capa); const ult = new Set(conCapa.slice(-5).map(b => b.key)); arr.forEach(b => { v[b.key] = !b.capa ? true : ult.has(b.key); }); });
+  }
+  guardarVis(); actualizarPanel();
+}
+
+// Una banda por tipo; si el tipo tiene capas (definidas o registradas), una banda por capa. Orden: de la primera construida a la última.
+function construirBandas(sub, recs) {
+  const porTipo = new Map(); recs.filter(r => r.pkInicio != null).forEach(r => { if (!porTipo.has(r.tipoId)) porTipo.set(r.tipoId, []); porTipo.get(r.tipoId).push(r); });
+  const bandas = [];
+  S.listas.tipos.filter(t => t.enGrafico).forEach(t => {
+    const rs = porTipo.get(t.id) || [], cfg = cfgTipo(sub.id, t.id);
+    if (!(rs.length || cfg.capas.length || cfg.noAplica.length || S.panel.todas)) return;
+    const capas = [...new Set([...cfg.capas.map(c => c.nombre.trim()), ...rs.map(r => (r.capa || "").trim())].filter(Boolean))].sort(natural);
+    const sinCapa = rs.filter(r => !(r.capa || "").trim());
+    if (sinCapa.length || !capas.length) bandas.push({ key: bandaKey(t.id, ""), t, capa: "", nombre: capas.length ? `${t.nombre} · sin capa` : t.nombre, corto: capas.length ? "Sin capa" : t.nombre, rs: sinCapa, na: capas.length ? cfg.noAplica.filter(x => !x.capa) : cfg.noAplica });
+    capas.forEach(c => {
+      const cc = cfg.capas.find(x => x.nombre.trim() === c);
+      bandas.push({ key: bandaKey(t.id, c), t, capa: c, oculta: !!(cc && cc.oculta), cota: cc?.cota || "", nombre: `${t.nombre} · ${c}${cc && cc.cota ? ` (cota ${cc.cota})` : ""}`, corto: c + (cc && cc.cota ? ` · ${cc.cota}` : ""), rs: rs.filter(r => (r.capa || "").trim() === c), na: cfg.noAplica.filter(x => !x.capa || x.capa === c) });
+    });
+  });
+  return bandas;
+}
+function pintarChips(bandas) {
+  const box = $("#pCapChips"); if (!box) return;
+  const grupos = []; bandas.forEach(b => { let g = grupos.find(x => x.t.id === b.t.id); if (!g) grupos.push(g = { t: b.t, bs: [] }); g.bs.push(b); });
+  const vis = bandas.filter(esVisible).length;
+  $("#pCapRes").innerHTML = `Capas visibles <b>${vis}</b> de ${bandas.length}`;
+  box.innerHTML = grupos.map(g => {
+    const n = g.bs.filter(esVisible).length;
+    return `<div class="cgrp"><button type="button" class="cgrp-t" data-grupo="${esc(g.t.id)}" aria-pressed="${n > 0}">${esc(g.t.nombre)}${g.bs.length > 1 ? ` <span>${n}/${g.bs.length}</span>` : ""}</button>${g.bs.length > 1 || g.bs[0].capa ? `<div class="cchips">${g.bs.map(b => `<button type="button" class="cchip ${b.rs.length ? "con" : ""}" data-key="${esc(b.key)}" aria-pressed="${esVisible(b)}" title="${esc(b.nombre)} · ${b.rs.length} registros">${esc(b.capa || "Sin capa")}</button>`).join("")}</div>` : ""}</div>`;
+  }).join("") || '<p class="muted small" style="margin:6px 0">Sin capas en este frente.</p>';
+}
+
 function actualizarPanel() {
   const P = S.panel, sub = L.sub(P.subId); if (!sub || !$("#chart")) return;
   const planta = P.vista === "planta";
   const est = estDeSub(P.subId);
   const base = filtrarPanel(false, planta ? "" : P.subId);
-  const cfgCap = planta ? [] : Object.values(S.capasCfg[P.subId]?.tipos || {}).flatMap(t => (t.capas || []).map(c => c.nombre.trim()));
-  const capas = [...new Set([...base.map(r => (r.capa || "").trim()), ...cfgCap].filter(Boolean))].sort(natural);
-  if (P.capa && !capas.includes(P.capa)) P.capa = "";
-  $("#pCapa").innerHTML = `<option value="">Todas</option>` + capas.map(c => `<option ${c === P.capa ? "selected" : ""}>${esc(c)}</option>`).join("");
-  $("#pCapa").disabled = !capas.length;
   const hoy = base.filter(r => toDate(r.fechaCampo)?.toDateString() === hoyStr()).length;
   const cnt = k => base.filter(r => r.estado === k).length;
   $("#pStats").innerHTML = `<div class="stat"><b>${hoy}</b><span>Registradas hoy</span></div><div class="stat PT"><b>${cnt("PT") + cnt("OB")}</b><span>Pendientes${cnt("OB") ? ` (${cnt("OB")} ${cnt("OB") === 1 ? "observada" : "observadas"})` : ""}</span></div><div class="stat EP"><b>${cnt("EP")}</b><span>En proceso</span></div><div class="stat EC"><b>${cnt("EC")}</b><span>Entregadas a Calidad</span></div>`;
   const recs = filtrarPanel(true, planta ? "" : P.subId);
+  let lst;
   if (planta) {
     const tipos = S.listas.tipos.filter(t => t.enGrafico);
     const conDatos = tipos.filter(t => recs.some(r => r.tipoId === t.id));
     if (!P.tipoPl || !tipos.some(t => t.id === P.tipoPl)) P.tipoPl = (conDatos[0] || tipos[0] || {}).id || "";
     $("#pTipoPl").innerHTML = tipos.map(t => `<option value="${esc(t.id)}" ${t.id === P.tipoPl ? "selected" : ""}>${esc(t.nombre)}${recs.some(r => r.tipoId === t.id) ? "" : " (sin registros)"}</option>`).join("");
-    $("#pTit").textContent = `${est.nombre} · ${nom(L.tipo(P.tipoPl))}`;
-    dibujarPlanta(est, recs.filter(r => r.tipoId === P.tipoPl));
+    const delTipo = recs.filter(r => r.tipoId === P.tipoPl);
+    const capas = [...new Set([...delTipo.map(r => (r.capa || "").trim()), ...(est.subs || []).flatMap(s => cfgTipo(s.id, P.tipoPl).capas.map(c => c.nombre.trim()))].filter(Boolean))].sort(natural);
+    if (P.capa && !capas.includes(P.capa)) P.capa = "";
+    $("#pCapaPl").innerHTML = `<option value="">Todas las capas</option>` + capas.map(c => `<option ${c === P.capa ? "selected" : ""}>${esc(c)}</option>`).join("");
+    $("#pCapaPl").hidden = !capas.length;
+    $("#pTit").textContent = `${est.nombre} · ${nom(L.tipo(P.tipoPl))}${P.capa ? " · " + P.capa : ""}`;
+    lst = delTipo.filter(r => !P.capa || (r.capa || "").trim() === P.capa);
+    dibujarPlanta(est, lst);
   } else {
+    const bandas = construirBandas(sub, recs); P._bandas = bandas;
+    pintarChips(bandas);
     $("#pTit").textContent = sub.nombre;
-    dibujarPerfil(sub, recs);
+    const visibles = bandas.filter(esVisible);
+    dibujarPerfil(sub, recs, visibles, bandas.length);
+    const claves = new Set(visibles.map(b => b.key));
+    lst = recs.filter(r => r.pkInicio == null || claves.has(bandaKey(r.tipoId, (r.capa || "").trim())) || claves.has(bandaKey(r.tipoId, "")) && !(r.capa || "").trim());
   }
-  const lst = (planta ? recs.filter(r => r.tipoId === P.tipoPl) : recs).slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
+  lst = lst.slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
   $("#pListaT").textContent = S.panelCargando ? "Cargando…" : `${lst.length} liberaciones con estos filtros`;
   $("#pLista").innerHTML = lst.slice(0, 40).map(tarjeta).join("") + (lst.length > 40 ? `<p class="muted small" style="text-align:center">Se muestran las 40 más recientes.</p>` : "");
 }
@@ -1185,104 +1340,144 @@ function paso(span, px) {
   const obj = span / Math.max(2, px / 78);
   return [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000].find(s => s >= obj) || 10000;
 }
-function unionLen(iv) {
-  const a = iv.slice().sort((x, y) => x[0] - y[0]); let tot = 0, cs = null, ce = null;
-  for (const [s, e] of a) { if (cs === null || s > ce) { if (cs !== null) tot += ce - cs; cs = s; ce = e; } else ce = Math.max(ce, e); }
-  if (cs !== null) tot += ce - cs; return tot;
+function unir(iv) {
+  const a = iv.filter(q => q[1] > q[0]).slice().sort((x, y) => x[0] - y[0]), out = [];
+  for (const [s, e] of a) { const u = out[out.length - 1]; if (u && s <= u[1]) u[1] = Math.max(u[1], e); else out.push([s, e]); }
+  return out;
 }
-const HATCH = `<defs><pattern id="falta" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#f4f8f7"/><line x1="0" y1="0" x2="0" y2="7" stroke="#c9d8d3" stroke-width="2.2"/></pattern><pattern id="nolib" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#c4ceca"/><path d="M0 0L8 8M8 0L0 8" stroke="#aebab5" stroke-width="1"/></pattern></defs>`;
+function unionLen(iv) { return unir(iv).reduce((t, q) => t + q[1] - q[0], 0); }
+// Huecos (lo que falta liberar) dentro de [a, b], quitando lo liberado y lo que no se libera
+function huecos(iv, a, b) {
+  const u = unir(iv.map(q => [Math.max(a, q[0]), Math.min(b, q[1])])), out = []; let c = a;
+  for (const [s, e] of u) { if (s - c > 0.05) out.push([c, s]); c = Math.max(c, e); }
+  if (b - c > 0.05) out.push([c, b]); return out;
+}
+const HATCH = `<defs><pattern id="falta" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#fdf3f0"/><line x1="0" y1="0" x2="0" y2="7" stroke="#f0c4b8" stroke-width="2.2"/></pattern><pattern id="nolib" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#c4ceca"/><path d="M0 0L8 8M8 0L0 8" stroke="#aebab5" stroke-width="1"/></pattern></defs>`;
 function cfgTipo(subId, tipoId) { const t = S.capasCfg[subId]?.tipos?.[tipoId]; return { capas: t?.capas || [], noAplica: t?.noAplica || [] }; }
 function corta(t, n) { return t.length > n ? t.slice(0, n - 1) + "…" : t; }
+const mts = v => (Math.round(v * 10) / 10).toLocaleString("es-PE") + " m";
 function conectarTramos(svg, attr) {
   let tip = $(".tip"); if (!tip) { tip = document.createElement("div"); tip.className = "tip"; document.body.appendChild(tip); }
-  svg.addEventListener("click", e => { const s = e.target.closest(attr); if (s) { tip.classList.remove("on"); abrirFicha(S.panelDatos.find(r => r.id === s.dataset.id)); } });
+  const textoHueco = g => `<b>Falta liberar</b><br>${esc(g.nombre)}<br><span class="mono">${esc(rangoPk(g.a, g.b))}</span> · ${mts(g.b - g.a)}`;
+  svg.addEventListener("click", e => {
+    const lab = e.target.closest("[data-oculta]"); if (lab) { const b = (S.panel._bandas || []).find(x => x.key === lab.dataset.oculta); alternarCapa(lab.dataset.oculta); if (b) toast(`${b.nombre} oculta. Vuelve a mostrarla en «Capas».`); return; }
+    const h = e.target.closest("[data-gap]"); if (h) { const g = (S.panel._huecos || [])[+h.dataset.gap]; if (g) { const inf = $("#pInfo"); inf.hidden = false; inf.innerHTML = textoHueco(g).replace(/<br>/g, " · "); } return; }
+    const s = e.target.closest(attr); if (s) { tip.classList.remove("on"); abrirFicha(S.panelDatos.find(r => r.id === s.dataset.id)); }
+  });
   svg.addEventListener("pointermove", e => {
-    const s = e.target.closest(attr); if (!s || e.pointerType === "touch") { tip.classList.remove("on"); return; }
+    if (e.pointerType === "touch") { tip.classList.remove("on"); return; }
+    const h = e.target.closest("[data-gap]");
+    if (h) { const g = (S.panel._huecos || [])[+h.dataset.gap]; if (g) { tip.innerHTML = textoHueco(g); tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on"); } return; }
+    const s = e.target.closest(attr); if (!s) { tip.classList.remove("on"); return; }
     const r = S.panelDatos.find(x => x.id === s.dataset.id); if (!r) return;
     tip.innerHTML = `<b>${esc(r.numero || "Sin número")}</b> · ${esc(ESTADOS[r.estado] || r.estado)}<br>${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}<br><span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><br>${esc(fmtFecha(r.fechaCampo))} · ${esc(nom(L.topo(r.topografoId), r.topografoId))}`;
     tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on");
   });
   svg.addEventListener("pointerleave", () => tip.classList.remove("on"));
 }
+function resaltarHueco(i) {
+  const r = document.querySelector(`#chart [data-gap="${i}"]`); if (!r) return;
+  r.scrollIntoView({ behavior: "smooth", block: "center" });
+  r.classList.remove("flash"); void r.getBoundingClientRect(); r.classList.add("flash");
+  const g = S.panel._huecos[+i]; const inf = $("#pInfo"); inf.hidden = false; inf.innerHTML = `<b>Falta liberar</b> · ${esc(g.nombre)} · <span class="mono">${esc(rangoPk(g.a, g.b))}</span> · ${mts(g.b - g.a)}`;
+}
 
 // Perfil: las capas apiladas de abajo (primera en construirse) hacia arriba, a lo largo de la progresiva
-function dibujarPerfil(sub, recs) {
-  const box = $("#chart"); const W = Math.max(300, box.clientWidth), movil = W < 560;
+function dibujarPerfil(sub, recs, bandas, totalBandas) {
+  const P = S.panel, box = $("#chart"); const W = Math.max(300, box.clientWidth), movil = W < 560;
   const conPk = recs.filter(r => r.pkInicio != null), sinPk = recs.length - conPk.length;
-  let x0 = sub.pkMin, x1 = sub.pkMax;
+  const visRecs = bandas.flatMap(b => b.rs);
   const vals = conPk.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
-  if (x0 == null) x0 = vals.length ? Math.min(...vals) : 0;
-  if (x1 == null) x1 = vals.length ? Math.max(...vals) : x0 + 100;
-  if (vals.length) { x0 = Math.min(x0, Math.min(...vals)); x1 = Math.max(x1, Math.max(...vals)); }
-  if (x1 - x0 < 10) x1 = x0 + 10;
-  const largo = x1 - x0, ini = x0, fin = x1;
-  if (S.panel.zoom && vals.length) { const a = Math.min(...vals), b = Math.max(...vals), m = Math.max(10, (b - a) * 0.06); x0 = Math.max(ini, a - m); x1 = Math.min(fin, b + m); if (x1 - x0 < 10) x1 = x0 + 10; }
-  // Bandas: una por tipo; si el tipo tiene capas numeradas, una por capa
-  const porTipo = new Map(); conPk.forEach(r => { if (!porTipo.has(r.tipoId)) porTipo.set(r.tipoId, []); porTipo.get(r.tipoId).push(r); });
-  const bandas = [];
-  S.listas.tipos.filter(t => t.enGrafico).forEach(t => {
-    const rs = porTipo.get(t.id) || [], cfg = cfgTipo(sub.id, t.id);
-    if (!(rs.length || cfg.capas.length || cfg.noAplica.length || S.panel.todas)) return;
-    const capas = [...new Set([...cfg.capas.map(c => c.nombre.trim()), ...rs.map(r => (r.capa || "").trim())].filter(Boolean))].sort(natural)
-      .filter(c => !S.panel.capa || c === S.panel.capa);
-    const sinCapa = rs.filter(r => !(r.capa || "").trim());
-    if ((sinCapa.length || !capas.length) && !S.panel.capa) bandas.push({ t, nombre: t.nombre, corto: capas.length ? "Sin capa" : t.nombre, rs: sinCapa, na: capas.length ? cfg.noAplica.filter(x => !x.capa) : cfg.noAplica });
-    capas.forEach(c => { const cc = cfg.capas.find(x => x.nombre.trim() === c); bandas.push({ t, capa: c, nombre: `${t.nombre} · ${c}${cc && cc.cota ? ` (cota ${cc.cota})` : ""}`, corto: c + (cc && cc.cota ? ` · ${cc.cota}` : ""), rs: rs.filter(r => (r.capa || "").trim() === c), na: cfg.noAplica.filter(x => !x.capa || x.capa === c) }); });
-  });
-  const fuera = conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)).length;
-  if (!bandas.length) {
-    box.innerHTML = `<div class="empty"><b>${S.panelCargando ? "Cargando…" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
-    $("#pNota").textContent = sinPk ? `+${sinPk} sin progresiva.` : ""; return;
+  // Rango del frente: el que se definió en Ajustes → Lugares; solo si falta, se toma de los registros
+  let fr0 = sub.pkMin, fr1 = sub.pkMax;
+  if (fr0 == null) fr0 = vals.length ? Math.min(...vals) : 0;
+  if (fr1 == null) fr1 = vals.length ? Math.max(...vals) : fr0 + 100;
+  if (fr1 - fr0 < 10) fr1 = fr0 + 10;
+  let x0 = fr0, x1 = fr1;
+  const d = numONull(P.pkDesde), h = numONull(P.pkHasta);
+  if (d != null || h != null) { if (d != null) x0 = d; if (h != null) x1 = h; if (x1 <= x0) x1 = x0 + 10; }
+  else if (P.zoom) {
+    const vv = visRecs.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
+    if (vv.length) { const a = Math.max(fr0, Math.min(...vv)), b = Math.min(fr1, Math.max(...vv)), m = Math.max(5, (b - a) * 0.04); x0 = Math.max(fr0, a - m); x1 = Math.min(fr1, b + m); if (x1 - x0 < 10) x1 = x0 + 10; }
   }
-  const labW = movil ? 118 : 230, pctW = movil ? 40 : 52, top = 34, bh = movil ? 22 : 26;
+  const fueraFrente = conPk.filter(r => (r.pkFin ?? r.pkInicio) < fr0 || r.pkInicio > fr1).length;
+  const ocultosTipo = conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)).length;
+  const fueraInfo = $("#pFalta");
+  if (!bandas.length) {
+    box.innerHTML = `<div class="empty"><b>${S.panelCargando ? "Cargando…" : totalBandas ? "Todas las capas están ocultas" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : totalBandas ? "Elige qué capas ver en «Capas visibles»." : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
+    $("#pNota").textContent = sinPk ? `+${sinPk} sin progresiva.` : ""; if (fueraInfo) fueraInfo.hidden = true; $("#pInfo").hidden = true; return;
+  }
+  const labW = movil ? 112 : 230, pctW = movil ? 40 : 54, top = 34, bh = movil ? 24 : 28, gap = 5;
   const gx0 = labW, gx1 = W - pctW, X = v => gx0 + (v - x0) / (x1 - x0) * (gx1 - gx0);
+  const largoVis = x1 - x0;
   // filas de arriba hacia abajo (la última capa construida arriba); un encabezado por tipo con varias capas
-  const filasP = []; let yy = top, prevT = null;
+  const filasP = []; let yy = top + 4, prevT = null;
   bandas.slice().reverse().forEach(b => {
-    const grupo = bandas.filter(x => x.t.id === b.t.id).length > 1;
-    if (grupo && prevT !== b.t.id) { filasP.push({ head: true, t: b.t, y: yy }); yy += 18; }
-    filasP.push({ b, y: yy, grupo }); yy += bh; prevT = b.t.id;
+    const grupo = bandas.filter(x => x.t.id === b.t.id).length > 1 || !!b.capa;
+    if (grupo && prevT !== b.t.id) { filasP.push({ head: true, t: b.t, y: yy }); yy += 20; }
+    filasP.push({ b, y: yy, grupo }); yy += bh + gap; prevT = b.t.id;
   });
   const fondo = yy, H = fondo + 26;
-  const hoy = hoyStr(), out = [HATCH];
-  const st = paso(x1 - x0, gx1 - gx0), ticks = []; for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-6; v += st) ticks.push(v);
-  ticks.forEach(v => out.push(`<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 4}" y2="${fondo + 4}"/><text class="tick" x="${X(v).toFixed(1)}" y="${top - 10}" text-anchor="middle">${fmtPk(v)}</text>`));
+  const hoy = hoyStr(), out = [HATCH], huecosT = [];
+  const animar = P._animado !== sub.id; P._animado = sub.id;
+  const st = paso(largoVis, gx1 - gx0), ticks = []; for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-6; v += st) ticks.push(v);
+  ticks.forEach(v => out.push(`<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 4}" y2="${fondo}"/><text class="tick" x="${X(v).toFixed(1)}" y="${top - 10}" text-anchor="middle">${fmtPk(v)}</text>`));
   out.push(`<text class="pk-ext" x="${gx0}" y="${H - 6}">PK ${fmtPk(x0)}</text><text class="pk-ext" x="${gx1}" y="${H - 6}" text-anchor="end">PK ${fmtPk(x1)}</text>`);
-  // de arriba hacia abajo se dibuja la última capa primero
   filasP.forEach((fp, i) => {
     if (fp.head) {
-      out.push(`<rect x="${gx0}" y="${fp.y}" width="${gx1 - gx0}" height="18" fill="#eaf1ef"/><text class="grp" x="${movil ? 4 : gx0 - 8}" y="${fp.y + 13}" text-anchor="${movil ? "start" : "end"}">${esc(fp.t.nombre)}</text><line x1="${gx0}" x2="${gx1}" y1="${fp.y + 18}" y2="${fp.y + 18}" stroke="#2b3a36" stroke-width="1"/>`);
+      out.push(`<rect x="0" y="${fp.y}" width="${W}" height="18" rx="6" fill="#e6efec"/><text class="grp" x="8" y="${fp.y + 13}">${esc(fp.t.nombre)}</text>`);
       return;
     }
     const b = fp.b, y = fp.y;
     const iv = b.rs.map(r => [r.pkInicio, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)]);
-    const naIv = b.na.map(x => [Math.max(ini, x.pkInicio), Math.min(fin, x.pkFin)]).filter(q => q[1] > q[0]);
-    const lib = unionLen(iv), base = Math.max(1, largo - unionLen(naIv)), pct = Math.min(100, Math.round(lib / base * 100));
-    out.push(`<rect x="${gx0}" y="${y}" width="${gx1 - gx0}" height="${bh}" fill="url(#falta)"/>`);
+    const naIv = b.na.map(x => [x.pkInicio, x.pkFin]);
+    const clip = q => [Math.max(x0, q[0]), Math.min(x1, q[1])];
+    const lib = unionLen(iv.map(clip)), baseLen = Math.max(0.1, largoVis - unionLen(naIv.map(clip)));
+    const pct = Math.min(100, Math.round(lib / baseLen * 100));
+    out.push(`<rect x="${gx0}" y="${y}" width="${gx1 - gx0}" height="${bh}" rx="4" fill="#f6f9f8" stroke="#cfdcd8"/>`);
+    // lo que falta: cada hueco con borde rojo punteado y ancho mínimo para que no se pierda
+    huecos([...iv, ...naIv], x0, x1).forEach(([a, e]) => {
+      const k = huecosT.length; huecosT.push({ a, b: e, nombre: b.nombre, key: b.key });
+      const xa = X(a), w = Math.max(4, X(e) - xa);
+      out.push(`<rect class="hueco" data-gap="${k}" x="${(w === 4 ? xa - 1.5 : xa).toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="url(#falta)" stroke="#d4553a" stroke-width="1.2" stroke-dasharray="4 3"/>`);
+    });
     b.na.forEach(x => {
       const a = Math.max(x0, x.pkInicio), e = Math.min(x1, x.pkFin); if (e <= a) return;
       const xa = X(a), w = X(e) - xa;
-      out.push(`<rect class="nolib" x="${xa.toFixed(1)}" y="${y + 1}" width="${w.toFixed(1)}" height="${bh - 2}" fill="url(#nolib)"><title>No se libera · ${esc(rangoPk(x.pkInicio, x.pkFin))}${x.cota ? " · cota " + esc(x.cota) : ""}${x.nota ? " · " + esc(x.nota) : ""}</title></rect>`);
+      out.push(`<rect class="nolib" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="url(#nolib)"><title>No se libera · ${esc(rangoPk(x.pkInicio, x.pkFin))}${x.cota ? " · cota " + esc(x.cota) : ""}${x.nota ? " · " + esc(x.nota) : ""}</title></rect>`);
       if (w > 86) out.push(`<text class="nolib-t" x="${(xa + w / 2).toFixed(1)}" y="${y + bh / 2 + 4}" text-anchor="middle">No se libera</text>`);
     });
     b.rs.slice().sort((p, q) => (toDate(p.fechaCampo)?.getTime() || 0) - (toDate(q.fechaCampo)?.getTime() || 0)).forEach(r => {
       const a = Math.max(x0, r.pkInicio), e = Math.min(x1, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)); if (e < x0 || a > x1) return;
-      const xa = X(a), w = Math.max(3, X(e) - xa), esHoy = toDate(r.fechaCampo)?.toDateString() === hoy;
-      out.push(`<rect class="seg seg-anim" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${COLOR[r.estado] || COLOR.PT}" ${esHoy ? 'stroke="#14231f" stroke-width="1.6"' : ""} style="animation-delay:${Math.min(i * 30, 450)}ms"/>`);
+      const xa = X(a), w = Math.max(4, X(e) - xa), esHoy = toDate(r.fechaCampo)?.toDateString() === hoy;
+      out.push(`<rect class="seg${animar ? " seg-anim" : ""}" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${COLOR[r.estado] || COLOR.PT}" stroke="${esHoy ? "#14231f" : "#fff"}" stroke-width="${esHoy ? 1.8 : 1.2}" style="animation-delay:${Math.min(i * 25, 400)}ms"/>`);
     });
-    out.push(`<line x1="${gx0}" x2="${gx1}" y1="${y + bh}" y2="${y + bh}" stroke="#2b3a36" stroke-width="1.4"/>`);
-    out.push(`<text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)}</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 17 : 34))}</text>`);
-    out.push(`<text class="pct" x="${W - 2}" y="${y + bh / 2 + 4}" text-anchor="end">${b.rs.length ? pct + "%" : naIv.length && unionLen(naIv) >= largo - 1 ? "N/A" : "0%"}</text>`);
+    out.push(`<g class="lab-hit" data-oculta="${esc(b.key)}"><rect x="0" y="${y}" width="${gx0 - 4}" height="${bh}" fill="transparent"/><text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)} · toca para ocultar</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 16 : 34))}</text></g>`);
+    out.push(`<text class="pct ${pct >= 100 ? "full" : ""}" x="${W - 2}" y="${y + bh / 2 + 4}" text-anchor="end">${b.rs.length || lib ? pct + "%" : baseLen <= 0.2 ? "N/A" : "0%"}</text>`);
   });
-  // marco como en el tablero: líneas de inicio y fin y borde superior
-  out.push(`<line x1="${gx0}" x2="${gx1}" y1="${top}" y2="${top}" stroke="#2b3a36" stroke-width="1.4"/><line x1="${gx0}" x2="${gx0}" y1="${top}" y2="${fondo}" stroke="#2b3a36" stroke-width="1.8"/><line x1="${gx1}" x2="${gx1}" y1="${top}" y2="${fondo}" stroke="#2b3a36" stroke-width="1.8"/>`);
+  out.push(`<line x1="${gx0}" x2="${gx0}" y1="${top}" y2="${fondo - gap}" stroke="#2b3a36" stroke-width="1.8"/><line x1="${gx1}" x2="${gx1}" y1="${top}" y2="${fondo - gap}" stroke="#2b3a36" stroke-width="1.8"/>`);
   box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Perfil de capas liberadas en ${esc(sub.nombre)}">${out.join("")}</svg>`;
+  P._huecos = huecosT;
+  $("#pInfo").hidden = true;
   const notas = [];
   if (sinPk) notas.push(`+${sinPk} sin progresiva`);
-  if (fuera) notas.push(`${fuera} de tipos ocultos (se activan en Ajustes → Tipos y capas)`);
-  notas.push("La primera capa construida queda abajo. El % es lo liberado sobre el largo del frente. Toca un tramo para ver su ficha.");
+  if (fueraFrente) notas.push(`${fueraFrente} ${fueraFrente === 1 ? "registro queda" : "registros quedan"} fuera del rango del frente (${fmtPk(fr0)} a ${fmtPk(fr1)}); ajústalo en Ajustes → Lugares si hace falta`);
+  if (ocultosTipo) notas.push(`${ocultosTipo} de tipos que no se dibujan (Ajustes → Tipos)`);
+  notas.push(`El % es lo liberado entre PK ${fmtPk(x0)} y ${fmtPk(x1)}, sin contar lo que no se libera. Toca el nombre de una capa para ocultarla y un tramo para ver su ficha.`);
   $("#pNota").textContent = notas.join(" · ");
   conectarTramos(box.querySelector("svg"), "rect.seg");
+  // Tabla «Qué falta», en el mismo orden que el dibujo
+  if (fueraInfo) {
+    const porBanda = new Map(); huecosT.forEach((g, i) => { if (!porBanda.has(g.key)) porBanda.set(g.key, []); porBanda.get(g.key).push({ ...g, i }); });
+    const faltaDe = b => porBanda.get(b.key).reduce((t, g) => t + g.b - g.a, 0);
+    const filas = bandas.filter(b => porBanda.has(b.key)).sort((x, y) => faltaDe(y) - faltaDe(x));
+    const total = huecosT.reduce((t, g) => t + g.b - g.a, 0);
+    fueraInfo.hidden = false;
+    fueraInfo.innerHTML = !filas.length ? `<h2>Qué falta liberar</h2><p class="muted" style="margin:0 0 12px">Nada: las capas visibles están completas entre PK ${fmtPk(x0)} y ${fmtPk(x1)}.</p>` :
+      `<h2>Qué falta liberar <span class="muted small" style="font-weight:700">· ${mts(total)} en ${filas.length} ${filas.length === 1 ? "capa" : "capas"}, entre PK ${fmtPk(x0)} y ${fmtPk(x1)}</span></h2>
+      <div class="ftab">${filas.map(b => { const gs = porBanda.get(b.key), tot = gs.reduce((t, g) => t + g.b - g.a, 0);
+        return `<div class="frow"><div class="fcap"><b>${esc(b.capa ? b.corto : b.nombre)}</b>${b.capa ? `<span>${esc(b.t.nombre)}</span>` : ""}</div><div class="fm mono">${mts(tot)}</div><div class="fpills">${gs.slice(0, 8).map(g => `<button type="button" class="fpill mono" data-gap="${g.i}">${esc(rangoPk(g.a, g.b))} <span>${mts(g.b - g.a)}</span></button>`).join("")}${gs.length > 8 ? `<span class="muted small">+${gs.length - 8} tramos más</span>` : ""}</div></div>`; }).join("")}</div>`;
+  }
 }
 
 // Planta: el eje de cada frente (subido en Ajustes → Lugares) con los tramos liberados de la capa elegida
@@ -1462,31 +1657,65 @@ function ajCapas() {
   cuerpoAj();
   const A = S.aj, lista = subsConDatos();
   if (!lista.length) { $("#ajBody").innerHTML = '<p class="muted">Primero agrega lugares.</p>'; return; }
-  if (!lista.some(x => x.s.id === A.capSub)) A.capSub = lista[0].s.id;
+  if (!lista.some(x => x.s.id === A.capSub)) { A.capSub = lista[0].s.id; A.capSel = new Set(); }
   const tipos = S.listas.tipos.filter(t => t.enGrafico);
-  if (!tipos.some(t => t.id === A.capTipo)) A.capTipo = (tipos.find(t => t.id === "masivo") || tipos[0] || {}).id || "";
+  if (!tipos.some(t => t.id === A.capTipo)) { A.capTipo = (tipos.find(t => t.id === "masivo") || tipos[0] || {}).id || ""; A.capSel = new Set(); }
+  A.capSel ||= new Set(); A.capQ ||= "";
   const sub = L.sub(A.capSub), doc0 = clon(S.capasCfg[A.capSub] || { tipos: {} }); doc0.tipos ||= {};
   const cfg = doc0.tipos[A.capTipo] ||= { capas: [], noAplica: [] }; cfg.capas ||= []; cfg.noAplica ||= [];
   cfg.capas.sort((a, b) => natural(a.nombre, b.nombre));
+  A.capSel = new Set([...A.capSel].filter(n => cfg.capas.some(c => c.nombre === n)));
+  const q = A.capQ.trim().toLowerCase();
+  const vis = cfg.capas.map((c, i) => ({ c, i })).filter(x => !q || x.c.nombre.toLowerCase().includes(q) || String(x.c.cota || "").includes(q));
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(x => x.activo !== false).map(x => `<option value="${esc(x.id)}" ${x.id === A.capSub ? "selected" : ""}>${esc(x.nombre)}</option>`).join("")}</optgroup>`).join("");
-  const sig = (() => { const n = cfg.capas.map(c => parseInt((c.nombre.match(/\d+/) || [0])[0], 10)).filter(x => !isNaN(x)); return n.length ? Math.max(...n) + 1 : 1; })();
+  const numDe = n => { const m = String(n).match(/\d+/); return m ? parseInt(m[0], 10) : NaN; };
+  const nums = cfg.capas.map(c => numDe(c.nombre)).filter(x => !isNaN(x));
+  const sig = nums.length ? Math.max(...nums) + 1 : 1;
+  const nSel = A.capSel.size;
   const optCapa = v => `<option value="">Todas las capas</option>` + cfg.capas.map(c => `<option ${c.nombre === v ? "selected" : ""}>${esc(c.nombre)}</option>`).join("");
   $("#ajBody").innerHTML = `
-  <p class="muted small" style="margin:0 0 12px">Define las capas de cada frente y marca los tramos que no se liberan. Las capas aparecen en el perfil aunque todavía no tengan registros, y se sugieren en el formulario de campo. Los tramos que no se liberan se dibujan en gris y no cuentan en el porcentaje.</p>
+  <p class="muted small" style="margin:0 0 12px">Las capas aparecen en el perfil aunque todavía no tengan registros, y se sugieren en el formulario de campo. Se ordenan solas por número: la capa 1 queda abajo. Una capa «oculta» no se dibuja salvo que alguien la prenda en el panel.</p>
   <div class="card filters" style="grid-template-columns:1fr 1fr">
     <div class="f"><label for="cSub">Frente</label><select id="cSub">${grupos}</select></div>
     <div class="f"><label for="cTipo">Tipo</label><select id="cTipo">${tipos.map(t => `<option value="${esc(t.id)}" ${t.id === A.capTipo ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
   </div>
-  <div class="card section ed" id="cCapas"><h2>Capas de ${esc(nom(L.tipo(A.capTipo)))} en ${esc(sub.nombre)} (${cfg.capas.length})</h2>
-    ${cfg.capas.length ? `<div class="crow head"><span>Capa</span><span>Cota</span><span></span></div>` : '<p class="muted small" style="margin:0 0 8px">Sin capas definidas: el perfil muestra una sola banda para este tipo.</p>'}
-    ${cfg.capas.map((c, i) => `<div class="crow" data-i="${i}"><input value="${esc(c.nombre)}" data-k="nom" aria-label="Nombre de la capa"><input value="${esc(c.cota || "")}" data-k="cota" inputmode="decimal" placeholder="758.00" aria-label="Cota"><button type="button" class="mini" data-k="del">Quitar</button></div>`).join("")}
-    <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar capas</div>
-    <div class="crow" style="border-top:0"><input id="cNom" value="Capa ${sig}" aria-label="Nombre"><input id="cCota" inputmode="decimal" placeholder="Cota (opcional)" aria-label="Cota"><button type="button" class="mini ok-btn" id="cAdd">Agregar</button></div>
-    <div class="crow" style="border-top:0;grid-template-columns:auto 70px auto 70px auto"><span class="small muted">Varias: de la capa</span><input id="cDe" inputmode="numeric" value="${sig}" aria-label="Desde"><span class="small muted">a la</span><input id="cA" inputmode="numeric" value="${sig + 9}" aria-label="Hasta"><button type="button" class="mini" id="cVarias">Agregar</button></div>
+  <div class="card section ed" id="cCapas">
+    <h2>Capas de ${esc(nom(L.tipo(A.capTipo)))} · ${esc(sub.nombre)} <span class="cnt">${cfg.capas.length}</span></h2>
+    <div class="cap-tools">
+      <input id="cQ" type="search" placeholder="Buscar capa o cota" value="${esc(A.capQ)}" aria-label="Buscar capa">
+      <button type="button" class="mini" id="cDesdeReg">Crear desde los registros</button>
+    </div>
+    <div class="cap-bulk ${nSel ? "on" : ""}">
+      <span><b>${nSel}</b> ${nSel === 1 ? "seleccionada" : "seleccionadas"}</span>
+      <button type="button" class="mini" data-bulk="ocultar">Ocultar en gráfico</button>
+      <button type="button" class="mini" data-bulk="mostrar">Mostrar en gráfico</button>
+      <button type="button" class="mini" data-bulk="cotas">Cotas en serie</button>
+      <button type="button" class="mini warn-mini" data-bulk="quitar">Quitar</button>
+      <button type="button" class="mini" data-bulk="limpiar">Deseleccionar</button>
+    </div>
+    <div class="cota-serie" id="cSerie" hidden>
+      <span class="small">Cota de la primera</span><input id="cS0" inputmode="decimal" placeholder="758.00" aria-label="Cota inicial">
+      <span class="small">sube</span><input id="cSd" inputmode="decimal" placeholder="0.30" aria-label="Espesor por capa"><span class="small">m por capa</span>
+      <button type="button" class="mini ok-btn" id="cSOk">Aplicar a ${nSel || "todas"}</button>
+    </div>
+    ${cfg.capas.length ? `<div class="ctab">
+      <div class="ct-row head"><label class="ck"><input type="checkbox" id="cAll" ${vis.length && vis.every(x => A.capSel.has(x.c.nombre)) ? "checked" : ""} aria-label="Seleccionar todas"></label><span>Capa</span><span>Cota</span><span>En gráfico</span><span></span></div>
+      ${vis.map(({ c, i }) => `<div class="ct-row ${c.oculta ? "oc" : ""} ${A.capSel.has(c.nombre) ? "sel" : ""}" data-i="${i}">
+        <label class="ck"><input type="checkbox" data-k="sel" ${A.capSel.has(c.nombre) ? "checked" : ""} aria-label="Seleccionar ${esc(c.nombre)}"></label>
+        <input value="${esc(c.nombre)}" data-k="nom" aria-label="Nombre de la capa">
+        <input value="${esc(c.cota || "")}" data-k="cota" inputmode="decimal" placeholder="—" aria-label="Cota">
+        <button type="button" class="vis-t" data-k="oc" aria-pressed="${!c.oculta}">${c.oculta ? "Oculta" : "Visible"}</button>
+        <button type="button" class="x-btn" data-k="del" aria-label="Quitar ${esc(c.nombre)}">×</button></div>`).join("")}
+      ${!vis.length ? `<p class="muted small" style="margin:8px 0">Ninguna capa coincide con «${esc(A.capQ)}».</p>` : ""}
+    </div>` : '<p class="muted small" style="margin:6px 0 8px">Sin capas definidas: el perfil muestra una sola banda para este tipo. Agrega capas abajo o créalas desde los registros.</p>'}
+    <div class="cap-add">
+      <div class="ca"><span class="flabel">Agregar una</span><div class="inrow"><input id="cNom" value="Capa ${sig}" aria-label="Nombre"><input id="cCota" inputmode="decimal" placeholder="Cota" aria-label="Cota" style="max-width:110px"><button type="button" class="mini ok-btn" id="cAdd">Agregar</button></div></div>
+      <div class="ca"><span class="flabel">Agregar o quitar un rango</span><div class="inrow"><span class="small muted">de la</span><input id="cDe" inputmode="numeric" value="${sig}" aria-label="Desde" style="max-width:70px"><span class="small muted">a la</span><input id="cA" inputmode="numeric" value="${sig + 9}" aria-label="Hasta" style="max-width:70px"><button type="button" class="mini ok-btn" id="cVarias">Agregar</button><button type="button" class="mini warn-mini" id="cQuitarR">Quitar</button></div></div>
+    </div>
   </div>
-  <div class="card section ed" id="cNa"><h2>Tramos que no se liberan (${cfg.noAplica.length})</h2>
+  <div class="card section ed" id="cNa"><h2>Tramos que no se liberan <span class="cnt">${cfg.noAplica.length}</span></h2>
     ${cfg.noAplica.length ? `<div class="nrow head"><span>Capa</span><span>PK inicio</span><span>PK final</span><span>Cota</span><span>Motivo</span><span></span></div>` : ""}
-    ${cfg.noAplica.map((x, i) => `<div class="nrow" data-i="${i}"><select data-k="capa" aria-label="Capa">${optCapa(x.capa)}</select><input class="mono" value="${esc(fmtPk(x.pkInicio))}" data-k="pki" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(fmtPk(x.pkFin))}" data-k="pkf" inputmode="decimal" aria-label="PK final"><input value="${esc(x.cota || "")}" data-k="cota" inputmode="decimal" placeholder="Cota" aria-label="Cota"><input value="${esc(x.nota || "")}" data-k="nota" placeholder="Motivo" aria-label="Motivo"><button type="button" class="mini" data-k="del">Quitar</button></div>`).join("")}
+    ${cfg.noAplica.map((x, i) => `<div class="nrow" data-i="${i}"><select data-k="capa" aria-label="Capa">${optCapa(x.capa)}</select><input class="mono" value="${esc(fmtPk(x.pkInicio))}" data-k="pki" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(fmtPk(x.pkFin))}" data-k="pkf" inputmode="decimal" aria-label="PK final"><input value="${esc(x.cota || "")}" data-k="cota" inputmode="decimal" placeholder="Cota" aria-label="Cota"><input value="${esc(x.nota || "")}" data-k="nota" placeholder="Motivo" aria-label="Motivo"><button type="button" class="x-btn" data-k="del" aria-label="Quitar tramo">×</button></div>`).join("")}
     <div class="flabel" style="font-weight:800;margin:14px 0 8px">Marcar tramo que no se libera</div>
     <div class="nrow" style="border-top:0"><select id="nCapa" aria-label="Capa">${optCapa("")}</select><input id="nPki" class="mono" inputmode="decimal" placeholder="PK inicio" aria-label="PK inicio"><input id="nPkf" class="mono" inputmode="decimal" placeholder="PK final" aria-label="PK final"><input id="nCota" inputmode="decimal" placeholder="Cota" aria-label="Cota"><input id="nNota" placeholder="Motivo (opcional)" aria-label="Motivo"><button type="button" class="mini ok-btn" id="nAdd">Marcar</button></div>
   </div>`;
@@ -1496,48 +1725,107 @@ function ajCapas() {
       .catch(e => toast("No se guardó: " + (e.code === "permission-denied" ? "publica las reglas nuevas en Firebase." : e.message), "bad"));
     toast(navigator.onLine ? msg : msg + " en el teléfono; se subirá con señal.");
   };
-  $("#cSub").addEventListener("change", e => { A.capSub = e.target.value; ajCapas(); });
-  $("#cTipo").addEventListener("change", e => { A.capTipo = e.target.value; ajCapas(); });
+  const reabrir = (foco) => { ajCapas(); if (foco) { const el = $(foco); if (el) { el.focus(); try { el.select(); } catch (e) {} } } };
+  $("#cSub").addEventListener("change", e => { A.capSub = e.target.value; A.capSel = new Set(); A.capQ = ""; ajCapas(); });
+  $("#cTipo").addEventListener("change", e => { A.capTipo = e.target.value; A.capSel = new Set(); A.capQ = ""; ajCapas(); });
+  $("#cQ").addEventListener("input", e => { A.capQ = e.target.value; const pos = e.target.selectionStart; ajCapas(); const n = $("#cQ"); n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} });
   const body = $("#ajBody");
-  body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); const r = e.target.closest(".crow,.nrow"); const add = r && r.querySelector(".ok-btn,#cVarias"); if (add && !r.dataset.i) add.click(); else e.target.blur(); } });
+  body.addEventListener("keydown", e => {
+    if (e.key !== "Enter" || e.target.tagName !== "INPUT" || e.target.type === "search") return;
+    e.preventDefault();
+    const id = e.target.id;
+    if (id === "cNom" || id === "cCota") $("#cAdd").click();
+    else if (id === "cDe" || id === "cA") $("#cVarias").click();
+    else if (id === "cS0" || id === "cSd") $("#cSOk").click();
+    else if (/^n(Pki|Pkf|Cota|Nota)$/.test(id)) $("#nAdd").click();
+    else e.target.blur();
+  });
   body.addEventListener("change", e => {
+    if (e.target.id === "cAll") { vis.forEach(({ c }) => e.target.checked ? A.capSel.add(c.nombre) : A.capSel.delete(c.nombre)); ajCapas(); return; }
     const r = e.target.closest("[data-i]"), k = e.target.dataset.k; if (!r || !k) return;
     const i = +r.dataset.i;
     if (r.closest("#cCapas")) {
       const c = cfg.capas[i];
+      if (k === "sel") { e.target.checked ? A.capSel.add(c.nombre) : A.capSel.delete(c.nombre); ajCapas(); return; }
       if (k === "nom") { const v = e.target.value.trim(); if (!v) { toast("La capa necesita un nombre.", "bad"); e.target.value = c.nombre; return; }
         if (cfg.capas.some((x, j) => j !== i && x.nombre === v)) { toast(`Ya existe «${v}».`, "bad"); e.target.value = c.nombre; return; }
-        cfg.noAplica.forEach(x => { if (x.capa === c.nombre) x.capa = v; }); c.nombre = v; }
+        cfg.noAplica.forEach(x => { if (x.capa === c.nombre) x.capa = v; }); if (A.capSel.delete(c.nombre)) A.capSel.add(v); c.nombre = v; }
       if (k === "cota") c.cota = e.target.value.trim();
-    } else {
-      const x = cfg.noAplica[i];
-      if (k === "capa") x.capa = e.target.value;
-      if (k === "cota") x.cota = e.target.value.trim();
-      if (k === "nota") x.nota = e.target.value.trim();
-      if (k === "pki" || k === "pkf") { const v = numONull(e.target.value); if (v == null) { toast("Escribe el PK como 2+140 o 2140.", "bad"); e.target.value = fmtPk(k === "pki" ? x.pkInicio : x.pkFin); return; }
-        const ni = k === "pki" ? v : x.pkInicio, nf = k === "pkf" ? v : x.pkFin; if (nf <= ni) { toast("El PK final debe ser mayor que el inicial.", "bad"); e.target.value = fmtPk(k === "pki" ? x.pkInicio : x.pkFin); return; }
-        x.pkInicio = ni; x.pkFin = nf; e.target.value = fmtPk(v); }
+      guardar(); if (k === "nom") ajCapas(); return;
     }
+    const x = cfg.noAplica[i];
+    if (k === "capa") x.capa = e.target.value;
+    if (k === "cota") x.cota = e.target.value.trim();
+    if (k === "nota") x.nota = e.target.value.trim();
+    if (k === "pki" || k === "pkf") { const v = numONull(e.target.value); if (v == null) { toast("Escribe el PK como 2+140 o 2140.", "bad"); e.target.value = fmtPk(k === "pki" ? x.pkInicio : x.pkFin); return; }
+      const ni = k === "pki" ? v : x.pkInicio, nf = k === "pkf" ? v : x.pkFin; if (nf <= ni) { toast("El PK final debe ser mayor que el inicial.", "bad"); e.target.value = fmtPk(k === "pki" ? x.pkInicio : x.pkFin); return; }
+      x.pkInicio = ni; x.pkFin = nf; e.target.value = fmtPk(v); }
     guardar();
   });
-  body.addEventListener("click", e => {
-    const del = e.target.closest('[data-k="del"]');
-    if (del) { const i = +del.closest("[data-i]").dataset.i;
-      if (del.closest("#cCapas")) { const [c] = cfg.capas.splice(i, 1); cfg.noAplica = cfg.noAplica.filter(x => x.capa !== c.nombre); doc0.tipos[A.capTipo] = cfg; guardar(`«${c.nombre}» quitada`); }
+  body.addEventListener("click", async e => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    const row = btn.closest("[data-i]");
+    if (row && btn.dataset.k === "del") {
+      const i = +row.dataset.i;
+      if (row.closest("#cCapas")) { const [c] = cfg.capas.splice(i, 1); A.capSel.delete(c.nombre); cfg.noAplica = cfg.noAplica.filter(x => x.capa !== c.nombre); doc0.tipos[A.capTipo] = cfg; guardar(`«${c.nombre}» quitada`); }
       else { cfg.noAplica.splice(i, 1); guardar("Tramo quitado"); }
-      ajCapas(); return; }
-    if (e.target.id === "cAdd") {
+      ajCapas(); return;
+    }
+    if (row && btn.dataset.k === "oc") { const c = cfg.capas[+row.dataset.i]; c.oculta = !c.oculta; if (!c.oculta) delete c.oculta; guardar(c.oculta ? `«${c.nombre}» oculta en el gráfico` : `«${c.nombre}» visible`); ajCapas(); return; }
+    const bulk = btn.dataset.bulk;
+    if (bulk) {
+      const sel = cfg.capas.filter(c => A.capSel.has(c.nombre));
+      if (bulk === "limpiar") { A.capSel = new Set(); ajCapas(); return; }
+      if (bulk === "cotas") { $("#cSerie").hidden = !$("#cSerie").hidden; if (!$("#cSerie").hidden) $("#cS0").focus(); return; }
+      if (!sel.length) return;
+      if (bulk === "ocultar" || bulk === "mostrar") { sel.forEach(c => { if (bulk === "ocultar") c.oculta = true; else delete c.oculta; }); guardar(`${sel.length} ${sel.length === 1 ? "capa" : "capas"} ${bulk === "ocultar" ? "ocultas" : "visibles"}`); ajCapas(); return; }
+      if (bulk === "quitar") {
+        if (!btn.dataset.ok) { btn.dataset.ok = "1"; btn.textContent = `¿Quitar ${sel.length}? Toca otra vez`; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.ok; btn.textContent = "Quitar"; } }, 4000); return; }
+        const fuera = new Set(sel.map(c => c.nombre));
+        cfg.capas = cfg.capas.filter(c => !fuera.has(c.nombre)); cfg.noAplica = cfg.noAplica.filter(x => !fuera.has(x.capa)); doc0.tipos[A.capTipo] = cfg;
+        A.capSel = new Set(); guardar(`${fuera.size} ${fuera.size === 1 ? "capa quitada" : "capas quitadas"}`); ajCapas(); return;
+      }
+    }
+    if (btn.id === "cSOk") {
+      const c0 = Number(String($("#cS0").value).replace(",", ".")), dz = Number(String($("#cSd").value || "0").replace(",", "."));
+      if (!$("#cS0").value.trim() || isNaN(c0) || isNaN(dz)) { toast("Indica la cota de la primera y cuánto sube cada capa.", "bad"); $("#cS0").focus(); return; }
+      const obj = (A.capSel.size ? cfg.capas.filter(c => A.capSel.has(c.nombre)) : cfg.capas).slice().sort((a, b) => natural(a.nombre, b.nombre));
+      const dec = Math.max((String($("#cS0").value).split(/[.,]/)[1] || "").length, (String($("#cSd").value).split(/[.,]/)[1] || "").length, 2);
+      obj.forEach((c, k) => { c.cota = (c0 + dz * k).toFixed(dec); });
+      guardar(`Cotas asignadas a ${obj.length} ${obj.length === 1 ? "capa" : "capas"}`); ajCapas(); return;
+    }
+    if (btn.id === "cAdd") {
       const n = $("#cNom").value.trim(); if (!n) { $("#cNom").focus(); return; }
       if (cfg.capas.some(x => x.nombre === n)) { toast(`Ya existe «${n}».`, "bad"); return; }
-      cfg.capas.push({ nombre: n, cota: $("#cCota").value.trim() }); guardar("Capa agregada"); ajCapas(); $("#cNom")?.focus(); return;
+      cfg.capas.push({ nombre: n, cota: $("#cCota").value.trim() }); guardar("Capa agregada"); reabrir("#cNom"); return;
     }
-    if (e.target.id === "cVarias") {
+    if (btn.id === "cVarias" || btn.id === "cQuitarR") {
       const de = parseInt($("#cDe").value, 10), a = parseInt($("#cA").value, 10);
       if (isNaN(de) || isNaN(a) || a < de || a - de > 199) { toast("Indica un rango válido (hasta 200 capas).", "bad"); return; }
-      let n = 0; for (let k = de; k <= a; k++) { const nm = "Capa " + k; if (!cfg.capas.some(x => x.nombre === nm)) { cfg.capas.push({ nombre: nm, cota: "" }); n++; } }
-      guardar(`${n} capas agregadas`); ajCapas(); return;
+      if (btn.id === "cVarias") {
+        let n = 0; for (let k = de; k <= a; k++) { const nm = "Capa " + k; if (!cfg.capas.some(x => x.nombre === nm)) { cfg.capas.push({ nombre: nm, cota: "" }); n++; } }
+        guardar(n ? `${n} capas agregadas` : "Esas capas ya existían"); ajCapas(); return;
+      }
+      const fuera = new Set(cfg.capas.filter(c => { const k = numDe(c.nombre); return k >= de && k <= a; }).map(c => c.nombre));
+      if (!fuera.size) { toast("No hay capas en ese rango."); return; }
+      if (!btn.dataset.ok) { btn.dataset.ok = "1"; btn.textContent = `¿Quitar ${fuera.size}?`; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.ok; btn.textContent = "Quitar"; } }, 4000); return; }
+      cfg.capas = cfg.capas.filter(c => !fuera.has(c.nombre)); cfg.noAplica = cfg.noAplica.filter(x => !fuera.has(x.capa)); doc0.tipos[A.capTipo] = cfg;
+      fuera.forEach(n => A.capSel.delete(n)); guardar(`${fuera.size} capas quitadas`); ajCapas(); return;
     }
-    if (e.target.id === "nAdd") {
+    if (btn.id === "cDesdeReg") {
+      btn.disabled = true; btn.textContent = "Buscando…";
+      try {
+        const snap = await getDocs(query(collection(db, "liberaciones"), where("subestructuraId", "==", A.capSub)));
+        const enReg = [...new Set(snap.docs.map(d => d.data()).filter(r => r.tipoId === A.capTipo && r.estado !== "X").map(r => (r.capa || "").trim()).filter(Boolean))];
+        const cotas = {}; snap.docs.forEach(d => { const r = d.data(); if (r.tipoId === A.capTipo && r.capa && r.cota && !cotas[r.capa.trim()]) cotas[r.capa.trim()] = r.cota; });
+        const nuevas = enReg.filter(n => !cfg.capas.some(c => c.nombre === n));
+        nuevas.forEach(n => cfg.capas.push({ nombre: n, cota: cotas[n] || "" }));
+        if (nuevas.length) guardar(`${nuevas.length} capas creadas desde los registros`); else toast(enReg.length ? "Todas las capas de los registros ya están en la lista" : "Los registros de este tipo no tienen capa");
+        ajCapas();
+      } catch (er) { toast("No se pudo leer los registros: " + er.message, "bad"); btn.disabled = false; btn.textContent = "Crear desde los registros"; }
+      return;
+    }
+    if (btn.id === "nAdd") {
       const a = numONull($("#nPki").value), b = numONull($("#nPkf").value);
       if (a == null || b == null) { toast("Indica PK inicio y PK final (ej. 2+140).", "bad"); (a == null ? $("#nPki") : $("#nPkf")).focus(); return; }
       if (b <= a) { toast("El PK final debe ser mayor que el inicial.", "bad"); $("#nPkf").focus(); return; }
