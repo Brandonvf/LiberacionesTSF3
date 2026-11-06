@@ -137,6 +137,19 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .arch .an span{color:var(--muted)}
 .arch>button{border:0;background:var(--surface-2);border-radius:999px;width:34px;height:34px;font-weight:800;color:var(--muted);flex:none}
 .arch .dl{font-weight:800;font-size:13px;color:var(--accent-strong);padding:0 10px}
+.dlg{position:fixed;inset:0;z-index:75;background:var(--scrim);display:grid;place-items:center;padding:16px;opacity:0;transition:opacity .2s}
+.dlg.on{opacity:1}
+.dlg-box{width:min(480px,100%);padding:20px 20px 16px;animation:entra .25s both}
+.dlg-box h3{font-family:var(--f-disp);font-size:18px;font-weight:800;margin:0 0 10px}
+.brow{display:flex;gap:8px;align-items:flex-start}
+.brow .ck{padding-top:16px}
+.brow.sel .item{border-color:#8fc4ba;background:#f3faf8}
+.bcard{flex:1;min-width:0}
+.bact{display:flex;gap:6px;flex-wrap:wrap;padding:6px 2px 10px}
+.bact .mini{min-height:36px;font-size:12.5px;padding:0 12px}
+@media (max-width:620px){.nav button{font-size:11.5px}.nav button svg{width:21px;height:21px}}
+.nav button{min-width:0}
+@media (max-width:380px){.nav .wrap{gap:0;padding-left:4px;padding-right:4px}.nav button{font-size:10.5px;padding:8px 0;letter-spacing:-.01em}}
 .lb{position:fixed;inset:0;z-index:70;background:rgba(12,24,21,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;opacity:0;transition:opacity .25s}
 .lb.on{opacity:1}
 .lb img{max-width:100%;max-height:calc(100vh - 120px);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
@@ -423,7 +436,7 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, runTransaction, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 window.__arranco = true;
 
@@ -507,7 +520,7 @@ const LISTAS_INICIALES = {
   ]
 };
 
-const ROLES = { topografo: "Topógrafo", gabinete: "Gabinete", jefe: "Jefe de área", admin: "Administrador" };
+const ROLES = { topografo: "Topógrafo", operario: "Operario", gabinete: "Gabinete", jefe: "Jefe de área", admin: "Administrador" };
 const ESTADOS = { PT: "Pendiente topografía", EP: "En proceso", EC: "Entregado a Calidad", OB: "Observado", X: "Eliminado", NA: "Sin liberación" };
 
 /* ---------- Estado ---------- */
@@ -518,7 +531,8 @@ const S = {
   view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "" } },
   editando: null, form: null, limiteTodos: 300, verTodos: 60,
   subs: [], dentro: false,
-  aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {},
+  aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {}, config: null,
+  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], ver: 60, todos() { return [...this.pend, ...this.ep]; } },
   panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "" }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
@@ -609,6 +623,9 @@ function cortar() { S.subs.forEach(u => { try { u(); } catch (e) {} }); S.subs =
 
 onAuthStateChanged(auth, async u => {
   cortar(); S.perfil = null; S.dentro = false;
+  // Al cambiar de cuenta en el mismo teléfono no se arrastra nada de la anterior
+  S.form = null; S.editando = null; S.view = ""; S.mis = []; S.todos = []; S.solicitudes = []; S.usuarios = []; S.panelDatos = [];
+  S.bandeja.pend = []; S.bandeja.ep = []; S.bandeja.sel.clear(); S.bandeja.q = ""; S.aj.hist = null;
   if (!u) { S.user = null; gate("entrar"); return; }
   S.user = u; S.email = (u.email || "").toLowerCase();
   gate("cargando");
@@ -647,7 +664,7 @@ async function prepararAdmin(u) {
 const rol = () => S.perfil?.rol || "";
 const esAdmin = () => rol() === "admin";
 const esGab = () => rol() === "gabinete" || esAdmin();
-const escribe = () => ["topografo", "gabinete", "admin"].includes(rol());
+const escribe = () => ["topografo", "operario", "gabinete", "admin"].includes(rol());
 const veTodo = () => ["gabinete", "jefe", "admin"].includes(rol());
 
 function entrarApp() {
@@ -667,6 +684,7 @@ function entrarApp() {
     }, e => console.warn("mis", e)));
   }
   if (veTodo()) suscribirTodos();
+  if (esGab()) suscribirBandeja();
   S.subs.push(onSnapshot(collection(db, "capas"), snap => {
     S.capasCfg = {}; snap.docs.forEach(d => { S.capasCfg[d.id] = d.data(); });
     if (S.view === "panel") actualizarPanel();
@@ -713,6 +731,7 @@ const ICON = {
   nueva: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   mis: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l1 2h3v14H5V6h3z"/><path d="M9 12h6M9 16h4"/></svg>',
   todos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+  bandeja: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13l2.5-7h11L20 13v6H4z"/><path d="M4 13h4.5l1.5 2.5h4l1.5-2.5H20"/></svg>',
   panel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M4 12h14M4 18h6"/><path d="M17 4v4M21 10v4M14 16v4" opacity=".55"/></svg>',
   ajustes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
 };
@@ -720,6 +739,7 @@ function vistas() {
   const v = [];
   if (rol() === "jefe") v.push({ id: "panel", t: "Panel" });
   if (escribe()) v.push({ id: "nueva", t: "Nueva" }, { id: "mis", t: "Mis registros", c: "Míos" });
+  if (esGab()) v.push({ id: "bandeja", t: "Bandeja" });
   if (veTodo()) v.push({ id: "todos", t: "Registros" });
   if (rol() !== "jefe") v.push({ id: "panel", t: "Panel" });
   if (esAdmin()) v.push({ id: "ajustes", t: "Ajustes" });
@@ -733,8 +753,8 @@ function pintarCabecera() {
 }
 function pintarNav() {
   const obs = S.mis.filter(r => r.estado === "OB").length;
-  const sol = S.solicitudes.length;
-  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
+  const sol = S.solicitudes.length, pt = S.bandeja.pend.filter(r => r.estado === "PT").length;
+  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
 }
 $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
 $("#btnSalir").addEventListener("click", () => { cortar(); signOut(auth); });
@@ -747,14 +767,14 @@ function ir(v) {
 }
 function render() {
   if (!S.dentro) return;
-  ({ nueva: pintarForm, mis: () => pintarLista("mis"), todos: () => pintarLista("todos"), panel: pintarPanel, ajustes: pintarAjustes }[S.view] || (() => {}))();
+  ({ nueva: pintarForm, mis: () => pintarLista("mis"), todos: () => pintarLista("todos"), panel: pintarPanel, ajustes: pintarAjustes, bandeja: pintarBandeja }[S.view] || (() => {}))();
 }
 
 /* ---------- Formulario ---------- */
-const ULT = "lib.ultimo";
-const BORR = "lib.borrador";
+const ULT = () => "lib.ultimo." + S.email;
+const BORR = () => "lib.borrador." + S.email;
 function formVacio() {
-  const u = ls.get(ULT, {});
+  const u = ls.get(ULT(), {});
   return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "",
     estructuraId: u.estructuraId || "", subestructuraId: u.subestructuraId || "", elementoId: u.elementoId || "", tipoId: u.tipoId || "",
     pkInicio: "", pkFin: "", sinPk: false, cota: "", capa: "", area: "", descripcion: "", observaciones: "", linksCsv: [], linksFotos: [], archivos: [], borrarArchivos: [] };
@@ -768,7 +788,7 @@ function formDesde(r) {
     archivos: (r.archivos || []).map(a => ({ ...a })), borrarArchivos: [] };
 }
 // El borrador local no guarda los archivos (pueden pesar varios MB); se avisan al volver.
-function guardarBorrador() { if (S.form && !S.editando) { leerCampos(); ls.set(BORR, { ...S.form, archivos: [], borrarArchivos: [] }); } }
+function guardarBorrador() { if (S.form && !S.editando) { leerCampos(); ls.set(BORR(), { ...S.form, archivos: [], borrarArchivos: [] }); } }
 
 /* ---------- Archivos (CSV y fotos guardados en Firestore, sin plan de pago) ---------- */
 const MAX_CSV = 900000;      // caracteres; un documento de Firestore admite hasta 1 MB
@@ -825,7 +845,7 @@ function opciones(lista, sel, vacio) {
   return `<option value="">${esc(vacio)}</option>` + lista.filter(o => o.activo !== false || o.id === sel).map(o => `<option value="${esc(o.id)}" ${o.id === sel ? "selected" : ""}>${esc(o.nombre)}</option>`).join("");
 }
 function pintarForm() {
-  if (!S.form) S.form = S.editando ? formDesde(S.editando) : (ls.get(BORR, null) || formVacio());
+  if (!S.form) { S.form = S.editando ? formDesde(S.editando) : (ls.get(BORR(), null) || formVacio()); if (!S.editando && !S.form.topografoId) S.form.topografoId = S.perfil?.topografoId || ""; }
   const f = S.form, E = S.editando;
   f.archivos ||= []; f.borrarArchivos ||= []; f.linksCsv ||= []; f.linksFotos ||= [];
   const est = L.est(f.estructuraId);
@@ -925,7 +945,7 @@ function conectarForm() {
   $("#fFoto").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "foto"); });
   $("#bLimpiar").addEventListener("click", () => {
     if (S.editando) { const r = S.editando; S.editando = null; S.form = null; ir(r.creadoPor === S.email ? "mis" : "todos"); return; }
-    ls.set(BORR, null); S.form = formVacio(); pintarForm();
+    ls.set(BORR(), null); S.form = formVacio(); pintarForm();
   });
   fm.addEventListener("input", () => { clearTimeout(S._bt); S._bt = setTimeout(guardarBorrador, 600); });
   fm.addEventListener("submit", e => { e.preventDefault(); guardar(); });
@@ -1004,10 +1024,10 @@ function guardar() {
   b.set(doc(collection(db, "historial")), { liberacionId: ref.id, accion: E ? "editado" : "creado", de, a,
     usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "" });
   b.commit().catch(e => { console.error(e); toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso para este cambio." : e.message), "bad"); });
-  ls.set(ULT, { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId });
+  ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId });
   toast(navigator.onLine ? (E ? "Cambios guardados" : "Liberación guardada") : "Guardado en el teléfono. Se subirá cuando haya señal.", navigator.onLine ? "" : "pend");
   if (E) { S.editando = null; S.form = null; ir(E.creadoPor === S.email ? "mis" : "todos"); return; }
-  ls.set(BORR, null);
+  ls.set(BORR(), null);
   const sig = formVacio();
   sig.fechaCampo = f.fechaCampo;
   S.form = sig; pintarForm(); scrollTo({ top: 0, behavior: "smooth" });
@@ -1091,13 +1111,18 @@ function abrirFicha(r) {
     ${(r.archivos || []).length ? `<div class="sub">Archivos</div><div class="archs" id="fArch">${r.archivos.map(a => `<button type="button" class="arch" data-arch="${esc(a.id)}"><span class="ext">${a.tipo === "foto" ? "JPG" : "CSV"}</span><div class="an"><b>${esc(a.nombre)}</b><span>${a.tipo === "csv" && a.lineas ? a.lineas + " líneas · " : ""}${kb(a.tam || 0)}</span></div><span class="dl">${a.tipo === "foto" ? "Ver" : "Descargar"}</span></button>`).join("")}</div>` : ""}
     <div class="sub">Historial</div><div class="hist" id="hist"><span class="muted small">Cargando…</span></div>
     <div class="actions">
-      ${puedeEditar(r) ? '<button type="button" class="btn pri block" id="fEditar">Editar</button>' : ""}
+      ${esGab() && r.actividad === "LIB" && ["PT", "OB"].includes(r.estado) ? '<button type="button" class="btn pri block" id="fAceptar">Aceptar y generar código</button><button type="button" class="btn sec" id="fObservar">Observar</button>' : ""}
+      ${esGab() && r.estado === "EP" ? '<button type="button" class="btn pri block" id="fEntregar">Entregar a Calidad</button>' : ""}
+      ${puedeEditar(r) ? `<button type="button" class="btn ${esGab() && ["PT", "OB", "EP"].includes(r.estado) && r.actividad === "LIB" ? "sec" : "pri block"}" id="fEditar">Editar</button>` : ""}
       <button type="button" class="btn sec ${puedeEditar(r) ? "" : "block"}" id="fCerrar">Cerrar</button>
     </div>
   </div>`;
   sh.hidden = false; sc.hidden = false;
   requestAnimationFrame(() => { sh.classList.add("on"); sc.classList.add("on"); });
   $("#fCerrar").addEventListener("click", cerrarFicha);
+  $("#fAceptar")?.addEventListener("click", () => aceptarUno(r));
+  $("#fObservar")?.addEventListener("click", () => observar(r));
+  $("#fEntregar")?.addEventListener("click", () => entregar([r.id]));
   $("#fEditar")?.addEventListener("click", () => { cerrarFicha(); S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); });
   if (unsubHist) unsubHist();
   unsubHist = onSnapshot(query(collection(db, "historial"), where("liberacionId", "==", r.id)), snap => {
@@ -1559,8 +1584,174 @@ function leerEje(texto, pk0) {
   return pts;
 }
 
+/* ---------- Bandeja de gabinete: aceptar (código único), observar, entregar a Calidad ---------- */
+function dialogo(titulo, html, onOk, okTxt = "Aceptar") {
+  const d = document.createElement("div"); d.className = "dlg";
+  d.innerHTML = `<form class="dlg-box card" novalidate><h3>${esc(titulo)}</h3>${html}<div class="actions" style="margin:14px 0 0"><button type="submit" class="btn pri block">${esc(okTxt)}</button><button type="button" class="btn sec" data-x>Cancelar</button></div></form>`;
+  document.body.appendChild(d); requestAnimationFrame(() => d.classList.add("on"));
+  const cerrar = () => { d.classList.remove("on"); setTimeout(() => d.remove(), 200); };
+  d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-x]")) cerrar(); });
+  d.querySelector("form").addEventListener("submit", e => { e.preventDefault(); const o = {}; new FormData(e.target).forEach((v, k) => { o[k] = String(v).trim(); }); if (onOk(o) !== false) cerrar(); });
+  setTimeout(() => d.querySelector("input,textarea")?.focus(), 60);
+  return d;
+}
+const hoyISO = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
+function fmtNumero(n) { const c = S.config || {}; return (c.prefijo || "SKT-TOP-") + String(n).padStart(c.digitos || 5, "0"); }
+
+// Código único: una transacción lee el contador y escribe el registro; si dos personas aceptan a la vez, una espera a la otra.
+async function generarCodigo(r, nombre) {
+  if (!navigator.onLine) { toast("Se necesita señal para generar el código.", "bad"); return null; }
+  try {
+    return await runTransaction(db, async tx => {
+      const cRef = doc(db, "contadores", "skt"), lRef = doc(db, "liberaciones", r.id);
+      const c = await tx.get(cRef), l = await tx.get(lRef);
+      if (!l.exists()) throw new Error("el registro ya no existe");
+      const d = l.data();
+      if (d.numero) return d.numero;
+      const n = (c.exists() ? c.data().ultimo || 0 : 0) + 1, numero = fmtNumero(n);
+      tx.set(cRef, { ultimo: n }, { merge: true });
+      tx.update(lRef, { numero, estado: "EP", nombreLiberacion: nombre || d.nombreLiberacion || "", generadoPor: S.perfil?.nombre || S.email, fechaLiberacion: serverTimestamp(), notaObservacion: "", editadoEn: serverTimestamp(), editadoPor: S.email });
+      tx.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: d.estado, a: "EP", usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "Código " + numero + " generado" });
+      return numero;
+    });
+  } catch (e) { console.error(e); toast("No se pudo generar el código: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return null; }
+}
+function cambiarEstado(ids, datos, a, nota) {
+  const b = writeBatch(db);
+  const regs = ids.map(id => S.bandeja.todos().find(r => r.id === id) || S.panelDatos.find(r => r.id === id) || S.todos.find(r => r.id === id)).filter(Boolean);
+  regs.forEach(r => {
+    b.update(doc(db, "liberaciones", r.id), { ...datos, estado: a, editadoEn: serverTimestamp(), editadoPor: S.email });
+    b.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: r.estado, a, usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: nota || "" });
+  });
+  return b.commit().then(() => regs.length).catch(e => { toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return 0; });
+}
+function aceptarUno(r) {
+  dialogo("Aceptar y generar código", `<p class="muted small" style="margin:0 0 10px">Se asigna el siguiente ${esc((S.config || {}).prefijo || "SKT-TOP-")}… libre. El nombre es el que va en el protocolo.</p>
+    <div class="f"><label for="dNom">Nombre de la liberación</label><textarea id="dNom" name="nombre" style="min-height:70px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>`,
+    async o => { const n = await generarCodigo(r, o.nombre); if (n) { toast(`Código ${n} generado`); if (!$("#sheet").hidden) cerrarFicha(); } }, "Generar código");
+}
+async function aceptarVarios(ids) {
+  if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
+  let n = 0; const regs = ids.map(id => S.bandeja.todos().find(r => r.id === id)).filter(Boolean);
+  for (const r of regs) { const c = await generarCodigo(r, r.nombreLiberacion || r.descripcion); if (c) n++; else break; }
+  S.bandeja.sel.clear(); if (n) toast(`${n} ${n === 1 ? "código generado" : "códigos generados"}`);
+}
+function observar(r) {
+  dialogo("Observar", `<p class="muted small" style="margin:0 0 10px">El topógrafo verá la nota en «Mis registros» y podrá corregir.</p><div class="f"><label for="dNota">Qué debe corregir</label><textarea id="dNota" name="nota" style="min-height:80px" required></textarea></div>`,
+    o => { if (!o.nota) { toast("Escribe qué debe corregir.", "bad"); return false; } cambiarEstado([r.id], { notaObservacion: o.nota }, "OB", o.nota).then(k => { if (k) { toast("Marcada como observada"); if (!$("#sheet").hidden) cerrarFicha(); } }); }, "Observar");
+}
+function entregar(ids) {
+  const n = ids.length;
+  dialogo(n === 1 ? "Entregar a Calidad" : `Entregar ${n} a Calidad`, `<div class="grid"><div class="f"><label for="dFe">Fecha de entrega</label><input id="dFe" name="fecha" type="date" value="${hoyISO()}" required></div><div class="f"><label for="dCargo">N° de cargo <span class="opt">(opcional)</span></label><input id="dCargo" name="cargo" placeholder="Ej. 2025-11-06-01"></div></div>`,
+    o => { if (!o.fecha) return false; cambiarEstado(ids, { fechaEntrega: Timestamp.fromDate(new Date(o.fecha + "T12:00:00")), numeroCargo: o.cargo }, "EC", o.cargo ? "Cargo " + o.cargo : "").then(k => { if (k) { toast(`${k} ${k === 1 ? "entregada" : "entregadas"} a Calidad`); S.bandeja.sel.clear(); if (!$("#sheet").hidden) cerrarFicha(); } }); }, "Entregar");
+}
+function reabrir(r) { cambiarEstado([r.id], { notaObservacion: "" }, "PT", "Devuelta a pendiente").then(k => { if (k) toast("Devuelta a pendientes"); }); }
+
+function suscribirBandeja() {
+  S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "in", ["PT", "OB"])), { includeMetadataChanges: true }, snap => {
+    S.bandeja.pend = snap.docs.map(fila).filter(r => r.actividad === "LIB"); pintarNav(); if (S.view === "bandeja") pintarBandeja();
+  }, e => console.warn("bandeja", e)));
+  S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "==", "EP")), { includeMetadataChanges: true }, snap => {
+    S.bandeja.ep = snap.docs.map(fila); if (S.view === "bandeja") pintarBandeja();
+  }, e => console.warn("bandeja ep", e)));
+  getDoc(doc(db, "config", "general")).then(d => { if (d.exists()) S.config = d.data(); }).catch(() => {});
+}
+function pintarBandeja() {
+  const B = S.bandeja, t = B.tab;
+  const fuente = t === "EP" ? B.ep : B.pend.filter(r => r.estado === t);
+  const q = B.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const vis = fuente.filter(r => { if (!q.length) return true; const s = textoBusqueda(r); return q.every(x => s.includes(x)); })
+    .sort((a, b) => (toDate(t === "EP" ? b.fechaLiberacion || b.fechaCampo : a.fechaCampo)?.getTime() || 0) - (toDate(t === "EP" ? a.fechaLiberacion || a.fechaCampo : b.fechaCampo)?.getTime() || 0));
+  B.sel = new Set([...B.sel].filter(id => fuente.some(r => r.id === id)));
+  const nPT = B.pend.filter(r => r.estado === "PT").length, nOB = B.pend.length - nPT, nEP = B.ep.length, ns = B.sel.size;
+  const lim = B.ver || 60;
+  $("#view").innerHTML = `
+  <h1 class="view-title">Bandeja de gabinete</h1>
+  <p class="lead">Lo que llega de campo. Al aceptar se genera el código único para el protocolo; luego se entrega a Calidad.</p>
+  <div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="${t === "PT"}">Por aceptar <span class="cnt">${nPT}</span></button><button type="button" data-bt="OB" aria-pressed="${t === "OB"}">Observadas <span class="cnt">${nOB}</span></button><button type="button" data-bt="EP" aria-pressed="${t === "EP"}">Por entregar <span class="cnt">${nEP}</span></button></div>
+  <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar N°, PK, tipo, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
+  <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
+    ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
+  ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
+  <div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>
+  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}`;
+  $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-bt]"); if (b) { B.tab = b.dataset.bt; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
+  const bq = $("#bq"); bq.addEventListener("input", () => { B.q = bq.value; const pos = bq.selectionStart; pintarBandeja(); const n = $("#bq"); n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} });
+  const todo = (on) => { vis.slice(0, lim).forEach(r => on ? B.sel.add(r.id) : B.sel.delete(r.id)); pintarBandeja(); };
+  $("#bAll")?.addEventListener("change", e => todo(e.target.checked)); $("#bAll2")?.addEventListener("change", e => todo(e.target.checked));
+  $("#bBulk").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (!b) return; const ids = [...B.sel]; if (b.dataset.bk === "limpiar") { B.sel.clear(); pintarBandeja(); } else if (b.dataset.bk === "entregar") entregar(ids); else aceptarVarios(ids); });
+  $("#bMas")?.addEventListener("click", () => { B.ver = (B.ver || 60) + 60; pintarBandeja(); });
+  $("#blist").addEventListener("change", e => { if (!e.target.matches("[data-sel]")) return; const id = e.target.closest("[data-rid]").dataset.rid; e.target.checked ? B.sel.add(id) : B.sel.delete(id); pintarBandeja(); });
+  $("#blist").addEventListener("click", e => {
+    const row = e.target.closest("[data-rid]"); if (!row) return;
+    const r = fuente.find(x => x.id === row.dataset.rid); if (!r) return;
+    const a = e.target.closest("[data-a]");
+    if (a) { ({ aceptar: () => aceptarUno(r), observar: () => observar(r), entregar: () => entregar([r.id]), reabrir: () => reabrir(r), editar: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } })[a.dataset.a](); return; }
+    if (e.target.closest(".item")) abrirFicha(r);
+  });
+}
+
+/* ---------- Exportar CSV (administrador) ---------- */
+function csvLinea(arr) { return arr.map(v => { const s = v == null ? "" : String(v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(","); }
+const fISO = v => { const d = toDate(v); return d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : ""; };
+function ajExportar() {
+  cuerpoAj();
+  const A = S.aj; A.exp ||= { desde: hoyISO().slice(0, 8) + "01", hasta: hoyISO(), est: "" };
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Descarga un CSV que se abre en Excel. «Registros» tiene las mismas columnas que el Excel de protocolos (una fila por liberación). «Avance diario» resume por día, frente, tipo y capa cuántas se registraron, se generaron y se entregaron, y los metros liberados.</p>
+  <div class="card filters" style="grid-template-columns:1fr 1fr 2fr">
+    <div class="f"><label for="xDesde">Desde</label><input id="xDesde" type="date" value="${esc(A.exp.desde)}"></div>
+    <div class="f"><label for="xHasta">Hasta</label><input id="xHasta" type="date" value="${esc(A.exp.hasta)}"></div>
+    <div class="f"><label for="xEst">Estructura</label><select id="xEst"><option value="">Todas</option>${S.listas.estructuras.map(e => `<option value="${esc(e.id)}" ${A.exp.est === e.id ? "selected" : ""}>${esc(e.nombre)}</option>`).join("")}</select></div>
+    <div class="f" style="grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="mini" data-r="hoy">Hoy</button><button type="button" class="mini" data-r="semana">Últimos 7 días</button><button type="button" class="mini" data-r="mes">Este mes</button><button type="button" class="mini" data-r="todo">Todo</button></div>
+  </div>
+  <div class="card section"><div class="actions" style="margin:0 0 10px"><button type="button" class="btn pri" id="xReg">Descargar registros (CSV)</button><button type="button" class="btn sec" id="xDia">Descargar avance diario (CSV)</button></div><p class="small muted" id="xEst2" style="margin:0 0 8px"></p></div>`;
+  const leer = () => { A.exp.desde = $("#xDesde").value; A.exp.hasta = $("#xHasta").value; A.exp.est = $("#xEst").value; };
+  $("#ajBody").addEventListener("click", e => {
+    const r = e.target.closest("[data-r]"); if (!r) return;
+    const t = new Date(), iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const k = r.dataset.r; let d0 = new Date(t);
+    if (k === "semana") d0.setDate(t.getDate() - 6); if (k === "mes") d0.setDate(1); if (k === "todo") d0 = new Date(2020, 0, 1);
+    $("#xDesde").value = iso(d0); $("#xHasta").value = iso(t);
+  });
+  $("#xReg").addEventListener("click", () => exportar("reg"));
+  $("#xDia").addEventListener("click", () => exportar("dia"));
+  async function exportar(tipo) {
+    leer(); const { desde, hasta, est } = A.exp;
+    if (!desde || !hasta || desde > hasta) { toast("Revisa las fechas.", "bad"); return; }
+    if (!navigator.onLine) { toast("Se necesita señal para exportar.", "bad"); return; }
+    const st = $("#xEst2"); st.textContent = "Leyendo registros…"; $("#xReg").disabled = $("#xDia").disabled = true;
+    try {
+      const snap = await getDocs(query(collection(db, "liberaciones"), where("fechaCampo", ">=", Timestamp.fromDate(new Date(desde + "T00:00:00"))), where("fechaCampo", "<=", Timestamp.fromDate(new Date(hasta + "T23:59:59"))), orderBy("fechaCampo")));
+      const regs = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.estado !== "X" && (!est || r.estructuraId === est));
+      if (!regs.length) { st.textContent = "No hay registros en ese rango."; return; }
+      let nombre, lineas;
+      if (tipo === "reg") {
+        const cab = ["ITEM", "N° Registro", "Key_Topografo", "Descripcion", "Km Inicio", "Km Fin", "Fecha Campo", "Fecha Liberacion", "Fecha de entrega", "N° Entrega", "Estructura", "Sub-Estructura", "Elemento", "Tipo de Liberacion", "Capa", "Cota", "Generado", "Key_Status", "Estado", "Superficie (m2)", "Observaciones", "Actividad", "Registrado por", "Nombre de liberacion"];
+        lineas = [cab, ...regs.map((r, i) => [i + 1, r.numero, r.topografoId, r.descripcion, r.pkInicio ?? "", r.pkFin ?? "", fISO(r.fechaCampo), fISO(r.fechaLiberacion), fISO(r.fechaEntrega), r.numeroCargo, nom(L.est(r.estructuraId)), nom(L.sub(r.subestructuraId)), nom(L.ele(r.elementoId)), nom(L.tipo(r.tipoId)), r.capa, r.cota, r.generadoPor, r.estado, ESTADOS[r.estado] || r.estado, r.area ?? "", r.observaciones, nom(L.act(r.actividad), r.actividad), r.creadoPor, r.nombreLiberacion])];
+        nombre = `registros_${desde}_${hasta}.csv`;
+      } else {
+        const g = new Map();
+        const k = (f, r) => `${f}|${r.subestructuraId}|${r.tipoId}|${(r.capa || "").trim()}`;
+        const get = (f, r) => { const key = k(f, r); if (!g.has(key)) g.set(key, { f, r, reg: 0, m: 0, gen: 0, ent: 0, pend: 0 }); return g.get(key); };
+        regs.filter(r => r.actividad === "LIB").forEach(r => {
+          const fc = fISO(r.fechaCampo); if (fc) { const o = get(fc, r); o.reg++; if (r.pkInicio != null) o.m += Math.max(0, (r.pkFin ?? r.pkInicio) - r.pkInicio); if (["PT", "OB"].includes(r.estado)) o.pend++; }
+          const fl = fISO(r.fechaLiberacion); if (fl && r.numero) get(fl, r).gen++;
+          const fe = fISO(r.fechaEntrega); if (fe && r.estado === "EC") get(fe, r).ent++;
+        });
+        const filas = [...g.values()].sort((a, b) => b.f.localeCompare(a.f) || natural(nom(L.sub(a.r.subestructuraId)), nom(L.sub(b.r.subestructuraId))) || natural(nom(L.tipo(a.r.tipoId)), nom(L.tipo(b.r.tipoId))) || natural(a.r.capa || "", b.r.capa || ""));
+        lineas = [["Fecha", "Estructura", "Sub-Estructura", "Tipo de Liberacion", "Capa", "Registradas en campo", "Metros registrados", "Codigos generados", "Entregadas a Calidad", "Pendientes de ese dia"], ...filas.map(o => [o.f, nom(L.est(o.r.estructuraId)), nom(L.sub(o.r.subestructuraId)), nom(L.tipo(o.r.tipoId)), (o.r.capa || "").trim(), o.reg, Math.round(o.m * 10) / 10, o.gen, o.ent, o.pend])];
+        nombre = `avance_diario_${desde}_${hasta}.csv`;
+      }
+      descargar(nombre, "﻿" + lineas.map(csvLinea).join("\r\n"), "text/csv;charset=utf-8");
+      st.textContent = `${nombre}: ${lineas.length - 1} filas de ${regs.length} registros.`;
+    } catch (e) { console.error(e); st.textContent = "No se pudo exportar: " + (e.code === "failed-precondition" ? "Firebase pide un índice; abre la consola del navegador y sigue el enlace." : e.message); }
+    finally { $("#xReg").disabled = $("#xDia").disabled = false; }
+  }
+}
+
 /* ---------- Ajustes (solo administrador). Cada cambio se guarda al instante. ---------- */
-const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["historico", "Histórico"]];
+const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["historico", "Histórico"], ["exportar", "Exportar"]];
 const AJ_LISTA = { lugares: "estructuras", topografos: "topografos", tipos: "tipos" };
 const slug = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
 const nuevoId = (t, usados) => { let id = slug(t), i = 2; while (usados.has(id)) id = slug(t) + "-" + i++; return id; };
@@ -1589,7 +1780,7 @@ function pintarAjustes() {
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
-  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico })[A.tab]();
+  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico, exportar: ajExportar })[A.tab]();
 }
 // Cada vista de ajustes arranca con un contenedor nuevo para no acumular acciones repetidas
 function cuerpoAj() { const b = $("#ajBody"), n = b.cloneNode(false); b.replaceWith(n); return n; }
