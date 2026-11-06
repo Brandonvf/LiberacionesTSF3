@@ -121,6 +121,89 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .btn.block{flex:1}
 .btn[disabled]{opacity:.55;pointer-events:none}
 
+/* Archivos */
+.up{display:flex;gap:10px;flex-wrap:wrap}
+.upbtn{flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:9px;border:1.5px dashed #9cc7bf;background:var(--accent-soft);color:var(--accent-strong);border-radius:16px;min-height:56px;font-weight:800;font-family:var(--f-disp);font-size:15px;cursor:pointer;transition:transform .12s,background .2s}
+.upbtn:active{transform:scale(.97)}
+.upbtn:hover{background:#d2ece6}
+.upbtn svg{width:22px;height:22px}
+.archs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.archs:empty{display:none}
+.arch{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 8px;animation:entra .3s cubic-bezier(.2,.7,.2,1) both}
+.arch img,.arch .ext{width:52px;height:52px;border-radius:10px;object-fit:cover;flex:none;background:var(--surface-2)}
+.arch .ext{display:grid;place-items:center;font-family:var(--f-mono);font-size:11.5px;font-weight:500;color:var(--accent-strong)}
+.arch .an{flex:1;min-width:0;display:flex;flex-direction:column;font-size:13px}
+.arch .an b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.arch .an span{color:var(--muted)}
+.arch>button{border:0;background:var(--surface-2);border-radius:999px;width:34px;height:34px;font-weight:800;color:var(--muted);flex:none}
+.arch .dl{font-weight:800;font-size:13px;color:var(--accent-strong);padding:0 10px}
+.lb{position:fixed;inset:0;z-index:70;background:rgba(12,24,21,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;opacity:0;transition:opacity .25s}
+.lb.on{opacity:1}
+.lb img{max-width:100%;max-height:calc(100vh - 120px);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.lbbar{display:flex;gap:10px}
+
+/* Ajustes */
+.tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 14px;padding:4px;background:var(--surface-2);border-radius:999px;width:max-content;max-width:100%}
+.tabs button{border:0;background:transparent;border-radius:999px;padding:9px 16px;font-weight:800;font-size:14px;color:var(--muted);white-space:nowrap;transition:all .2s}
+.tabs button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px rgba(16,40,34,.1)}
+.est{padding:16px 16px 8px;margin-bottom:12px}
+.est-h{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.est-h input{flex:1;font-family:var(--f-disp);font-weight:800;font-size:16px}
+.ed input,.ed select{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 12px;min-height:42px;min-width:0;width:100%}
+.ed input:focus,.ed select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.srow{display:grid;grid-template-columns:1fr 92px 92px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.srow.head{border-top:0;padding:0 0 4px;font-size:12px;font-weight:700;color:var(--muted)}
+.srow .mono{font-size:14px}
+.trow{display:grid;grid-template-columns:1fr 150px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.prow{display:grid;grid-template-columns:72px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.off-row>*:not(.mini){opacity:.5}
+.tog{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
+.tog input{width:20px;height:20px;accent-color:var(--accent)}
+.ord{display:flex;gap:4px}
+.ord button{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;width:34px;height:34px;font-weight:800;color:var(--muted)}
+.addrow{display:grid;gap:8px;grid-template-columns:1fr auto;margin-top:10px}
+.savebar{position:sticky;bottom:calc(var(--nav-h) + 12px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;border-radius:999px;padding:8px 8px 8px 20px;margin:12px 0;box-shadow:0 12px 30px rgba(0,0,0,.18);animation:entra .3s both}
+.savebar .btn{min-height:44px;padding:10px 20px;font-size:15px}
+@media (min-width:860px){.savebar{bottom:20px}}
+@media (max-width:560px){
+  .srow{grid-template-columns:1fr 1fr;}
+  .srow .sn{grid-column:1/-1}
+  .srow.head{display:none}
+  .trow{grid-template-columns:1fr auto}
+  .trow select{grid-column:1/-1;order:3}
+}
+
+/* Panel */
+.filters{display:grid;gap:10px;grid-template-columns:repeat(4,1fr);padding:16px;margin-bottom:12px}
+.filters .f select,.filters .f input{min-height:44px;padding:9px 12px;font-size:15px}
+.filters .wide{grid-column:span 2}
+.filters>*{min-width:0}
+@media (max-width:720px){.filters{grid-template-columns:1fr 1fr}.filters .wide{grid-column:1/-1}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media (max-width:560px){.stats{grid-template-columns:1fr 1fr}}
+.stat{padding:12px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+.stat b{display:block;font-family:var(--f-disp);font-size:26px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;color:var(--muted);font-weight:700}
+.stat.PT b{color:var(--pt)} .stat.EP b{color:var(--ep)} .stat.EC b{color:var(--ec)}
+.chartbox{padding:14px 14px 10px;margin-bottom:12px}
+.chart-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.chart-h h2{font-family:var(--f-disp);font-size:16px;font-weight:800;margin:0;margin-right:auto}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;font-weight:700;color:var(--muted);margin:8px 0 2px}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:3px;margin-right:6px;vertical-align:1px}
+#chart svg{display:block;width:100%;overflow:visible}
+#chart rect.seg{cursor:pointer;transition:opacity .15s}
+#chart rect.seg:hover{opacity:.75}
+#chart .lab{font:800 13px var(--f-disp);fill:var(--ink)}
+#chart .sum{font:700 11.5px var(--f-body);fill:var(--muted)}
+#chart .tick{font:500 10.5px var(--f-mono);fill:var(--muted)}
+#chart .grid{stroke:#e3ece9;stroke-width:1}
+#chart .track{fill:#f1f6f5}
+.seg-anim{animation:crece .6s cubic-bezier(.2,.7,.2,1) both;transform-box:fill-box;transform-origin:left center}
+@keyframes crece{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.nota-g{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+.tip{position:fixed;z-index:65;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 11px;font-size:12.5px;line-height:1.35;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:260px;opacity:0;transition:opacity .12s}
+.tip.on{opacity:1}
+
 /* Listas */
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 .search{flex:1;min-width:200px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:11px 18px;min-height:46px;font-size:15px}
@@ -315,12 +398,15 @@ const S = {
   mis: [], todos: [], solicitudes: [], usuarios: [],
   view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "" } },
   editando: null, form: null, limiteTodos: 300, verTodos: 60,
-  subs: [], dentro: false
+  subs: [], dentro: false,
+  aj: { tab: "usuarios", sucio: false, b: null },
+  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
              set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+S.panel.zoom = ls.get("lib.panelZoom", false);
 
 /* ---------- Progresivas ---------- */
 function leerPk(t) {
@@ -447,7 +533,7 @@ function entrarApp() {
   S.subs.push(onSnapshot(collection(db, "listas"), snap => {
     snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
     S.listas.tipos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
-    if (S.view === "nueva") { leerCampos(); pintarForm(); } else render();
+    if (S.view === "nueva") { leerCampos(); pintarForm(); } else if (S.view === "ajustes" && S.aj.sucio) {} else render();
   }, e => console.warn("listas", e)));
   if (escribe()) {
     S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("creadoPor", "==", S.email)), { includeMetadataChanges: true }, snap => {
@@ -457,8 +543,8 @@ function entrarApp() {
   }
   if (veTodo()) suscribirTodos();
   if (esAdmin()) {
-    S.subs.push(onSnapshot(collection(db, "solicitudes"), snap => { S.solicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() })); pintarNav(); if (S.view === "usuarios") render(); }, e => console.warn("solicitudes", e)));
-    S.subs.push(onSnapshot(collection(db, "usuarios"), snap => { S.usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nombre || a.id).localeCompare(b.nombre || b.id)); if (S.view === "usuarios") render(); }, e => console.warn("usuarios", e)));
+    S.subs.push(onSnapshot(collection(db, "solicitudes"), snap => { S.solicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() })); pintarNav(); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("solicitudes", e)));
+    S.subs.push(onSnapshot(collection(db, "usuarios"), snap => { S.usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nombre || a.id).localeCompare(b.nombre || b.id)); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("usuarios", e)));
   }
   pintarCabecera();
   const guardada = ls.get("lib.vista", "");
@@ -491,13 +577,16 @@ const ICON = {
   nueva: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   mis: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l1 2h3v14H5V6h3z"/><path d="M9 12h6M9 16h4"/></svg>',
   todos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
-  usuarios: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 15c1.6.6 2.6 2.2 3 5"/></svg>'
+  panel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M4 12h14M4 18h6"/><path d="M17 4v4M21 10v4M14 16v4" opacity=".55"/></svg>',
+  ajustes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>'
 };
 function vistas() {
   const v = [];
+  if (rol() === "jefe") v.push({ id: "panel", t: "Panel" });
   if (escribe()) v.push({ id: "nueva", t: "Nueva" }, { id: "mis", t: "Mis registros" });
   if (veTodo()) v.push({ id: "todos", t: "Registros" });
-  if (esAdmin()) v.push({ id: "usuarios", t: "Usuarios" });
+  if (rol() !== "jefe") v.push({ id: "panel", t: "Panel" });
+  if (esAdmin()) v.push({ id: "ajustes", t: "Ajustes" });
   return v;
 }
 function pintarCabecera() {
@@ -509,7 +598,7 @@ function pintarCabecera() {
 function pintarNav() {
   const obs = S.mis.filter(r => r.estado === "OB").length;
   const sol = S.solicitudes.length;
-  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "usuarios" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
+  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
 }
 $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
 $("#btnSalir").addEventListener("click", () => { cortar(); signOut(auth); });
@@ -522,7 +611,7 @@ function ir(v) {
 }
 function render() {
   if (!S.dentro) return;
-  ({ nueva: pintarForm, mis: () => pintarLista("mis"), todos: () => pintarLista("todos"), usuarios: pintarUsuarios }[S.view] || (() => {}))();
+  ({ nueva: pintarForm, mis: () => pintarLista("mis"), todos: () => pintarLista("todos"), panel: pintarPanel, ajustes: pintarAjustes }[S.view] || (() => {}))();
 }
 
 /* ---------- Formulario ---------- */
@@ -532,16 +621,69 @@ function formVacio() {
   const u = ls.get(ULT, {});
   return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "",
     estructuraId: u.estructuraId || "", subestructuraId: u.subestructuraId || "", elementoId: u.elementoId || "", tipoId: u.tipoId || "",
-    pkInicio: "", pkFin: "", sinPk: false, cota: "", capa: "", area: "", descripcion: "", observaciones: "", linksCsv: [], linksFotos: [] };
+    pkInicio: "", pkFin: "", sinPk: false, cota: "", capa: "", area: "", descripcion: "", observaciones: "", linksCsv: [], linksFotos: [], archivos: [], borrarArchivos: [] };
 }
 function formDesde(r) {
   return { actividad: r.actividad || "LIB", fechaCampo: localInput(toDate(r.fechaCampo) || new Date()), topografoId: r.topografoId || "",
     estructuraId: r.estructuraId || "", subestructuraId: r.subestructuraId || "", elementoId: r.elementoId || "", tipoId: r.tipoId || "",
     pkInicio: r.pkInicio == null ? "" : fmtPk(r.pkInicio), pkFin: r.pkFin == null ? "" : fmtPk(r.pkFin), sinPk: r.pkInicio == null && r.pkFin == null,
     cota: r.cota || "", capa: r.capa || "", area: r.area == null ? "" : String(r.area), descripcion: r.descripcion || "", observaciones: r.observaciones || "",
-    linksCsv: (r.linksCsv || []).slice(), linksFotos: (r.linksFotos || []).slice() };
+    linksCsv: (r.linksCsv || []).slice(), linksFotos: (r.linksFotos || []).slice(),
+    archivos: (r.archivos || []).map(a => ({ ...a })), borrarArchivos: [] };
 }
-function guardarBorrador() { if (S.form && !S.editando) { leerCampos(); ls.set(BORR, S.form); } }
+// El borrador local no guarda los archivos (pueden pesar varios MB); se avisan al volver.
+function guardarBorrador() { if (S.form && !S.editando) { leerCampos(); ls.set(BORR, { ...S.form, archivos: [], borrarArchivos: [] }); } }
+
+/* ---------- Archivos (CSV y fotos guardados en Firestore, sin plan de pago) ---------- */
+const MAX_CSV = 900000;      // caracteres; un documento de Firestore admite hasta 1 MB
+const MAX_FOTO = 700000;     // caracteres del JPEG en base64 tras comprimir
+const MAX_ARCH = 8;
+const kb = n => n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+const rid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+function cargarImagen(file) {
+  return new Promise((ok, mal) => { const u = URL.createObjectURL(file); const im = new Image();
+    im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = () => { URL.revokeObjectURL(u); mal(new Error("No se pudo leer la imagen")); }; im.src = u; });
+}
+async function comprimirFoto(file) {
+  const im = await cargarImagen(file);
+  let max = 1600, q = 0.72;
+  for (let i = 0; i < 7; i++) {
+    const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
+    const c = document.createElement("canvas"); c.width = Math.round(im.naturalWidth * s); c.height = Math.round(im.naturalHeight * s);
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+    const url = c.toDataURL("image/jpeg", q);
+    if (url.length <= MAX_FOTO) return url;
+    max = Math.round(max * 0.8); q = Math.max(0.5, q - 0.05);
+  }
+  throw new Error("La foto es demasiado grande");
+}
+async function leerArchivos(files, tipo) {
+  const f = S.form; leerCampos();
+  for (const file of files) {
+    if (f.archivos.length >= MAX_ARCH) { toast(`Máximo ${MAX_ARCH} archivos por registro.`, "bad"); break; }
+    try {
+      if (tipo === "csv") {
+        const t = await file.text();
+        if (t.length > MAX_CSV) { toast(`«${file.name}» pesa ${kb(t.length)}; el máximo es ${kb(MAX_CSV)}.`, "bad"); continue; }
+        const lineas = t.split(/\r?\n/).filter(x => x.trim()).length;
+        f.archivos.push({ id: rid(), tipo: "csv", nombre: file.name, tam: t.length, lineas, datos: t, nuevo: true });
+      } else {
+        const d = await comprimirFoto(file);
+        f.archivos.push({ id: rid(), tipo: "foto", nombre: file.name || "foto.jpg", tam: Math.round(d.length * 0.75), datos: d, nuevo: true });
+      }
+    } catch (e) { toast(`No se pudo cargar «${file.name}»: ${e.message}`, "bad"); }
+  }
+  pintarForm();
+}
+function archRow(a, i) {
+  const ico = a.tipo === "foto" && a.datos ? `<img src="${a.datos}" alt="">` : `<span class="ext">${a.tipo === "foto" ? "JPG" : "CSV"}</span>`;
+  return `<div class="arch">${ico}<div class="an"><b>${esc(a.nombre)}</b><span>${a.tipo === "csv" && a.lineas ? a.lineas + " líneas · " : ""}${kb(a.tam || 0)}${a.nuevo ? " · por guardar" : ""}</span></div><button type="button" data-delarch="${i}" aria-label="Quitar archivo">×</button></div>`;
+}
+function descargar(nombre, contenido, tipo) {
+  const a = document.createElement("a");
+  a.href = contenido.startsWith("data:") ? contenido : URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+}
 
 function opciones(lista, sel, vacio) {
   return `<option value="">${esc(vacio)}</option>` + lista.filter(o => o.activo !== false || o.id === sel).map(o => `<option value="${esc(o.id)}" ${o.id === sel ? "selected" : ""}>${esc(o.nombre)}</option>`).join("");
@@ -549,6 +691,7 @@ function opciones(lista, sel, vacio) {
 function pintarForm() {
   if (!S.form) S.form = S.editando ? formDesde(S.editando) : (ls.get(BORR, null) || formVacio());
   const f = S.form, E = S.editando;
+  f.archivos ||= []; f.borrarArchivos ||= []; f.linksCsv ||= []; f.linksFotos ||= [];
   const est = L.est(f.estructuraId);
   const subs = est ? est.subs || [] : [];
   if (subs.length === 1 && !f.subestructuraId) f.subestructuraId = subs[0].id;
@@ -597,10 +740,17 @@ function pintarForm() {
       <div class="grid">
         <div class="f full"><label for="iDesc">Descripción</label><textarea id="iDesc" name="descripcion" placeholder="Liberación de relleno filtro 2 para acondicionamiento de geomembrana" required>${esc(f.descripcion)}</textarea></div>
         <div class="f full"><label for="iObs">Observaciones <span class="opt">(opcional)</span></label><textarea id="iObs" name="observaciones" style="min-height:60px">${esc(f.observaciones)}</textarea></div>
-        <div class="f full"><label for="iCsv">Enlaces de Drive del CSV <span class="opt">(uno o varios)</span></label>
+        <div class="f full"><span class="flabel">Archivos del levantamiento</span>
+          <div class="up">
+            <label class="upbtn"><input type="file" id="fCsv" accept=".csv,.txt,text/csv,text/plain" multiple hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg>Subir CSV</label>
+            <label class="upbtn"><input type="file" id="fFoto" accept="image/*" multiple hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto</label>
+          </div>
+          <div class="archs">${f.archivos.map(archRow).join("")}</div>
+          <div class="hint">Las fotos se reducen solas para que suban rápido. El CSV puede pesar hasta ${kb(MAX_CSV)}.</div></div>
+        <div class="f full"><label for="iCsv">Enlaces de Drive del CSV <span class="opt">(opcional, uno o varios)</span></label>
           <div class="inrow"><input id="iCsv" type="url" inputmode="url" placeholder="https://drive.google.com/…"><button type="button" class="mini" data-add="linksCsv">Agregar</button></div>
           <div class="links">${f.linksCsv.map((l, i) => linkRow(l, "linksCsv", i)).join("")}</div></div>
-        <div class="f full"><label for="iFot">Enlaces de Drive de las fotos <span class="opt">(uno o varios)</span></label>
+        <div class="f full"><label for="iFot">Enlaces de Drive de las fotos <span class="opt">(opcional, uno o varios)</span></label>
           <div class="inrow"><input id="iFot" type="url" inputmode="url" placeholder="https://drive.google.com/…"><button type="button" class="mini" data-add="linksFotos">Agregar</button></div>
           <div class="links">${f.linksFotos.map((l, i) => linkRow(l, "linksFotos", i)).join("")}</div></div>
       </div>
@@ -636,8 +786,12 @@ function conectarForm() {
       if (!/^https?:\/\//i.test(v)) { toast("El enlace debe empezar con https://", "bad"); inp.focus(); return; }
       leerCampos(); f[a.dataset.add].push(v); pintarForm(); $("#" + (a.dataset.add === "linksCsv" ? "iCsv" : "iFot")).focus(); return; }
     const d = e.target.closest("[data-del]");
-    if (d) { leerCampos(); f[d.dataset.del].splice(+d.dataset.i, 1); pintarForm(); }
+    if (d) { leerCampos(); f[d.dataset.del].splice(+d.dataset.i, 1); pintarForm(); return; }
+    const da = e.target.closest("[data-delarch]");
+    if (da) { leerCampos(); const [a] = f.archivos.splice(+da.dataset.delarch, 1); if (a && !a.nuevo) f.borrarArchivos.push(a.id); pintarForm(); }
   });
+  $("#fCsv").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "csv"); });
+  $("#fFoto").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "foto"); });
   for (const id of ["iCsv", "iFot"]) $("#" + id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.target.nextElementSibling.click(); } });
   $("#bLimpiar").addEventListener("click", () => {
     if (S.editando) { const r = S.editando; S.editando = null; S.form = null; ir(r.creadoPor === S.email ? "mis" : "todos"); return; }
@@ -695,6 +849,7 @@ function guardar() {
     pkFin: f.sinPk || p1 == null || isNaN(p1) ? null : (p2 == null || isNaN(p2) ? p1 : p2),
     cota: f.cota.trim(), capa: f.capa.trim(), area, descripcion: f.descripcion.trim(), observaciones: f.observaciones.trim(),
     linksCsv: f.linksCsv, linksFotos: f.linksFotos,
+    archivos: f.archivos.map(a => ({ id: a.id, tipo: a.tipo, nombre: a.nombre, tam: a.tam || 0, ...(a.lineas ? { lineas: a.lineas } : {}) })),
     editadoEn: serverTimestamp(), editadoPor: S.email
   };
   const b = writeBatch(db);
@@ -713,6 +868,9 @@ function guardar() {
     b.set(ref, { ...datos, numero: "", nombreLiberacion: "", generadoPor: "", estado: a, notaObservacion: "",
       fechaLiberacion: null, fechaEntrega: null, numeroCargo: "", creadoEn: serverTimestamp(), creadoPor: S.email, origen: "app" });
   }
+  for (const x of f.archivos.filter(x => x.nuevo))
+    b.set(doc(db, "archivos", x.id), { liberacionId: ref.id, tipo: x.tipo, nombre: x.nombre, tam: x.tam || 0, datos: x.datos, creadoPor: S.email, creadoEn: serverTimestamp() });
+  for (const id of f.borrarArchivos) b.delete(doc(db, "archivos", id));
   b.set(doc(collection(db, "historial")), { liberacionId: ref.id, accion: E ? "editado" : "creado", de, a,
     usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "" });
   b.commit().catch(e => { console.error(e); toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso para este cambio." : e.message), "bad"); });
@@ -751,12 +909,16 @@ function pintarLista(cual) {
   $("#bMas")?.addEventListener("click", () => { S.verTodos += 100; pintarLista(cual); });
   $("#bMasSrv")?.addEventListener("click", () => { S.limiteTodos += 300; S.verTodos += 100; suscribirTodos(); });
 }
+function resumenArch(r) {
+  const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c;
+  return a.length ? `<span>${[c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ")}</span>` : "";
+}
 function tarjeta(r, i) {
   const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
   return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
     <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}</div>
     <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
-    <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}</div>
+    <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}${resumenArch(r)}</div>
     ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}
   </button>`;
 }
@@ -796,6 +958,7 @@ function abrirFicha(r) {
     </dl>
     ${(r.linksCsv || []).length ? `<div class="sub">CSV</div><div class="links">${links(r.linksCsv)}</div>` : ""}
     ${(r.linksFotos || []).length ? `<div class="sub">Fotos</div><div class="links">${links(r.linksFotos)}</div>` : ""}
+    ${(r.archivos || []).length ? `<div class="sub">Archivos</div><div class="archs" id="fArch">${r.archivos.map(a => `<button type="button" class="arch" data-arch="${esc(a.id)}"><span class="ext">${a.tipo === "foto" ? "JPG" : "CSV"}</span><div class="an"><b>${esc(a.nombre)}</b><span>${a.tipo === "csv" && a.lineas ? a.lineas + " líneas · " : ""}${kb(a.tam || 0)}</span></div><span class="dl">${a.tipo === "foto" ? "Ver" : "Descargar"}</span></button>`).join("")}</div>` : ""}
     <div class="sub">Historial</div><div class="hist" id="hist"><span class="muted small">Cargando…</span></div>
     <div class="actions">
       ${puedeEditar(r) ? '<button type="button" class="btn pri block" id="fEditar">Editar</button>' : ""}
@@ -812,12 +975,40 @@ function abrirFicha(r) {
     const box = $("#hist"); if (!box) return;
     box.innerHTML = h.length ? h.map(x => `<div><b>${esc({ creado: "Registrado", editado: "Editado", estado: "Cambio de estado" }[x.accion] || x.accion)}</b>${x.a && x.de !== x.a ? ` · <span class="st ${esc(x.a)}">${esc(ESTADOS[x.a] || x.a)}</span>` : ""}<br><span class="muted small">${esc(fmtFecha(x.fecha))} · ${esc(x.nombre || x.usuario)}</span>${x.nota ? `<br>${esc(x.nota)}` : ""}</div>`).join("") : '<span class="muted small">Sin movimientos.</span>';
   }, () => { const box = $("#hist"); if (box) box.innerHTML = '<span class="muted small">No disponible.</span>'; });
+  if (unsubArch) { unsubArch(); unsubArch = null; }
+  const datosArch = {};
+  if ((r.archivos || []).length) {
+    unsubArch = onSnapshot(query(collection(db, "archivos"), where("liberacionId", "==", r.id)), snap => {
+      snap.docs.forEach(d => { datosArch[d.id] = d.data(); });
+      for (const btn of document.querySelectorAll("#fArch [data-arch]")) {
+        const a = datosArch[btn.dataset.arch];
+        if (a && a.tipo === "foto" && a.datos && !btn.querySelector("img")) btn.querySelector(".ext").outerHTML = `<img src="${a.datos}" alt="">`;
+      }
+    }, e => console.warn("archivos", e));
+    $("#fArch").addEventListener("click", e => {
+      const btn = e.target.closest("[data-arch]"); if (!btn) return;
+      const a = datosArch[btn.dataset.arch];
+      if (!a) { toast("El archivo aún se está cargando…"); return; }
+      if (a.tipo === "foto") verFoto(a.datos, a.nombre); else descargar(a.nombre || "levantamiento.csv", a.datos, "text/csv");
+    });
+  }
   setTimeout(() => $("#fCerrar")?.focus({ preventScroll: true }), 50);
+}
+let unsubArch = null;
+function verFoto(src, nombre) {
+  const lb = document.createElement("div"); lb.className = "lb";
+  lb.innerHTML = `<img src="${src}" alt="${esc(nombre)}"><div class="lbbar"><button type="button" class="btn sec" data-dl>Descargar</button><button type="button" class="btn pri" data-x>Cerrar</button></div>`;
+  document.body.appendChild(lb); requestAnimationFrame(() => lb.classList.add("on"));
+  lb.addEventListener("click", e => {
+    if (e.target.closest("[data-dl]")) { descargar((nombre || "foto").replace(/\.[^.]+$/, "") + ".jpg", src); return; }
+    if (e.target.closest("[data-x]") || e.target === lb) { lb.classList.remove("on"); setTimeout(() => lb.remove(), 250); }
+  });
 }
 function cerrarFicha() {
   const sh = $("#sheet"), sc = $("#scrim");
   sh.classList.remove("on"); sc.classList.remove("on");
   if (unsubHist) { unsubHist(); unsubHist = null; }
+  if (unsubArch) { unsubArch(); unsubArch = null; }
   setTimeout(() => { sh.hidden = true; sc.hidden = true; }, 300);
 }
 $("#scrim").addEventListener("click", cerrarFicha);
@@ -826,10 +1017,321 @@ addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden
 /* ---------- Usuarios (solo administrador) ---------- */
 function selRol(v, extra = "") { return `<select ${extra} aria-label="Rol">${Object.entries(ROLES).map(([k, t]) => `<option value="${k}" ${k === v ? "selected" : ""}>${t}</option>`).join("")}</select>`; }
 function selTopo(v, extra = "") { return `<select ${extra} aria-label="Topógrafo"><option value="">Sin clave de topógrafo</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${t.id === v ? "selected" : ""}>${esc(t.id)} · ${esc(t.nombre)}</option>`).join("")}</select>`; }
-function pintarUsuarios() {
+/* ---------- Panel: barras por progresiva, una fila por capa ---------- */
+const COLOR = { PT: "#8a99a6", EP: "#e0a030", EC: "#2e9a5c", OB: "#d4553a" };
+let unsubPanel = null;
+function subsConDatos() { const out = []; for (const e of S.listas.estructuras) for (const s of e.subs || []) if (s.activo !== false && e.activo !== false) out.push({ e, s }); return out; }
+function suscribirPanel(subId) {
+  if (S.panelSub === subId && unsubPanel) return;
+  if (unsubPanel) unsubPanel();
+  S.panelSub = subId; S.panelDatos = []; S.panelCargando = true;
+  unsubPanel = onSnapshot(query(collection(db, "liberaciones"), where("subestructuraId", "==", subId)), { includeMetadataChanges: true }, snap => {
+    S.panelDatos = snap.docs.map(fila); S.panelCargando = false;
+    if (S.view === "panel") actualizarPanel();
+  }, e => { console.warn("panel", e); S.panelCargando = false; });
+  S.subs.push(() => { if (unsubPanel) { unsubPanel(); unsubPanel = null; S.panelSub = ""; } });
+}
+const natural = (a, b) => String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" });
+const hoyStr = () => new Date().toDateString();
+function filtrarPanel(conFiltros = true) {
+  const P = S.panel;
+  const d0 = P.desde ? new Date(P.desde + "T00:00:00").getTime() : null, d1 = P.hasta ? new Date(P.hasta + "T23:59:59").getTime() : null;
+  return S.panelDatos.filter(r => r.estado !== "X" && r.actividad === "LIB").filter(r => {
+    if (!conFiltros) return true;
+    const t = toDate(r.fechaCampo)?.getTime() || 0;
+    if (d0 && t < d0) return false; if (d1 && t > d1) return false;
+    if (P.st && r.estado !== P.st) return false;
+    if (P.topo && r.topografoId !== P.topo) return false;
+    if (P.capa && (r.capa || "").trim() !== P.capa) return false;
+    if (P.hoy && toDate(r.fechaCampo)?.toDateString() !== hoyStr()) return false;
+    return true;
+  });
+}
+function pintarPanel() {
+  const P = S.panel, lista = subsConDatos();
+  if (!lista.length) { $("#view").innerHTML = '<h1 class="view-title">Panel</h1><div class="card empty"><b>Cargando listas…</b></div>'; return; }
+  if (!P.subId || !lista.some(x => x.s.id === P.subId)) P.subId = ls.get("lib.panelSub", "") && lista.some(x => x.s.id === ls.get("lib.panelSub", "")) ? ls.get("lib.panelSub", "") : lista[0].s.id;
+  suscribirPanel(P.subId);
+  const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
   $("#view").innerHTML = `
-  <h1 class="view-title">Usuarios</h1>
-  <p class="lead">Quien entra por primera vez con Google aparece en «Solicitudes». Asígnale un rol y apruébalo.</p>
+  <h1 class="view-title">Panel de liberaciones</h1>
+  <p class="lead">Avance por progresiva, capa por capa. Se actualiza al instante con cada registro.</p>
+  <div class="card filters">
+    <div class="f wide"><label for="pSub">Frente</label><select id="pSub">${grupos}</select></div>
+    <div class="f"><label for="pDesde">Desde</label><input id="pDesde" type="date" value="${esc(P.desde)}"></div>
+    <div class="f"><label for="pHasta">Hasta</label><input id="pHasta" type="date" value="${esc(P.hasta)}"></div>
+    <div class="f"><label for="pSt">Estado</label><select id="pSt"><option value="">Todos</option>${["PT", "EP", "EC", "OB"].map(k => `<option value="${k}" ${P.st === k ? "selected" : ""}>${ESTADOS[k]}</option>`).join("")}</select></div>
+    <div class="f"><label for="pTopo">Topógrafo</label><select id="pTopo"><option value="">Todos</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${P.topo === t.id ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
+    <div class="f"><label for="pCapa">Capa</label><select id="pCapa"></select></div>
+    <div class="f" style="display:flex;align-items:flex-end;gap:8px"><button type="button" class="mini" id="pHoy" aria-pressed="${P.hoy}" style="flex:1;${P.hoy ? "background:var(--ink);color:#fff;border-color:var(--ink)" : ""}">Hoy</button><button type="button" class="mini" id="pLimpiar" style="flex:1">Limpiar</button></div>
+  </div>
+  <div class="stats" id="pStats"></div>
+  <div class="card chartbox">
+    <div class="chart-h"><h2 id="pTit"></h2><label class="tog"><input type="checkbox" id="pZoom" ${P.zoom ? "checked" : ""}>Acercar a lo registrado</label><label class="tog"><input type="checkbox" id="pTodas" ${P.todas ? "checked" : ""}>Capas sin registros</label></div>
+    <div class="legend">${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
+    <div id="chart"></div>
+    <p class="nota-g" id="pNota"></p>
+  </div>
+  <h2 class="sub" id="pListaT" style="font-size:16px;margin:18px 0 10px"></h2>
+  <div class="list" id="pLista"></div>`;
+  const set = (k, v) => { P[k] = v; actualizarPanel(); };
+  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.capa = ""; ls.set("lib.panelSub", P.subId); suscribirPanel(P.subId); actualizarPanel(); });
+  $("#pDesde").addEventListener("change", e => set("desde", e.target.value));
+  $("#pHasta").addEventListener("change", e => set("hasta", e.target.value));
+  $("#pSt").addEventListener("change", e => set("st", e.target.value));
+  $("#pTopo").addEventListener("change", e => set("topo", e.target.value));
+  $("#pCapa").addEventListener("change", e => set("capa", e.target.value));
+  $("#pTodas").addEventListener("change", e => set("todas", e.target.checked));
+  $("#pZoom").addEventListener("change", e => { set("zoom", e.target.checked); ls.set("lib.panelZoom", e.target.checked); });
+  $("#pHoy").addEventListener("click", () => { P.hoy = !P.hoy; pintarPanel(); });
+  $("#pLimpiar").addEventListener("click", () => { Object.assign(P, { desde: "", hasta: "", st: "", topo: "", capa: "", hoy: false }); pintarPanel(); });
+  $("#pLista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFicha(S.panelDatos.find(r => r.id === it.dataset.id)); });
+  actualizarPanel();
+}
+function actualizarPanel() {
+  const P = S.panel, sub = L.sub(P.subId); if (!sub || !$("#chart")) return;
+  const base = filtrarPanel(false);
+  // Capas disponibles en este frente
+  const capas = [...new Set(base.map(r => (r.capa || "").trim()).filter(Boolean))].sort(natural);
+  if (P.capa && !capas.includes(P.capa)) P.capa = "";
+  $("#pCapa").innerHTML = `<option value="">Todas</option>` + capas.map(c => `<option ${c === P.capa ? "selected" : ""}>${esc(c)}</option>`).join("");
+  $("#pCapa").disabled = !capas.length;
+  // Tarjetas del frente
+  const hoy = base.filter(r => toDate(r.fechaCampo)?.toDateString() === hoyStr()).length;
+  const cnt = k => base.filter(r => r.estado === k).length;
+  $("#pStats").innerHTML = `<div class="stat"><b>${hoy}</b><span>Registradas hoy</span></div><div class="stat PT"><b>${cnt("PT") + cnt("OB")}</b><span>Pendientes${cnt("OB") ? ` (${cnt("OB")} ${cnt("OB") === 1 ? "observada" : "observadas"})` : ""}</span></div><div class="stat EP"><b>${cnt("EP")}</b><span>En proceso</span></div><div class="stat EC"><b>${cnt("EC")}</b><span>Entregadas a Calidad</span></div>`;
+  const recs = filtrarPanel(true);
+  $("#pTit").textContent = sub.nombre;
+  dibujarGrafico(sub, recs);
+  const orden = recs.slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
+  $("#pListaT").textContent = S.panelCargando ? "Cargando…" : `${orden.length} liberaciones con estos filtros`;
+  $("#pLista").innerHTML = orden.slice(0, 40).map(tarjeta).join("") + (orden.length > 40 ? `<p class="muted small" style="text-align:center">Se muestran las 40 más recientes.</p>` : "");
+}
+function paso(span, px) {
+  const obj = span / Math.max(2, px / 78);
+  return [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000].find(s => s >= obj) || 10000;
+}
+function unionLen(iv) {
+  const a = iv.slice().sort((x, y) => x[0] - y[0]); let tot = 0, cs = null, ce = null;
+  for (const [s, e] of a) { if (cs === null || s > ce) { if (cs !== null) tot += ce - cs; cs = s; ce = e; } else ce = Math.max(ce, e); }
+  if (cs !== null) tot += ce - cs; return tot;
+}
+function dibujarGrafico(sub, recs) {
+  const box = $("#chart"); const W = Math.max(280, box.clientWidth);
+  const conPk = recs.filter(r => r.pkInicio != null);
+  const sinPk = recs.length - conPk.length;
+  let x0 = sub.pkMin, x1 = sub.pkMax;
+  const vals = conPk.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
+  if (x0 == null) x0 = vals.length ? Math.min(...vals) : 0;
+  if (x1 == null) x1 = vals.length ? Math.max(...vals) : x0 + 100;
+  if (vals.length) { x0 = Math.min(x0, Math.min(...vals)); x1 = Math.max(x1, Math.max(...vals)); }
+  const largo = Math.max(10, x1 - x0);
+  if (S.panel.zoom && vals.length) { const a = Math.min(...vals), b = Math.max(...vals), m = Math.max(10, (b - a) * 0.06); x0 = Math.max(sub.pkMin ?? 0, a - m, 0); x1 = b + m; }
+  if (x1 - x0 < 10) x1 = x0 + 10;
+  const pad = 6, X = v => pad + (v - x0) / (x1 - x0) * (W - pad * 2);
+  // Filas: tipos en gráfico, en orden constructivo
+  const porTipo = new Map(); conPk.forEach(r => { if (!porTipo.has(r.tipoId)) porTipo.set(r.tipoId, []); porTipo.get(r.tipoId).push(r); });
+  const filas = S.listas.tipos.filter(t => t.enGrafico && (S.panel.todas || porTipo.has(t.id)));
+  const fueraGrafico = conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)).length;
+  const top = 26, labH = 20, maxBar = 34;
+  let y = top, partes = [];
+  const st = paso(x1 - x0, W), ticks = []; for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-6; v += st) ticks.push(v);
+  const hoy = hoyStr();
+  filas.forEach((t, fi) => {
+    const rs = (porTipo.get(t.id) || []).map(r => ({ r, s: r.pkInicio, e: Math.max(r.pkFin ?? r.pkInicio, r.pkInicio) })).sort((a, b) => a.s - b.s || a.e - b.e);
+    // Reparto en carriles para que los tramos que se superponen (capas) no se tapen
+    const ends = []; rs.forEach(o => { let k = ends.findIndex(e => e <= o.s); if (k < 0) { k = ends.length; ends.push(o.e); } else ends[k] = o.e; o.k = k; });
+    const lanes = Math.max(1, ends.length), barH = Math.min(maxBar, Math.max(16, lanes * 7)), lh = barH / lanes;
+    const len = unionLen(rs.map(o => [o.s, o.e])), lenEC = unionLen(rs.filter(o => o.r.estado === "EC").map(o => [o.s, o.e]));
+    const tot = largo, nCap = new Set(rs.map(o => (o.r.capa || "").trim()).filter(Boolean)).size;
+    const sum = rs.length ? `${Math.round(len).toLocaleString("es-PE")} m · ${Math.round(len / tot * 100)}%${lenEC ? ` · entregado ${Math.round(lenEC / tot * 100)}%` : ""}` : "sin registros";
+    partes.push(`<g class="fila"><text class="lab" x="${pad}" y="${y + 14}">${esc(t.nombre)}${nCap > 1 ? ` <tspan class="sum">· ${nCap} capas</tspan>` : rs.length > 1 ? ` <tspan class="sum">· ${rs.length}</tspan>` : ""}</text><text class="sum" x="${W - pad}" y="${y + 14}" text-anchor="end">${sum}</text>`);
+    const yb = y + labH;
+    partes.push(`<rect class="track" x="${pad}" y="${yb}" width="${W - pad * 2}" height="${barH}" rx="6"/>`);
+    rs.forEach(o => {
+      const xa = X(o.s), w = Math.max(3, X(o.e) - xa), yy = yb + o.k * lh + (lanes > 1 ? 0.5 : 0), h = Math.max(2, lh - (lanes > 1 ? 1 : 0));
+      const esHoy = toDate(o.r.fechaCampo)?.toDateString() === hoy;
+      partes.push(`<rect class="seg seg-anim" data-id="${esc(o.r.id)}" x="${xa.toFixed(1)}" y="${yy.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(4, h / 2).toFixed(1)}" fill="${COLOR[o.r.estado] || COLOR.PT}" ${esHoy ? 'stroke="#14231f" stroke-width="1.6"' : ""} style="animation-delay:${Math.min(fi * 40, 400)}ms"/>`);
+    });
+    partes.push(`</g>`);
+    y = yb + barH + 14;
+  });
+  const H = Math.max(y, top + 40);
+  const grid = ticks.map(v => `<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 6}" y2="${H - 8}"/><text class="tick" x="${X(v).toFixed(1)}" y="${top - 12}" text-anchor="${X(v) < 30 ? "start" : X(v) > W - 30 ? "end" : "middle"}">${fmtPk(v)}</text>`).join("");
+  box.innerHTML = filas.length
+    ? `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Liberaciones por progresiva en ${esc(sub.nombre)}">${grid}${partes.join("")}</svg>`
+    : `<div class="empty"><b>${S.panelCargando ? "Cargando…" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
+  const notas = [];
+  if (sinPk) notas.push(`+${sinPk} ${sinPk === 1 ? "liberación" : "liberaciones"} sin progresiva`);
+  if (fueraGrafico) notas.push(`${fueraGrafico} de tipos que no están en el gráfico (se activan en Ajustes → Tipos y capas)`);
+  notas.push(`Eje de ${fmtPk(x0)} a ${fmtPk(x1)}. Toca un tramo para ver su ficha; el borde oscuro marca lo registrado hoy.`);
+  $("#pNota").textContent = notas.join(" · ");
+  const svg = box.querySelector("svg"); if (!svg) return;
+  let tip = $(".tip"); if (!tip) { tip = document.createElement("div"); tip.className = "tip"; document.body.appendChild(tip); }
+  svg.addEventListener("click", e => { const s = e.target.closest("rect.seg"); if (s) { tip.classList.remove("on"); abrirFicha(S.panelDatos.find(r => r.id === s.dataset.id)); } });
+  svg.addEventListener("pointermove", e => {
+    const s = e.target.closest("rect.seg"); if (!s || e.pointerType === "touch") { tip.classList.remove("on"); return; }
+    const r = S.panelDatos.find(x => x.id === s.dataset.id); if (!r) return;
+    tip.innerHTML = `<b>${esc(r.numero || "Sin número")}</b> · ${esc(ESTADOS[r.estado] || r.estado)}<br><span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>${r.capa ? " · " + esc(r.capa) : ""}<br>${esc(fmtFecha(r.fechaCampo))} · ${esc(nom(L.topo(r.topografoId), r.topografoId))}`;
+    tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on");
+  });
+  svg.addEventListener("pointerleave", () => tip.classList.remove("on"));
+}
+let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (S.view === "panel" && $("#chart")) actualizarPanel(); }, 150); });
+
+/* ---------- Ajustes (solo administrador) ---------- */
+const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["topografos", "Topógrafos"], ["tipos", "Tipos y capas"]];
+const AJ_LISTA = { lugares: "estructuras", topografos: "topografos", tipos: "tipos" };
+const slug = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
+const nuevoId = (t, usados) => { let id = slug(t), i = 2; while (usados.has(id)) id = slug(t) + "-" + i++; return id; };
+function pintarAjustes() {
+  if (!esAdmin()) { ir(vistas()[0].id); return; }
+  const A = S.aj;
+  const lista = AJ_LISTA[A.tab];
+  if (lista && !A.sucio) A.b = JSON.parse(JSON.stringify(S.listas[lista] || []));
+  $("#view").innerHTML = `
+  <h1 class="view-title">Ajustes</h1>
+  <p class="lead">Solo el administrador ve esta sección.</p>
+  <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
+  <div id="ajBody"></div>`;
+  $(".tabs").addEventListener("click", e => {
+    const b = e.target.closest("[data-tab]"); if (!b || b.dataset.tab === A.tab) return;
+    if (A.sucio && !confirmarDescarte()) return;
+    A.tab = b.dataset.tab; A.sucio = false; pintarAjustes();
+  });
+  ({ usuarios: pintarUsuarios, lugares: ajLugares, topografos: ajTopografos, tipos: ajTipos })[A.tab]();
+}
+function confirmarDescarte() {
+  // Sin ventanas emergentes del navegador: un segundo toque confirma.
+  if (S.aj._conf && Date.now() - S.aj._conf < 4000) { S.aj._conf = 0; return true; }
+  S.aj._conf = Date.now(); toast("Tienes cambios sin guardar. Toca otra vez para descartarlos.", "pend"); return false;
+}
+function barraGuardar() {
+  return S.aj.sucio ? `<div class="savebar"><span>Cambios sin guardar</span><span style="display:flex;gap:8px"><button type="button" class="btn sec" id="ajDesc" style="background:transparent;color:#fff;border-color:#4a5a56">Descartar</button><button type="button" class="btn pri" id="ajSave">Guardar</button></span></div>` : "";
+}
+function conectarGuardar(lista, validar) {
+  $("#ajDesc")?.addEventListener("click", () => { S.aj.sucio = false; pintarAjustes(); });
+  $("#ajSave")?.addEventListener("click", () => {
+    const msg = validar ? validar(S.aj.b) : "";
+    if (msg) { toast(msg, "bad"); return; }
+    const items = S.aj.b;
+    setDoc(doc(db, "listas", lista), { items, editadoEn: serverTimestamp(), editadoPor: S.email })
+      .then(() => toast("Ajustes guardados")).catch(e => toast("No se pudo guardar: " + e.message, "bad"));
+    S.listas[lista] = JSON.parse(JSON.stringify(items));
+    S.aj.sucio = false; pintarAjustes();
+  });
+}
+function sucio() { if (!S.aj.sucio) { S.aj.sucio = true; const sb = $("#ajSb"); if (sb) { sb.innerHTML = barraGuardar(); conectarGuardar(AJ_LISTA[S.aj.tab], AJ_VALIDAR[S.aj.tab]); } } }
+const numONull = v => { const p = leerPk(v); return p == null || isNaN(p) ? null : p; };
+const AJ_VALIDAR = {
+  lugares: b => { for (const e of b) { if (!e.nombre.trim()) return "Hay una estructura sin nombre."; for (const s of e.subs || []) { if (!s.nombre.trim()) return `Hay una sub-estructura sin nombre en ${e.nombre}.`; if (s.pkMin != null && s.pkMax != null && s.pkMax <= s.pkMin) return `En ${s.nombre} el PK final debe ser mayor que el inicial.`; } } return ""; },
+  topografos: b => { const v = new Set(); for (const t of b) { if (!t.id.trim() || !t.nombre.trim()) return "Cada topógrafo necesita clave y nombre."; if (v.has(t.id)) return `La clave ${t.id} está repetida.`; v.add(t.id); } return ""; },
+  tipos: b => b.some(t => !t.nombre.trim()) ? "Hay un tipo sin nombre." : ""
+};
+
+function ajLugares() {
+  const B = S.aj.b;
+  const usados = new Set(); B.forEach(e => { usados.add(e.id); (e.subs || []).forEach(s => usados.add(s.id)); });
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Cada estructura agrupa sus sub-estructuras o frentes. Lo que agregues aparece al instante en el formulario de campo, enlazado a su estructura. El rango de PK define el largo del gráfico. Desactivar oculta un lugar en el formulario sin borrar los registros que ya lo usan.</p>
+  ${B.map((e, ei) => `<div class="card est ed ${e.activo === false ? "off-row" : ""}" data-e="${ei}">
+    <div class="est-h"><input value="${esc(e.nombre)}" data-k="enom" aria-label="Nombre de la estructura"><button type="button" class="mini" data-k="eact">${e.activo === false ? "Activar" : "Desactivar"}</button></div>
+    <div class="srow head"><span>Sub-estructura / frente</span><span>PK inicio</span><span>PK final</span><span></span></div>
+    ${(e.subs || []).map((s, si) => `<div class="srow ${s.activo === false ? "off-row" : ""}" data-s="${si}"><input class="sn" value="${esc(s.nombre)}" data-k="snom" aria-label="Nombre"><input class="mono" value="${esc(s.pkMin == null ? "" : fmtPk(s.pkMin))}" data-k="smin" placeholder="0+000" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(s.pkMax == null ? "" : fmtPk(s.pkMax))}" data-k="smax" placeholder="2+700" inputmode="decimal" aria-label="PK final"><button type="button" class="mini" data-k="sact">${s.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
+    <div class="addrow"><input placeholder="Nueva sub-estructura de ${esc(e.nombre)}" data-k="snew" aria-label="Nueva sub-estructura"><button type="button" class="mini ok-btn" data-k="sadd">Agregar</button></div>
+  </div>`).join("")}
+  <div class="card est ed"><div class="flabel" style="font-weight:800;margin-bottom:8px">Nueva estructura</div>
+    <div class="addrow"><input id="eNew" placeholder="Ej. Presa Auxiliar Sur"><button type="button" class="mini ok-btn" id="eAdd">Agregar</button></div>
+    <p class="muted small" style="margin:8px 0 6px">Se crea con una sub-estructura del mismo nombre; puedes renombrarla o agregar más.</p></div>
+  <div id="ajSb">${barraGuardar()}</div>`;
+  conectarGuardar("estructuras", AJ_VALIDAR.lugares);
+  const body = $("#ajBody");
+  body.addEventListener("input", e => {
+    const k = e.target.dataset.k; const ce = e.target.closest("[data-e]"); if (!ce || !k || k === "snew") return;
+    const est = B[+ce.dataset.e]; const cs = e.target.closest("[data-s]"); const sub = cs ? est.subs[+cs.dataset.s] : null;
+    if (k === "enom") est.nombre = e.target.value;
+    if (k === "snom") sub.nombre = e.target.value;
+    if (k === "smin") sub.pkMin = numONull(e.target.value);
+    if (k === "smax") sub.pkMax = numONull(e.target.value);
+    sucio();
+  });
+  body.addEventListener("focusout", e => { const k = e.target.dataset.k; if ((k === "smin" || k === "smax") && e.target.value.trim()) { const v = numONull(e.target.value); if (v != null) e.target.value = fmtPk(v); } });
+  body.addEventListener("click", e => {
+    const b = e.target.closest("button[data-k]"), ce = e.target.closest("[data-e]");
+    if (b && ce) {
+      const est = B[+ce.dataset.e], k = b.dataset.k;
+      if (k === "eact") { est.activo = est.activo === false; }
+      else if (k === "sact") { const s = est.subs[+b.closest("[data-s]").dataset.s]; s.activo = s.activo === false; }
+      else if (k === "sadd") { const inp = ce.querySelector('[data-k="snew"]'); const n = inp.value.trim(); if (!n) { inp.focus(); return; } (est.subs ||= []).push({ id: nuevoId(n, usados), nombre: n, pkMin: 0, pkMax: null }); }
+      S.aj.sucio = true; ajLugares(); return;
+    }
+    if (e.target.id === "eAdd") {
+      const n = $("#eNew").value.trim(); if (!n) { $("#eNew").focus(); return; }
+      const id = nuevoId(n, usados); usados.add(id);
+      B.push({ id, nombre: n, subs: [{ id: nuevoId(n + "-1", usados), nombre: n, pkMin: 0, pkMax: null }] });
+      S.aj.sucio = true; ajLugares();
+    }
+  });
+  body.addEventListener("keydown", e => { if (e.key === "Enter" && (e.target.dataset.k === "snew" || e.target.id === "eNew")) { e.preventDefault(); (e.target.nextElementSibling).click(); } });
+}
+
+function ajTopografos() {
+  const B = S.aj.b;
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">La clave (JS, CS, AB…) identifica al topógrafo en los registros y en el Excel; no se cambia una vez creada. El nombre sí se puede corregir.</p>
+  <div class="card section ed" id="tpList">
+    ${B.map((t, i) => `<div class="prow ${t.activo === false ? "off-row" : ""}" data-i="${i}"><span class="mono" style="font-weight:500">${esc(t.id)}</span><input value="${esc(t.nombre)}" data-k="nom" aria-label="Nombre de ${esc(t.id)}"><button type="button" class="mini" data-k="act">${t.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
+    <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar topógrafo</div>
+    <div class="prow" style="border-top:0"><input id="tpId" class="mono" placeholder="Clave" maxlength="5" aria-label="Clave" style="text-transform:uppercase"><input id="tpNom" placeholder="Nombre y apellidos" aria-label="Nombre"><button type="button" class="mini ok-btn" id="tpAdd">Agregar</button></div>
+  </div>
+  <div id="ajSb">${barraGuardar()}</div>`;
+  conectarGuardar("topografos", AJ_VALIDAR.topografos);
+  const L2 = $("#tpList");
+  L2.addEventListener("input", e => { const r = e.target.closest("[data-i]"); if (r && e.target.dataset.k === "nom") { B[+r.dataset.i].nombre = e.target.value; sucio(); } });
+  L2.addEventListener("click", e => {
+    const b = e.target.closest('[data-k="act"]');
+    if (b) { const t = B[+b.closest("[data-i]").dataset.i]; t.activo = t.activo === false; S.aj.sucio = true; ajTopografos(); return; }
+    if (e.target.id === "tpAdd") {
+      const id = $("#tpId").value.trim().toUpperCase(), n = $("#tpNom").value.trim();
+      if (!/^[A-ZÑ]{2,5}$/.test(id)) { toast("La clave debe tener de 2 a 5 letras.", "bad"); $("#tpId").focus(); return; }
+      if (B.some(t => t.id === id)) { toast(`La clave ${id} ya existe.`, "bad"); $("#tpId").focus(); return; }
+      if (!n) { $("#tpNom").focus(); return; }
+      B.push({ id, nombre: n }); S.aj.sucio = true; ajTopografos();
+    }
+  });
+}
+
+function ajTipos() {
+  const B = S.aj.b;
+  B.sort((a, b) => (a.orden || 0) - (b.orden || 0)).forEach((t, i) => t.orden = i + 1);
+  const selEle = (v, extra) => `<select ${extra}>${S.listas.elementos.map(e => `<option value="${esc(e.id)}" ${e.id === v ? "selected" : ""}>${esc(e.nombre)}</option>`).join("")}</select>`;
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Cada tipo es una fila (capa) del gráfico del panel, en este orden. Usa las flechas para ponerlos en el orden constructivo. «En gráfico» decide si la capa se dibuja.</p>
+  <div class="card section ed" id="tyList">
+    ${B.map((t, i) => `<div class="trow ${t.activo === false ? "off-row" : ""}" data-i="${i}"><input value="${esc(t.nombre)}" data-k="nom" aria-label="Nombre">${selEle(t.elementoId, 'data-k="ele" aria-label="Elemento"')}<label class="tog"><input type="checkbox" data-k="gr" ${t.enGrafico ? "checked" : ""}>En gráfico</label><span class="ord"><button type="button" data-k="up" aria-label="Subir">↑</button><button type="button" data-k="dn" aria-label="Bajar">↓</button></span></div>`).join("")}
+    <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar tipo</div>
+    <div class="trow" style="border-top:0"><input id="tyNom" placeholder="Ej. Relleno filtro 3">${selEle("mt", 'id="tyEle" aria-label="Elemento"')}<button type="button" class="mini ok-btn" id="tyAdd">Agregar</button></div>
+  </div>
+  <div id="ajSb">${barraGuardar()}</div>`;
+  conectarGuardar("tipos", AJ_VALIDAR.tipos);
+  const L2 = $("#tyList");
+  L2.addEventListener("input", e => { const r = e.target.closest("[data-i]"); if (!r) return; const t = B[+r.dataset.i];
+    if (e.target.dataset.k === "nom") t.nombre = e.target.value; if (e.target.dataset.k === "ele") t.elementoId = e.target.value; if (e.target.dataset.k === "gr") t.enGrafico = e.target.checked; sucio(); });
+  L2.addEventListener("click", e => {
+    const b = e.target.closest('button[data-k]');
+    if (b) { const i = +b.closest("[data-i]").dataset.i, j = b.dataset.k === "up" ? i - 1 : i + 1; if (j < 0 || j >= B.length) return;
+      [B[i].orden, B[j].orden] = [B[j].orden, B[i].orden]; S.aj.sucio = true; ajTipos(); $(`#tyList [data-i="${j}"] [data-k="${b.dataset.k}"]`)?.focus(); return; }
+    if (e.target.id === "tyAdd") {
+      const n = $("#tyNom").value.trim(); if (!n) { $("#tyNom").focus(); return; }
+      B.push({ id: nuevoId(n, new Set(B.map(t => t.id))), nombre: n, elementoId: $("#tyEle").value, orden: B.length + 1, enGrafico: true });
+      S.aj.sucio = true; ajTipos();
+    }
+  });
+}
+
+function pintarUsuarios() {
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Quien entra por primera vez con Google aparece en «Solicitudes». Asígnale un rol y apruébalo.</p>
   <div class="card section"><h2>Solicitudes${S.solicitudes.length ? ` <span class="badge" style="background:var(--ob);color:#fff;border-radius:999px;padding:0 8px;font-size:12px">${S.solicitudes.length}</span>` : ""}</h2>
     <div id="sol">${S.solicitudes.length ? S.solicitudes.map(s => `<div class="urow" data-uid="${esc(s.id)}"><div class="who"><b>${esc(s.nombre || s.email)}</b><span class="muted small">${esc(s.email)}</span></div>${selRol("topografo", 'data-k="rol"')}${selTopo("", 'data-k="topo"')}<button type="button" class="mini ok-btn" data-ap>Aprobar</button><button type="button" class="mini" data-rc>Rechazar</button></div>`).join("") : '<p class="muted" style="margin:0 0 12px">No hay solicitudes pendientes.</p>'}</div>
   </div>

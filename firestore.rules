@@ -72,6 +72,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Archivos subidos (CSV como texto y fotos comprimidas), máximo 1 MB cada uno
+    match /archivos/{id} {
+      allow read: if member();
+      allow create: if writer()
+        && request.resource.data.creadoPor == email()
+        && request.resource.data.datos is string
+        && request.resource.data.datos.size() <= 1000000;
+      allow update: if false;
+      allow delete: if isGab() || (writer() && resource.data.creadoPor == email());
+    }
+
     // Historial de cambios: se agrega, nunca se modifica
     match /historial/{id} {
       allow read: if member();
