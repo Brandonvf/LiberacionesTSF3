@@ -1,0 +1,82 @@
+rules_version = '2';
+
+// Reglas de seguridad de Liberaciones TSF3.
+// - Solo entran cuentas de Google aprobadas (colección "usuarios", el id es el correo).
+// - El administrador principal entra directo y aprueba a los demás.
+// - Quien entra por primera vez deja una "solicitud" y espera aprobación.
+// - Roles: topografo (registra), gabinete (genera protocolos y cambia estados),
+//   jefe (solo ve), admin (todo).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null
+        && request.auth.token.email_verified == true;
+    }
+    function email() { return request.auth.token.email.lower(); }
+    function isOwner() { return signedIn() && email() == 'brandonkluivertvillegasfranco@gmail.com'; }
+    function perfilPath() { return /databases/$(database)/documents/usuarios/$(email()); }
+    function hasRol(roles) {
+      return signedIn() && exists(perfilPath())
+        && get(perfilPath()).data.activo == true
+        && get(perfilPath()).data.rol in roles;
+    }
+    function isAdmin() { return isOwner() || hasRol(['admin']); }
+    function isGab()   { return isOwner() || hasRol(['gabinete', 'admin']); }
+    function writer()  { return isOwner() || hasRol(['topografo', 'gabinete', 'admin']); }
+    function member()  { return isOwner() || hasRol(['topografo', 'gabinete', 'jefe', 'admin']); }
+
+    // Cuentas con acceso (id = correo en minúsculas)
+    match /usuarios/{correo} {
+      allow read: if signedIn() && (email() == correo || member());
+      allow write: if isAdmin()
+        && (correo != 'brandonkluivertvillegasfranco@gmail.com' || isOwner());
+    }
+
+    // Pedidos de acceso de cuentas nuevas
+    match /solicitudes/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.email == email();
+      allow delete: if signedIn() && (request.auth.uid == uid || isAdmin());
+    }
+
+    // Listas editables, configuración y correlativo SKT-TOP
+    match /listas/{id}     { allow read: if member(); allow write: if isAdmin(); }
+    match /config/{id}     { allow read: if member(); allow write: if isAdmin(); }
+    match /contadores/{id} { allow read: if member(); allow write: if isGab(); }
+
+    // Liberaciones y levantamientos
+    match /liberaciones/{id} {
+      allow read: if member();
+
+      // En campo se crea siempre sin número y en estado PT (o NA si no es liberación).
+      // El administrador puede crear sin esa condición (importación del histórico).
+      allow create: if isAdmin() || (writer()
+        && request.resource.data.creadoPor == email()
+        && request.resource.data.estado in ['PT', 'NA']
+        && request.resource.data.numero == ''
+        && request.resource.data.origen == 'app');
+
+      // Gabinete y administrador editan todo. El topógrafo solo lo suyo mientras está
+      // pendiente u observado, y no puede tocar número, estado de entrega ni autoría.
+      allow update: if isGab() || (writer()
+        && resource.data.creadoPor == email()
+        && resource.data.estado in ['PT', 'OB', 'NA']
+        && request.resource.data.estado in ['PT', 'NA']
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+             'numero', 'nombreLiberacion', 'generadoPor', 'fechaLiberacion', 'fechaEntrega',
+             'numeroCargo', 'notaObservacion', 'creadoPor', 'creadoEn', 'origen']));
+
+      allow delete: if isAdmin();
+    }
+
+    // Historial de cambios: se agrega, nunca se modifica
+    match /historial/{id} {
+      allow read: if member();
+      allow create: if writer() && request.resource.data.usuario == email();
+      allow update, delete: if false;
+    }
+  }
+}

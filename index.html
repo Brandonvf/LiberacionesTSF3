@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Liberaciones · TSF3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Nunito+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f1f6f5; --surface:#ffffff; --surface-2:#e7f0ee; --ink:#14231f; --muted:#5a6b66; --line:#d3e1dd;
+  --accent:#0b7d72; --accent-ink:#ffffff; --accent-soft:#dff2ee; --accent-strong:#06665d;
+  --pt:#5f6d79; --pt-bg:#e9eef2;
+  --ep:#9a5a00; --ep-bg:#fcefd6;
+  --ec:#1f7a45; --ec-bg:#e1f2e7;
+  --ob:#b8321a; --ob-bg:#fbe3dc;
+  --na:#4f6170; --na-bg:#eef2f5;
+  --scrim:rgba(16,34,30,.30);
+  --shadow:0 1px 2px rgba(16,40,34,.06),0 6px 20px rgba(16,40,34,.07);
+  --f-disp:"Nunito","Arial Rounded MT Bold","Segoe UI",system-ui,sans-serif;
+  --f-body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:18px; --nav-h:68px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.wrap{max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Cabecera */
+.top{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:60px}
+.title{display:flex;align-items:center;gap:10px;font-family:var(--f-disp);font-weight:800;font-size:19px;letter-spacing:-.01em;margin-right:auto;white-space:nowrap}
+.title small{font-weight:700;color:var(--muted);font-size:14px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--ec);position:relative;flex:none}
+.dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;color:var(--ec);opacity:0;animation:latido 2.4s ease-out infinite}
+.dot.pend{background:var(--ep)} .dot.pend::after{color:var(--ep)}
+.dot.off{background:var(--pt)} .dot.off::after{color:var(--pt);animation:none}
+@keyframes latido{0%{transform:scale(.6);opacity:.7}80%,100%{transform:scale(1.6);opacity:0}}
+.sync{font-size:12.5px;color:var(--muted);white-space:nowrap;font-weight:700}
+.sync:empty{display:none}
+.me{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 6px 4px 12px;font-size:13px;min-width:0;flex:none}
+.me b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+@media (max-width:620px){
+  .top .wrap{flex-wrap:wrap;gap:4px 10px;padding-block:8px}
+  .title{font-size:17.5px}
+  .me .rol,.me .n2{display:none}
+  .me b{max-width:28vw}
+  .sync{order:3;width:100%;padding:0 0 2px 20px;color:var(--ep)}
+}
+.me .rol{color:var(--muted)}
+.me button{border:0;background:var(--surface-2);border-radius:999px;padding:5px 11px;font-weight:700;font-size:12.5px}
+
+/* Navegación */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav .wrap{display:flex;gap:6px;padding-block:8px}
+.nav button{flex:1;border:0;background:transparent;border-radius:14px;padding:9px 6px;font-weight:700;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;transition:background .2s,color .2s}
+.nav button svg{width:22px;height:22px}
+.nav button[aria-current="page"]{background:var(--accent-soft);color:var(--accent-strong)}
+.nav .badge{background:var(--ob);color:#fff;border-radius:999px;font-size:11px;padding:0 6px;margin-left:4px;line-height:17px}
+main{padding-bottom:calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px))}
+@media (min-width:860px){
+  .nav{position:sticky;top:61px;bottom:auto;border-top:0;border-bottom:1px solid var(--line);background:var(--bg)}
+  .nav .wrap{justify-content:flex-start}
+  .nav button{flex:none;flex-direction:row;padding:9px 16px;border-radius:999px;gap:8px}
+  .nav button svg{width:18px;height:18px}
+  main{padding-bottom:40px}
+}
+
+/* Bloques */
+h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-spacing:-.015em;margin:22px 0 4px}
+.lead{color:var(--muted);margin:0 0 18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.section{padding:18px 18px 6px;margin-bottom:14px}
+.section h2{font-family:var(--f-disp);font-size:15.5px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.section h2 .n{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent-strong);display:inline-grid;place-items:center;font-size:12.5px}
+
+/* Formulario */
+.grid{display:grid;gap:12px 14px;grid-template-columns:1fr 1fr;margin-bottom:12px}
+.grid .full{grid-column:1/-1}
+@media (max-width:520px){.grid{grid-template-columns:1fr}.grid .half-m{grid-column:auto}}
+.f label,.flabel{display:block;font-weight:700;font-size:13px;margin:0 0 6px}
+.f label .opt{font-weight:600;color:var(--muted)}
+.f input,.f select,.f textarea{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;min-height:48px;font-size:16px;transition:border-color .15s,box-shadow .15s}
+.f textarea{min-height:84px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.f select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%235a6b66' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:38px}
+.f .err-msg{color:var(--ob);font-size:12.5px;font-weight:700;margin-top:5px}
+.f.err input,.f.err select,.f.err textarea{border-color:var(--ob)}
+.f .hint{font-size:12.5px;color:var(--muted);margin-top:5px}
+.f input:disabled{background:var(--surface-2);color:var(--muted)}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:10px 16px;font-weight:700;font-size:14px;transition:all .18s}
+.pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 4px 12px rgba(11,125,114,.25)}
+.inrow{display:flex;gap:8px}
+.inrow input{flex:1;min-width:0}
+.mini{border:1.5px solid var(--line);background:var(--surface-2);border-radius:999px;padding:0 14px;font-weight:700;font-size:13.5px;min-height:48px;white-space:nowrap}
+.check{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;padding:6px 0;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--accent)}
+.links{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.link{display:flex;align-items:center;gap:8px;background:var(--surface-2);border-radius:12px;padding:8px 8px 8px 12px;font-size:13px}
+.link a{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent-strong);font-weight:600}
+.link button{border:0;background:var(--surface);border-radius:999px;width:30px;height:30px;font-weight:800;color:var(--muted)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 18px}
+.btn{border:0;border-radius:999px;padding:14px 26px;font-weight:800;font-family:var(--f-disp);font-size:16px;letter-spacing:.005em;min-height:52px;transition:transform .12s,box-shadow .2s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);box-shadow:0 6px 18px rgba(11,125,114,.28)}
+.btn.pri:hover{background:var(--accent-strong)}
+.btn.sec{background:var(--surface);border:1.5px solid var(--line)}
+.btn.warn{background:var(--ob-bg);color:var(--ob)}
+.btn.block{flex:1}
+.btn[disabled]{opacity:.55;pointer-events:none}
+
+/* Listas */
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.search{flex:1;min-width:200px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:11px 18px;min-height:46px;font-size:15px}
+.search:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;margin-bottom:12px}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:700;white-space:nowrap;transition:all .15s}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.chip .c{color:var(--muted);font-weight:600;margin-left:4px}
+.chip[aria-pressed="true"] .c{color:#cfe0dc}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);transition:transform .15s,box-shadow .2s,border-color .2s;animation:entra .35s cubic-bezier(.2,.7,.2,1) both}
+.item:hover{border-color:#b9d3cd;transform:translateY(-1px)}
+.item .r1{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.item .num{font-family:var(--f-mono);font-weight:500;font-size:13.5px}
+.item .num.sin{color:var(--muted);font-family:var(--f-body);font-style:italic}
+.item .desc{font-weight:700;font-size:15px;line-height:1.35;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.item .meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted)}
+.item .pk{font-family:var(--f-mono);color:var(--ink)}
+.item .nota{margin-top:8px;background:var(--ob-bg);color:var(--ob);border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700}
+.pend-tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--ep);margin-left:auto}
+.pend-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ep);animation:parpadeo 1.2s ease-in-out infinite}
+@keyframes parpadeo{50%{opacity:.25}}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.st{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px 3px 8px;font-size:12px;font-weight:800;letter-spacing:.01em}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st.PT{background:var(--pt-bg);color:var(--pt)} .st.EP{background:var(--ep-bg);color:var(--ep)} .st.EC{background:var(--ec-bg);color:var(--ec)} .st.OB{background:var(--ob-bg);color:var(--ob)} .st.NA,.st.X{background:var(--na-bg);color:var(--na)}
+.act{font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.empty{text-align:center;padding:42px 20px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-family:var(--f-disp);font-size:17px;margin-bottom:4px}
+.more{margin:14px auto 0;display:block}
+
+/* Hoja (ficha) */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40;opacity:0;transition:opacity .25s}
+.scrim.on{opacity:1}
+.sheet{position:fixed;z-index:41;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(16,40,34,.18);transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.8,.2,1);padding:10px 0 calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet.on{transform:none}
+.sheet .grab{width:42px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 10px}
+@media (min-width:860px){.sheet{left:50%;right:auto;bottom:auto;top:50%;width:min(680px,94vw);border-radius:24px;transform:translate(-50%,-46%) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.2,.8,.2,1),opacity .22s}.sheet.on{transform:translate(-50%,-50%);opacity:1}.sheet .grab{display:none}}
+.sheet .wrap{max-width:none;padding-inline:22px}
+.sheet h3{font-family:var(--f-disp);font-size:20px;font-weight:800;margin:6px 0 4px;line-height:1.25}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:16px 0;font-size:14px}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.hist{border-left:2px solid var(--line);margin:8px 0 16px 6px;padding-left:14px;display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+.hist div{position:relative}
+.hist div::before{content:"";position:absolute;left:-20px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--accent)}
+.sub{font-family:var(--f-disp);font-weight:800;font-size:14.5px;margin:18px 0 6px}
+
+/* Usuarios */
+.urow{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--line);flex-wrap:wrap}
+.urow:first-child{border-top:0}
+.urow .who{flex:1;min-width:180px}
+.urow .who b{display:block}
+.urow select{border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;background:var(--surface);min-height:40px}
+.urow .mini{min-height:40px}
+.ok-btn{background:var(--accent)!important;color:#fff;border-color:var(--accent)!important}
+
+/* Pantalla de entrada */
+.gate{min-height:100vh;display:grid;place-items:center;padding:24px}
+.gate .box{width:min(420px,100%);text-align:center;padding:36px 28px}
+.gate h1{font-family:var(--f-disp);font-weight:800;font-size:26px;margin:16px 0 6px;letter-spacing:-.015em}
+.gate p{color:var(--muted);margin:0 0 22px}
+.gate .dot{margin:0 auto;width:14px;height:14px}
+.gbtn{display:inline-flex;align-items:center;gap:10px;justify-content:center;width:100%}
+.spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--accent-soft);border-top-color:var(--accent);animation:gira .8s linear infinite;margin:0 auto}
+@keyframes gira{to{transform:rotate(360deg)}}
+
+/* Aviso */
+.toast{pointer-events:none;position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;z-index:60;background:var(--ink);color:#fff;border-radius:999px;padding:12px 20px;font-weight:700;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.2);transition:all .28s cubic-bezier(.2,.8,.2,1);max-width:calc(100vw - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.bad{background:var(--ob)}
+.toast.pend{background:var(--ep)}
+@media (min-width:860px){.toast{bottom:28px}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="gate" class="gate"><div class="box card"><div class="spin"></div><p style="margin:16px 0 0">Cargando…</p></div></div>
+<div id="app" hidden>
+  <header class="top"><div class="wrap">
+    <div class="title"><span id="dot" class="dot" title="Conectado"></span>Liberaciones <small>TSF3</small></div>
+    <span id="sync" class="sync"></span>
+    <div class="me"><b id="meName"></b><span id="meRol" class="rol"></span><button id="btnSalir" type="button">Salir</button></div>
+  </div></header>
+  <nav class="nav" aria-label="Secciones"><div class="wrap" id="nav"></div></nav>
+  <main class="wrap" id="view"></main>
+</div>
+<div id="scrim" class="scrim" hidden></div>
+<div id="sheet" class="sheet" role="dialog" aria-modal="true" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+  // Si la app no arranca (sin señal la primera vez, o bloqueo), avisar en vez de quedar cargando.
+  setTimeout(function(){ if(!window.__arranco){ var g=document.getElementById('gate'); if(g&&!g.hidden) g.innerHTML='<div class="box card"><h1>No se pudo cargar</h1><p>Revisa la señal y vuelve a abrir la página. La primera vez se necesita internet; después funciona sin señal.</p><button class="btn pri gbtn" onclick="location.reload()">Reintentar</button></div>'; } }, 15000);
+  if('serviceWorker' in navigator && location.protocol==='https:'){ navigator.serviceWorker.register('sw.js').catch(function(){}); }
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+window.__arranco = true;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCZZi16tUo8A8rrLk82XmInKkh-BlpvLn8",
+  authDomain: "liberaciones-tsf3.firebaseapp.com",
+  projectId: "liberaciones-tsf3",
+  storageBucket: "liberaciones-tsf3.firebasestorage.app",
+  messagingSenderId: "1019446937871",
+  appId: "1:1019446937871:web:9e6ca2a1019d746e8c567a"
+};
+// Administrador principal (también fijado en firestore.rules)
+const ADMIN = "brandonkluivertvillegasfranco@gmail.com";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+let db;
+try { db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) }); }
+catch (e) { db = initializeFirestore(app, {}); }
+
+/* ---------- Listas iniciales (se cargan una sola vez; luego se editan en Ajustes) ---------- */
+const LISTAS_INICIALES = {
+  estructuras: [
+    { id: "pp", nombre: "Presa Principal", subs: [
+      { id: "pp-oeste", nombre: "Presa Principal Oeste", pkMin: 0, pkMax: 2700 },
+      { id: "pp-este", nombre: "Presa Principal Este", pkMin: 0, pkMax: 1200 },
+      { id: "pp-sur", nombre: "Presa Principal Sur", pkMin: 0, pkMax: 1800 } ] },
+    { id: "pan", nombre: "Presa Auxiliar Norte", subs: [ { id: "pan", nombre: "Presa Auxiliar Norte", pkMin: 0, pkMax: 400 } ] },
+    { id: "pao", nombre: "Presa Auxiliar Oeste", subs: [ { id: "pao", nombre: "Presa Auxiliar Oeste", pkMin: 0, pkMax: 400 } ] },
+    { id: "tls", nombre: "Tubería Línea Sur", subs: [ { id: "tls", nombre: "Línea Sur", pkMin: 0, pkMax: 1550 } ] },
+    { id: "acc", nombre: "Accesos", subs: [
+      { id: "acc-norte", nombre: "Acceso Norte", pkMin: 0, pkMax: 250 },
+      { id: "acc-noroeste", nombre: "Acceso Noroeste", pkMin: 0, pkMax: 650 },
+      { id: "acc-sur", nombre: "Acceso Sur", pkMin: 0, pkMax: 200 },
+      { id: "acc-oeste", nombre: "Acceso Oeste", pkMin: 0, pkMax: 100 },
+      { id: "acc-perim-oeste", nombre: "Acceso perimetral Oeste", pkMin: 0, pkMax: 100 },
+      { id: "acc-corona-geo", nombre: "Acceso a corona geomembrana", pkMin: 0, pkMax: 200 } ] },
+    { id: "cas", nombre: "Casetas de monitoreo", subs: [
+      { id: "cas-01", nombre: "Caseta 01", pkMin: null, pkMax: null },
+      { id: "cas-02", nombre: "Caseta 02", pkMin: null, pkMax: null } ] }
+  ],
+  elementos: [
+    { id: "mt", nombre: "Movimiento de tierras" },
+    { id: "geo", nombre: "Geosintéticos" },
+    { id: "ins", nombre: "Instrumentación" },
+    { id: "civ", nombre: "Civil y concreto" },
+    { id: "tub", nombre: "Tubería" }
+  ],
+  tipos: [
+    ["fundacion","Fundación","mt",1], ["stn","Superficie de terreno nivelado","mt",1], ["zanja","Zanja de anclaje","mt",1],
+    ["relleno-zanja","Relleno de zanja de anclaje","mt",1], ["masivo","Relleno masivo","mt",1], ["transicion","Relleno de transición","mt",1],
+    ["filtro1","Relleno filtro 1","mt",1], ["filtro2","Relleno filtro 2","mt",1], ["estructural","Relleno estructural","mt",1],
+    ["comun","Relleno común","mt",1], ["eolico","Material eólico","mt",1], ["berma","Conformación de berma","mt",1],
+    ["talud-ref","Talud referencial","mt",1], ["perfilado","Perfilado","mt",1], ["perfilado-tr","Perfilado de transición","mt",1],
+    ["aceptacion","Aceptación de superficie","mt",1], ["no-competente","Terreno no competente","mt",0], ["roca","Zona de roca","mt",0],
+    ["empotramiento","Empotramiento","mt",0], ["test-fill","Test fill","mt",0], ["rasante","Rasante","mt",0], ["plataforma","Plataforma","mt",0],
+    ["material-propio","Material propio","mt",0], ["inadecuado","Material inadecuado","mt",0], ["subbase","Sub base preparada","mt",0],
+    ["suelo-cemento","Suelo cemento","mt",0],
+    ["geotextil","Geotextil","geo",1], ["geomembrana","Geomembrana","geo",1], ["desp-geotextil","Despliegue de geotextil","geo",0],
+    ["desp-geomembrana","Despliegue de geomembrana","geo",0], ["talud-geotextil","Talud despliegue de geotextil","geo",0], ["fund-geotextil","Fundación de geotextil","geo",0],
+    ["cable","Cable","ins",1], ["cama-arena","Cama de arena","ins",1], ["cobertura-arena","Cobertura de arena","ins",1],
+    ["arena-proteccion","Arena de protección","ins",1], ["fund-ins","Fundación de instrumentación","ins",0], ["relleno-ins","Relleno para instrumentación","ins",0],
+    ["relleno-arena","Relleno de arena","ins",0], ["ubicacion","Ubicación","ins",0],
+    ["solado","Solado","civ",0], ["solado-cajones","Solado de cajones","civ",0], ["losa-cajones","Losa de cajones","civ",0], ["cajon-aux","Cajón auxiliar","civ",0],
+    ["bloques","Bloques","civ",0], ["bolardos","Bolardos","civ",0], ["escaleras","Escaleras en contención","civ",0], ["post-vaciado","Post vaciado","civ",0],
+    ["sellado","Sellado","civ",0], ["pegas","Pegas","civ",0],
+    ["tuberia","Tubería","tub",1], ["brida","Brida","tub",0], ["relleno-en-zanja","Relleno en zanja","tub",1]
+  ].map(([id, nombre, elementoId, g], i) => ({ id, nombre, elementoId, orden: i + 1, enGrafico: !!g })),
+  topografos: [
+    { id: "AB", nombre: "Alexandre Bellido Prado" },
+    { id: "GN", nombre: "Gregorio Navarro" },
+    { id: "CS", nombre: "Cesar Supo Casaperalta" },
+    { id: "JL", nombre: "Julio Leon Castillo" },
+    { id: "JS", nombre: "Jaime Sauce Cotrina" },
+    { id: "BN", nombre: "Birgilio Nina Ccallo" }
+  ],
+  actividades: [
+    { id: "LIB", nombre: "Liberación" },
+    { id: "LEV", nombre: "Levantamiento topográfico" },
+    { id: "ASP", nombre: "Aspas para vuelo de dron" }
+  ]
+};
+
+const ROLES = { topografo: "Topógrafo", gabinete: "Gabinete", jefe: "Jefe de área", admin: "Administrador" };
+const ESTADOS = { PT: "Pendiente topografía", EP: "En proceso", EC: "Entregado a Calidad", OB: "Observado", X: "Eliminado", NA: "Sin liberación" };
+
+/* ---------- Estado ---------- */
+const S = {
+  user: null, email: "", perfil: null,
+  listas: { estructuras: [], elementos: [], tipos: [], topografos: [], actividades: [] },
+  mis: [], todos: [], solicitudes: [], usuarios: [],
+  view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "" } },
+  editando: null, form: null, limiteTodos: 300, verTodos: 60,
+  subs: [], dentro: false
+};
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+             set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+/* ---------- Progresivas ---------- */
+function leerPk(t) {
+  const s = String(t ?? "").trim().replace(/\s+/g, "").replace(",", ".");
+  if (!s) return null;
+  let m = s.match(/^(\d+)\+(\d{1,3}(?:\.\d+)?)$/);
+  if (m) return Math.round((parseInt(m[1], 10) * 1000 + parseFloat(m[2])) * 100) / 100;
+  if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+  return NaN;
+}
+function fmtPk(v) {
+  if (v === null || v === undefined || v === "" || isNaN(v)) return "";
+  const km = Math.floor(v / 1000), r = Math.round((v - km * 1000) * 100) / 100;
+  const [e, d] = r.toFixed(2).split(".");
+  return km + "+" + e.padStart(3, "0") + (d === "00" ? "" : "." + d);
+}
+function rangoPk(a, b) {
+  if (a == null && b == null) return "";
+  if (b == null || a === b) return fmtPk(a);
+  return fmtPk(a) + " – " + fmtPk(b);
+}
+
+/* ---------- Fechas ---------- */
+const toDate = v => v ? (v.toDate ? v.toDate() : new Date(v)) : null;
+const fmtFecha = (v, hora = true) => { const d = toDate(v); if (!d) return ""; return d.toLocaleDateString("es-PE", { day: "2-digit", month: "2-digit", year: "numeric" }) + (hora ? " " + d.toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit", hour12: false }) : ""); };
+const localInput = d => { const p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+
+/* ---------- Buscar en listas ---------- */
+const L = {
+  est: id => S.listas.estructuras.find(e => e.id === id),
+  sub: id => { for (const e of S.listas.estructuras) { const s = (e.subs || []).find(x => x.id === id); if (s) return s; } return null; },
+  ele: id => S.listas.elementos.find(e => e.id === id),
+  tipo: id => S.listas.tipos.find(e => e.id === id),
+  topo: id => S.listas.topografos.find(e => e.id === id),
+  act: id => S.listas.actividades.find(e => e.id === id)
+};
+const nom = (o, alt = "") => o ? o.nombre : alt;
+
+/* ---------- Avisos ---------- */
+let tTimer;
+function toast(msg, tipo = "") {
+  const t = $("#toast"); t.textContent = msg; t.className = "toast " + tipo;
+  requestAnimationFrame(() => t.classList.add("on"));
+  clearTimeout(tTimer); tTimer = setTimeout(() => t.classList.remove("on"), tipo === "bad" ? 6000 : 3600);
+}
+
+/* ---------- Pantalla de entrada ---------- */
+function gate(tipo, extra = {}) {
+  S.dentro = false;
+  $("#app").hidden = true; const g = $("#gate"); g.hidden = false;
+  const G = '<svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>';
+  const html = {
+    cargando: '<div class="spin"></div><p style="margin:16px 0 0">Cargando…</p>',
+    entrar: `<span class="dot"></span><h1>Liberaciones TSF3</h1><p>Registro de liberaciones topográficas de la presa de relaves.</p><button class="btn pri gbtn" id="gEntrar" type="button">${G}Entrar con Google</button>${extra.msg ? `<p class="small" style="color:var(--ob);margin:14px 0 0">${esc(extra.msg)}</p>` : ""}`,
+    espera: `<span class="dot pend"></span><h1>Acceso solicitado</h1><p>Tu cuenta <b>${esc(S.email)}</b> está esperando aprobación del administrador. Esta pantalla se abrirá sola cuando te den acceso.</p><button class="btn sec gbtn" id="gSalir" type="button">Usar otra cuenta</button>`,
+    inactivo: `<span class="dot off"></span><h1>Cuenta desactivada</h1><p>La cuenta <b>${esc(S.email)}</b> no tiene acceso en este momento. Consulta con el administrador.</p><button class="btn sec gbtn" id="gSalir" type="button">Usar otra cuenta</button>`,
+    error: `<h1>Algo falló</h1><p>${esc(extra.msg || "Intenta de nuevo.")}</p><button class="btn pri gbtn" onclick="location.reload()" type="button">Reintentar</button>`
+  }[tipo];
+  g.innerHTML = `<div class="box card">${html}</div>`;
+  $("#gEntrar")?.addEventListener("click", entrar);
+  $("#gSalir")?.addEventListener("click", () => signOut(auth));
+}
+
+async function entrar() {
+  const p = new GoogleAuthProvider(); p.setCustomParameters({ prompt: "select_account" });
+  try { await signInWithPopup(auth, p); }
+  catch (e) {
+    const c = e && e.code || "";
+    if (c === "auth/popup-blocked" || c === "auth/operation-not-supported-in-environment") { try { await signInWithRedirect(auth, p); return; } catch (e2) {} }
+    if (c === "auth/popup-closed-by-user" || c === "auth/cancelled-popup-request") return;
+    if (c === "auth/unauthorized-domain") return gate("entrar", { msg: "Este dominio no está autorizado en Firebase (Authentication → Configuración → Dominios autorizados)." });
+    if (c === "auth/network-request-failed") return gate("entrar", { msg: "Sin señal. Para entrar la primera vez se necesita internet." });
+    gate("entrar", { msg: "No se pudo entrar: " + (e.message || c) });
+  }
+}
+getRedirectResult(auth).catch(() => {});
+
+/* ---------- Sesión ---------- */
+function cortar() { S.subs.forEach(u => { try { u(); } catch (e) {} }); S.subs = []; }
+
+onAuthStateChanged(auth, async u => {
+  cortar(); S.perfil = null; S.dentro = false;
+  if (!u) { S.user = null; gate("entrar"); return; }
+  S.user = u; S.email = (u.email || "").toLowerCase();
+  gate("cargando");
+  if (S.email === ADMIN) { try { await prepararAdmin(u); } catch (e) { console.warn("prepararAdmin", e); } }
+  S.subs.push(onSnapshot(doc(db, "usuarios", S.email), snap => {
+    if (snap.exists() && snap.data().activo !== false) {
+      S.perfil = snap.data();
+      if (!S.dentro) entrarApp(); else pintarCabecera();
+    } else if (snap.exists()) { S.perfil = null; gate("inactivo"); }
+    else {
+      S.perfil = null;
+      if (S.solicitado !== u.uid) S.solicitado = u.uid; else { gate("espera"); return; }
+      setDoc(doc(db, "solicitudes", u.uid), { email: S.email, nombre: u.displayName || "", fecha: serverTimestamp() }, { merge: true }).catch(e => console.warn("solicitud", e));
+      gate("espera");
+    }
+  }, e => { console.warn("perfil", e); gate("error", { msg: "No se pudo leer tu perfil. Si es la primera vez, revisa que las reglas de Firestore estén publicadas." }); }));
+});
+
+async function prepararAdmin(u) {
+  const ref = doc(db, "usuarios", ADMIN);
+  const s = await getDoc(ref);
+  if (!s.exists()) await setDoc(ref, { nombre: u.displayName || "Administrador", rol: "admin", activo: true, topografoId: "", creadoEn: serverTimestamp() });
+  const e = await getDoc(doc(db, "listas", "estructuras"));
+  if (!e.exists()) {
+    const b = writeBatch(db);
+    for (const [k, items] of Object.entries(LISTAS_INICIALES)) b.set(doc(db, "listas", k), { items, editadoEn: serverTimestamp() });
+    b.set(doc(db, "config", "general"), { obra: "Presa de relaves TSF3 — Mina Justa", prefijo: "SKT-TOP-", digitos: 5, zona: "America/Lima" });
+    b.set(doc(db, "contadores", "skt"), { ultimo: 2689 });
+    await b.commit();
+  }
+}
+
+const rol = () => S.perfil?.rol || "";
+const esAdmin = () => rol() === "admin";
+const esGab = () => rol() === "gabinete" || esAdmin();
+const escribe = () => ["topografo", "gabinete", "admin"].includes(rol());
+const veTodo = () => ["gabinete", "jefe", "admin"].includes(rol());
+
+function entrarApp() {
+  S.dentro = true;
+  $("#gate").hidden = true; $("#app").hidden = false;
+  S.subs.push(onSnapshot(collection(db, "listas"), snap => {
+    snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
+    S.listas.tipos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
+    if (S.view === "nueva") { leerCampos(); pintarForm(); } else render();
+  }, e => console.warn("listas", e)));
+  if (escribe()) {
+    S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("creadoPor", "==", S.email)), { includeMetadataChanges: true }, snap => {
+      S.mis = snap.docs.map(fila).sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
+      estadoSync(); if (S.view === "mis") render(); else pintarNav();
+    }, e => console.warn("mis", e)));
+  }
+  if (veTodo()) suscribirTodos();
+  if (esAdmin()) {
+    S.subs.push(onSnapshot(collection(db, "solicitudes"), snap => { S.solicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() })); pintarNav(); if (S.view === "usuarios") render(); }, e => console.warn("solicitudes", e)));
+    S.subs.push(onSnapshot(collection(db, "usuarios"), snap => { S.usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nombre || a.id).localeCompare(b.nombre || b.id)); if (S.view === "usuarios") render(); }, e => console.warn("usuarios", e)));
+  }
+  pintarCabecera();
+  const guardada = ls.get("lib.vista", "");
+  ir(vistas().some(v => v.id === guardada) ? guardada : vistas()[0].id);
+}
+let unsubTodos = null;
+function suscribirTodos() {
+  if (unsubTodos) unsubTodos();
+  unsubTodos = onSnapshot(query(collection(db, "liberaciones"), orderBy("creadoEn", "desc"), limit(S.limiteTodos)), { includeMetadataChanges: true }, snap => {
+    S.todos = snap.docs.map(fila); S.todosLleno = snap.docs.length >= S.limiteTodos;
+    estadoSync(); if (S.view === "todos") render();
+  }, e => console.warn("todos", e));
+  S.subs.push(() => unsubTodos && unsubTodos());
+}
+function fila(d) { return { id: d.id, ...d.data({ serverTimestamps: "estimate" }), _pend: d.metadata.hasPendingWrites }; }
+
+/* ---------- Señal y pendientes ---------- */
+function estadoSync() {
+  const pend = new Set([...S.mis, ...S.todos].filter(r => r._pend).map(r => r.id)).size;
+  const on = navigator.onLine;
+  const dot = $("#dot"), sy = $("#sync");
+  dot.className = "dot" + (!on ? " off" : pend ? " pend" : "");
+  dot.title = !on ? "Sin señal" : pend ? "Subiendo" : "Conectado";
+  sy.textContent = !on ? (pend ? `Sin señal · ${pend} por subir` : "Sin señal") : pend ? `Subiendo ${pend}…` : "";
+}
+addEventListener("online", estadoSync); addEventListener("offline", estadoSync);
+
+/* ---------- Cabecera y navegación ---------- */
+const ICON = {
+  nueva: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+  mis: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l1 2h3v14H5V6h3z"/><path d="M9 12h6M9 16h4"/></svg>',
+  todos: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+  usuarios: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c.8-3.4 3.2-5 6-5s5.2 1.6 6 5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 15c1.6.6 2.6 2.2 3 5"/></svg>'
+};
+function vistas() {
+  const v = [];
+  if (escribe()) v.push({ id: "nueva", t: "Nueva" }, { id: "mis", t: "Mis registros" });
+  if (veTodo()) v.push({ id: "todos", t: "Registros" });
+  if (esAdmin()) v.push({ id: "usuarios", t: "Usuarios" });
+  return v;
+}
+function pintarCabecera() {
+  const [n1, n2 = ""] = (S.perfil?.nombre || S.user?.displayName || S.email).split(" ");
+  $("#meName").innerHTML = `${esc(n1)}<span class="n2">${n2 ? " " + esc(n2) : ""}</span>`;
+  $("#meRol").textContent = "· " + (ROLES[rol()] || "");
+  pintarNav(); estadoSync();
+}
+function pintarNav() {
+  const obs = S.mis.filter(r => r.estado === "OB").length;
+  const sol = S.solicitudes.length;
+  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "usuarios" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
+}
+$("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
+$("#btnSalir").addEventListener("click", () => { cortar(); signOut(auth); });
+
+function ir(v) {
+  if (S.view === "nueva" && v !== "nueva") { if (S.editando) S.form = null; else guardarBorrador(); }
+  S.view = v; ls.set("lib.vista", v);
+  if (v !== "nueva") S.editando = null;
+  pintarNav(); render(); scrollTo({ top: 0 });
+}
+function render() {
+  if (!S.dentro) return;
+  ({ nueva: pintarForm, mis: () => pintarLista("mis"), todos: () => pintarLista("todos"), usuarios: pintarUsuarios }[S.view] || (() => {}))();
+}
+
+/* ---------- Formulario ---------- */
+const ULT = "lib.ultimo";
+const BORR = "lib.borrador";
+function formVacio() {
+  const u = ls.get(ULT, {});
+  return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "",
+    estructuraId: u.estructuraId || "", subestructuraId: u.subestructuraId || "", elementoId: u.elementoId || "", tipoId: u.tipoId || "",
+    pkInicio: "", pkFin: "", sinPk: false, cota: "", capa: "", area: "", descripcion: "", observaciones: "", linksCsv: [], linksFotos: [] };
+}
+function formDesde(r) {
+  return { actividad: r.actividad || "LIB", fechaCampo: localInput(toDate(r.fechaCampo) || new Date()), topografoId: r.topografoId || "",
+    estructuraId: r.estructuraId || "", subestructuraId: r.subestructuraId || "", elementoId: r.elementoId || "", tipoId: r.tipoId || "",
+    pkInicio: r.pkInicio == null ? "" : fmtPk(r.pkInicio), pkFin: r.pkFin == null ? "" : fmtPk(r.pkFin), sinPk: r.pkInicio == null && r.pkFin == null,
+    cota: r.cota || "", capa: r.capa || "", area: r.area == null ? "" : String(r.area), descripcion: r.descripcion || "", observaciones: r.observaciones || "",
+    linksCsv: (r.linksCsv || []).slice(), linksFotos: (r.linksFotos || []).slice() };
+}
+function guardarBorrador() { if (S.form && !S.editando) { leerCampos(); ls.set(BORR, S.form); } }
+
+function opciones(lista, sel, vacio) {
+  return `<option value="">${esc(vacio)}</option>` + lista.filter(o => o.activo !== false || o.id === sel).map(o => `<option value="${esc(o.id)}" ${o.id === sel ? "selected" : ""}>${esc(o.nombre)}</option>`).join("");
+}
+function pintarForm() {
+  if (!S.form) S.form = S.editando ? formDesde(S.editando) : (ls.get(BORR, null) || formVacio());
+  const f = S.form, E = S.editando;
+  const est = L.est(f.estructuraId);
+  const subs = est ? est.subs || [] : [];
+  if (subs.length === 1 && !f.subestructuraId) f.subestructuraId = subs[0].id;
+  const tipos = S.listas.tipos.filter(t => !f.elementoId || t.elementoId === f.elementoId);
+  const esLib = f.actividad === "LIB";
+  const listo = S.listas.estructuras.length > 0;
+  $("#view").innerHTML = `
+  <h1 class="view-title">${E ? "Editar registro" : "Nueva liberación"}</h1>
+  <p class="lead">${E ? `${E.numero ? `<span class="mono">${esc(E.numero)}</span> · ` : ""}<span class="st ${E.estado}">${ESTADOS[E.estado] || E.estado}</span>` : "Se guarda en el teléfono aunque no haya señal y se sube sola al recuperarla."}</p>
+  ${!listo ? '<div class="card section"><p class="muted">Cargando listas…</p></div>' : ""}
+  <form id="fLib" novalidate ${!listo ? "hidden" : ""}>
+    <div class="card section">
+      <h2><span class="n">1</span>Qué se hizo</h2>
+      <div class="f" style="margin-bottom:14px"><span class="flabel">Actividad</span><div class="pills" id="pAct">
+        ${S.listas.actividades.map(a => `<button type="button" class="pill" data-act="${esc(a.id)}" aria-pressed="${f.actividad === a.id}">${esc(a.nombre)}</button>`).join("")}
+      </div></div>
+      <div class="grid">
+        <div class="f"><label for="iFecha">Fecha y hora en campo</label><input id="iFecha" name="fechaCampo" type="datetime-local" value="${esc(f.fechaCampo)}" required></div>
+        <div class="f"><label for="iTopo">Topógrafo</label><select id="iTopo" name="topografoId">${opciones(S.listas.topografos, f.topografoId, "Elegir…")}</select></div>
+      </div>
+    </div>
+    <div class="card section">
+      <h2><span class="n">2</span>Dónde</h2>
+      <div class="grid">
+        <div class="f"><label for="iEst">Estructura</label><select id="iEst" name="estructuraId" required>${opciones(S.listas.estructuras, f.estructuraId, "Elegir…")}</select></div>
+        <div class="f"><label for="iSub">Sub-estructura / frente</label><select id="iSub" name="subestructuraId" required ${!est ? "disabled" : ""}>${opciones(subs, f.subestructuraId, est ? "Elegir…" : "Primero la estructura")}</select></div>
+        <div class="f"><label for="iEle">Elemento <span class="opt">${esLib ? "" : "(opcional)"}</span></label><select id="iEle" name="elementoId">${opciones(S.listas.elementos, f.elementoId, "Elegir…")}</select></div>
+        <div class="f"><label for="iTipo">Tipo de liberación <span class="opt">${esLib ? "" : "(opcional)"}</span></label><select id="iTipo" name="tipoId">${opciones(tipos, f.tipoId, "Elegir…")}</select></div>
+      </div>
+    </div>
+    <div class="card section">
+      <h2><span class="n">3</span>Progresiva y cota</h2>
+      <label class="check"><input type="checkbox" id="iSinPk" ${f.sinPk ? "checked" : ""}> No aplica progresiva (caseta, punto, ubicación)</label>
+      <div class="grid" id="gPk" ${f.sinPk ? "hidden" : ""}>
+        <div class="f"><label for="iPk1">PK inicio</label><input id="iPk1" name="pkInicio" class="mono" inputmode="decimal" placeholder="2+140" value="${esc(f.pkInicio)}" autocomplete="off"></div>
+        <div class="f"><label for="iPk2">PK final</label><input id="iPk2" name="pkFin" class="mono" inputmode="decimal" placeholder="2+180" value="${esc(f.pkFin)}" autocomplete="off"></div>
+      </div>
+      <div class="grid">
+        <div class="f"><label for="iCota">Cota <span class="opt">(opcional)</span></label><div class="inrow"><input id="iCota" name="cota" inputmode="decimal" placeholder="769.63" value="${esc(f.cota)}"><button type="button" class="mini" id="bVar">Variable</button></div></div>
+        <div class="f"><label for="iCapa">Capa <span class="opt">(opcional)</span></label><input id="iCapa" name="capa" placeholder="Capa 15" value="${esc(f.capa)}"></div>
+        <div class="f"><label for="iArea">Área m² <span class="opt">(opcional)</span></label><input id="iArea" name="area" inputmode="decimal" placeholder="811.55" value="${esc(f.area)}"></div>
+      </div>
+    </div>
+    <div class="card section">
+      <h2><span class="n">4</span>Detalle y archivos</h2>
+      <div class="grid">
+        <div class="f full"><label for="iDesc">Descripción</label><textarea id="iDesc" name="descripcion" placeholder="Liberación de relleno filtro 2 para acondicionamiento de geomembrana" required>${esc(f.descripcion)}</textarea></div>
+        <div class="f full"><label for="iObs">Observaciones <span class="opt">(opcional)</span></label><textarea id="iObs" name="observaciones" style="min-height:60px">${esc(f.observaciones)}</textarea></div>
+        <div class="f full"><label for="iCsv">Enlaces de Drive del CSV <span class="opt">(uno o varios)</span></label>
+          <div class="inrow"><input id="iCsv" type="url" inputmode="url" placeholder="https://drive.google.com/…"><button type="button" class="mini" data-add="linksCsv">Agregar</button></div>
+          <div class="links">${f.linksCsv.map((l, i) => linkRow(l, "linksCsv", i)).join("")}</div></div>
+        <div class="f full"><label for="iFot">Enlaces de Drive de las fotos <span class="opt">(uno o varios)</span></label>
+          <div class="inrow"><input id="iFot" type="url" inputmode="url" placeholder="https://drive.google.com/…"><button type="button" class="mini" data-add="linksFotos">Agregar</button></div>
+          <div class="links">${f.linksFotos.map((l, i) => linkRow(l, "linksFotos", i)).join("")}</div></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="submit" class="btn pri block" id="bGuardar">${E ? "Guardar cambios" : "Guardar liberación"}</button>
+      <button type="button" class="btn sec" id="bLimpiar">${E ? "Cancelar" : "Limpiar"}</button>
+    </div>
+  </form>`;
+  conectarForm();
+}
+function linkRow(l, k, i) { return `<div class="link"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ""))}</a><button type="button" data-del="${k}" data-i="${i}" aria-label="Quitar enlace">×</button></div>`; }
+
+function leerCampos() {
+  const fm = $("#fLib"); if (!fm || !S.form) return;
+  const f = S.form;
+  for (const el of fm.querySelectorAll("[name]")) f[el.name] = el.value;
+  f.sinPk = $("#iSinPk").checked;
+}
+function conectarForm() {
+  const fm = $("#fLib"); if (!fm) return;
+  const f = S.form;
+  $("#pAct").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; leerCampos(); if (f.actividad !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act; pintarForm(); });
+  $("#iEst").addEventListener("change", () => { leerCampos(); f.subestructuraId = ""; pintarForm(); $("#iSub")?.focus(); });
+  $("#iEle").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && t.elementoId !== f.elementoId) f.tipoId = ""; pintarForm(); $("#iTipo")?.focus(); });
+  $("#iTipo").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && !f.elementoId) { f.elementoId = t.elementoId; pintarForm(); } });
+  $("#iSinPk").addEventListener("change", e => { $("#gPk").hidden = e.target.checked; });
+  $("#bVar").addEventListener("click", () => { $("#iCota").value = "Variable"; });
+  for (const id of ["iPk1", "iPk2"]) $("#" + id).addEventListener("blur", e => { const v = leerPk(e.target.value); if (v != null && !isNaN(v)) e.target.value = fmtPk(v); });
+  fm.addEventListener("click", e => {
+    const a = e.target.closest("[data-add]");
+    if (a) { const inp = a.previousElementSibling; const v = inp.value.trim(); if (!v) { inp.focus(); return; }
+      if (!/^https?:\/\//i.test(v)) { toast("El enlace debe empezar con https://", "bad"); inp.focus(); return; }
+      leerCampos(); f[a.dataset.add].push(v); pintarForm(); $("#" + (a.dataset.add === "linksCsv" ? "iCsv" : "iFot")).focus(); return; }
+    const d = e.target.closest("[data-del]");
+    if (d) { leerCampos(); f[d.dataset.del].splice(+d.dataset.i, 1); pintarForm(); }
+  });
+  for (const id of ["iCsv", "iFot"]) $("#" + id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.target.nextElementSibling.click(); } });
+  $("#bLimpiar").addEventListener("click", () => {
+    if (S.editando) { const r = S.editando; S.editando = null; S.form = null; ir(r.creadoPor === S.email ? "mis" : "todos"); return; }
+    ls.set(BORR, null); S.form = formVacio(); pintarForm();
+  });
+  fm.addEventListener("input", () => { clearTimeout(S._bt); S._bt = setTimeout(guardarBorrador, 600); });
+  fm.addEventListener("submit", e => { e.preventDefault(); guardar(); });
+}
+
+function validar(f) {
+  const err = {};
+  const esLib = f.actividad === "LIB";
+  if (!f.fechaCampo || isNaN(new Date(f.fechaCampo))) err.fechaCampo = "Indica la fecha y hora.";
+  if (!f.topografoId) err.topografoId = "Elige el topógrafo.";
+  if (!f.estructuraId) err.estructuraId = "Elige la estructura.";
+  if (!f.subestructuraId) err.subestructuraId = "Elige la sub-estructura.";
+  if (esLib && !f.elementoId) err.elementoId = "Elige el elemento.";
+  if (esLib && !f.tipoId) err.tipoId = "Elige el tipo de liberación.";
+  let p1 = null, p2 = null;
+  if (!f.sinPk) {
+    p1 = leerPk(f.pkInicio); p2 = leerPk(f.pkFin);
+    if (Number.isNaN(p1)) err.pkInicio = "Escríbelo como 2+140 o 2140.";
+    if (Number.isNaN(p2)) err.pkFin = "Escríbelo como 2+180 o 2180.";
+    if (esLib && p1 == null) err.pkInicio = "Indica el PK inicio o marca «No aplica».";
+    if (p1 != null && p2 != null && !isNaN(p1) && !isNaN(p2) && p2 < p1) err.pkFin = "El PK final no puede ser menor que el inicio.";
+  }
+  const area = String(f.area).trim() === "" ? null : Number(String(f.area).replace(",", "."));
+  if (area !== null && (isNaN(area) || area < 0)) err.area = "Solo números (m²).";
+  if (!f.descripcion.trim()) err.descripcion = "Describe lo que se liberó o levantó.";
+  return { err, p1, p2, area };
+}
+function marcarErrores(err) {
+  const fm = $("#fLib");
+  fm.querySelectorAll(".f.err").forEach(x => { x.classList.remove("err"); x.querySelector(".err-msg")?.remove(); });
+  let primero = null;
+  for (const [k, msg] of Object.entries(err)) {
+    const el = fm.querySelector(`[name="${k}"]`); if (!el) continue;
+    const box = el.closest(".f"); box.classList.add("err");
+    const m = document.createElement("div"); m.className = "err-msg"; m.textContent = msg; box.appendChild(m);
+    if (!primero) primero = el;
+  }
+  if (primero) { primero.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => primero.focus({ preventScroll: true }), 300); }
+}
+
+function guardar() {
+  leerCampos();
+  const f = S.form, E = S.editando;
+  const { err, p1, p2, area } = validar(f);
+  if (Object.keys(err).length) { marcarErrores(err); toast("Revisa los campos marcados.", "bad"); return; }
+  const esLib = f.actividad === "LIB";
+  const datos = {
+    actividad: f.actividad, fechaCampo: Timestamp.fromDate(new Date(f.fechaCampo)), topografoId: f.topografoId,
+    estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId || "", tipoId: f.tipoId || "",
+    pkInicio: f.sinPk || p1 == null || isNaN(p1) ? null : p1,
+    pkFin: f.sinPk || p1 == null || isNaN(p1) ? null : (p2 == null || isNaN(p2) ? p1 : p2),
+    cota: f.cota.trim(), capa: f.capa.trim(), area, descripcion: f.descripcion.trim(), observaciones: f.observaciones.trim(),
+    linksCsv: f.linksCsv, linksFotos: f.linksFotos,
+    editadoEn: serverTimestamp(), editadoPor: S.email
+  };
+  const b = writeBatch(db);
+  let ref, de = "", a;
+  if (E) {
+    ref = doc(db, "liberaciones", E.id);
+    de = E.estado;
+    if (!esLib) a = "NA";
+    else if (E.estado === "NA" || (E.estado === "OB" && !esGab())) a = "PT";
+    else a = E.estado;
+    datos.estado = a;
+    b.update(ref, datos);
+  } else {
+    ref = doc(collection(db, "liberaciones"));
+    a = esLib ? "PT" : "NA";
+    b.set(ref, { ...datos, numero: "", nombreLiberacion: "", generadoPor: "", estado: a, notaObservacion: "",
+      fechaLiberacion: null, fechaEntrega: null, numeroCargo: "", creadoEn: serverTimestamp(), creadoPor: S.email, origen: "app" });
+  }
+  b.set(doc(collection(db, "historial")), { liberacionId: ref.id, accion: E ? "editado" : "creado", de, a,
+    usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "" });
+  b.commit().catch(e => { console.error(e); toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso para este cambio." : e.message), "bad"); });
+  ls.set(ULT, { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId });
+  toast(navigator.onLine ? (E ? "Cambios guardados" : "Liberación guardada") : "Guardado en el teléfono. Se subirá cuando haya señal.", navigator.onLine ? "" : "pend");
+  if (E) { S.editando = null; S.form = null; ir(E.creadoPor === S.email ? "mis" : "todos"); return; }
+  ls.set(BORR, null);
+  const sig = formVacio();
+  sig.fechaCampo = f.fechaCampo;
+  S.form = sig; pintarForm(); scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------- Listas de registros ---------- */
+function textoBusqueda(r) {
+  return [r.numero, r.nombreLiberacion, r.descripcion, nom(L.sub(r.subestructuraId)), nom(L.tipo(r.tipoId)), nom(L.topo(r.topografoId), r.topografoId), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.observaciones].join(" ").toLowerCase();
+}
+function pintarLista(cual) {
+  const datos = cual === "mis" ? S.mis : S.todos;
+  const fl = S.filtro[cual];
+  const cuenta = {}; datos.forEach(r => { cuenta[r.estado] = (cuenta[r.estado] || 0) + 1; });
+  const qs = fl.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const vis = datos.filter(r => r.estado !== "X" || esAdmin()).filter(r => !fl.st || r.estado === fl.st).filter(r => { if (!qs.length) return true; const t = textoBusqueda(r); return qs.every(q => t.includes(q)); });
+  const lim = cual === "todos" ? S.verTodos : 400;
+  const chips = [["", "Todos", datos.length], ...["PT", "EP", "EC", "OB", "NA"].map(k => [k, ESTADOS[k], cuenta[k] || 0])].filter(c => c[0] === "" || c[2] > 0 || c[0] === fl.st);
+  $("#view").innerHTML = `
+  <h1 class="view-title">${cual === "mis" ? "Mis registros" : "Registros"}</h1>
+  <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado." : `Últimos ${datos.length} registros de todos los topógrafos.`}</p>
+  <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar N°, PK, tipo, frente…" value="${esc(fl.q)}" aria-label="Buscar"></div>
+  <div class="chips" role="group" aria-label="Filtrar por estado">${chips.map(([k, t, n]) => `<button type="button" class="chip" data-st="${k}" aria-pressed="${fl.st === k}">${esc(t)}<span class="c">${n}</span></button>`).join("")}</div>
+  <div class="list" id="lista">${vis.length ? vis.slice(0, lim).map((r, i) => tarjeta(r, i)).join("") : `<div class="empty card"><b>${datos.length ? "Nada coincide con el filtro" : "Aún no hay registros"}</b>${datos.length ? "Prueba con otra búsqueda." : cual === "mis" ? "Lo que guardes en «Nueva» aparecerá aquí." : "Los registros de campo aparecerán aquí al instante."}</div>`}</div>
+  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
+  const q = $("#q");
+  q.addEventListener("input", () => { fl.q = q.value; const pos = q.selectionStart; pintarLista(cual); const n = $("#q"); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} });
+  $(".chips").addEventListener("click", e => { const c = e.target.closest("[data-st]"); if (c) { fl.st = c.dataset.st; pintarLista(cual); } });
+  $("#lista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFicha(datos.find(r => r.id === it.dataset.id)); });
+  $("#bMas")?.addEventListener("click", () => { S.verTodos += 100; pintarLista(cual); });
+  $("#bMasSrv")?.addEventListener("click", () => { S.limiteTodos += 300; S.verTodos += 100; suscribirTodos(); });
+}
+function tarjeta(r, i) {
+  const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
+  return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
+    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}</div>
+    <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
+    <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}</div>
+    ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}
+  </button>`;
+}
+
+/* ---------- Ficha ---------- */
+function puedeEditar(r) {
+  if (esGab()) return true;
+  return escribe() && r.creadoPor === S.email && ["PT", "OB", "NA"].includes(r.estado);
+}
+let unsubHist = null;
+function abrirFicha(r) {
+  if (!r) return;
+  const sh = $("#sheet"), sc = $("#scrim");
+  const sub = L.sub(r.subestructuraId), est = L.est(r.estructuraId);
+  const fila = (k, v) => v ? `<dt>${k}</dt><dd>${v}</dd>` : "";
+  const links = (arr) => (arr || []).map(l => `<div class="link"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ""))}</a></div>`).join("");
+  sh.innerHTML = `<div class="grab"></div><div class="wrap">
+    <div class="r1" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${r.numero ? `<span class="mono">${esc(r.numero)}</span>` : '<span class="muted">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? '<span class="pend-tag" style="margin-left:0">Por subir</span>' : ""}</div>
+    <h3>${esc(r.nombreLiberacion || r.descripcion)}</h3>
+    ${r.nombreLiberacion ? `<p class="muted" style="margin:0">${esc(r.descripcion)}</p>` : ""}
+    ${r.estado === "OB" && r.notaObservacion ? `<div class="item nota" style="animation:none">Observación: ${esc(r.notaObservacion)}</div>` : ""}
+    <dl class="kv">
+      ${fila("Actividad", esc(nom(L.act(r.actividad), r.actividad)))}
+      ${fila("Estructura", esc([nom(est), sub && sub.nombre !== nom(est) ? sub.nombre : ""].filter(Boolean).join(" · ")))}
+      ${fila("Elemento", esc(nom(L.ele(r.elementoId))))}
+      ${fila("Tipo", esc(nom(L.tipo(r.tipoId))))}
+      ${fila("Progresiva", r.pkInicio != null ? `<span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : "")}
+      ${fila("Cota", esc(r.cota))}
+      ${fila("Capa", esc(r.capa))}
+      ${fila("Área", r.area != null ? esc(r.area.toLocaleString("es-PE")) + " m²" : "")}
+      ${fila("Fecha en campo", esc(fmtFecha(r.fechaCampo)))}
+      ${fila("Topógrafo", esc(nom(L.topo(r.topografoId), r.topografoId)))}
+      ${fila("Registrado por", esc(r.creadoPor))}
+      ${fila("Fecha liberación", esc(fmtFecha(r.fechaLiberacion, false)))}
+      ${fila("Entrega a Calidad", esc(fmtFecha(r.fechaEntrega, false)))}
+      ${fila("Observaciones", esc(r.observaciones))}
+    </dl>
+    ${(r.linksCsv || []).length ? `<div class="sub">CSV</div><div class="links">${links(r.linksCsv)}</div>` : ""}
+    ${(r.linksFotos || []).length ? `<div class="sub">Fotos</div><div class="links">${links(r.linksFotos)}</div>` : ""}
+    <div class="sub">Historial</div><div class="hist" id="hist"><span class="muted small">Cargando…</span></div>
+    <div class="actions">
+      ${puedeEditar(r) ? '<button type="button" class="btn pri block" id="fEditar">Editar</button>' : ""}
+      <button type="button" class="btn sec ${puedeEditar(r) ? "" : "block"}" id="fCerrar">Cerrar</button>
+    </div>
+  </div>`;
+  sh.hidden = false; sc.hidden = false;
+  requestAnimationFrame(() => { sh.classList.add("on"); sc.classList.add("on"); });
+  $("#fCerrar").addEventListener("click", cerrarFicha);
+  $("#fEditar")?.addEventListener("click", () => { cerrarFicha(); S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); });
+  if (unsubHist) unsubHist();
+  unsubHist = onSnapshot(query(collection(db, "historial"), where("liberacionId", "==", r.id)), snap => {
+    const h = snap.docs.map(d => d.data({ serverTimestamps: "estimate" })).sort((a, b) => (toDate(a.fecha)?.getTime() || 0) - (toDate(b.fecha)?.getTime() || 0));
+    const box = $("#hist"); if (!box) return;
+    box.innerHTML = h.length ? h.map(x => `<div><b>${esc({ creado: "Registrado", editado: "Editado", estado: "Cambio de estado" }[x.accion] || x.accion)}</b>${x.a && x.de !== x.a ? ` · <span class="st ${esc(x.a)}">${esc(ESTADOS[x.a] || x.a)}</span>` : ""}<br><span class="muted small">${esc(fmtFecha(x.fecha))} · ${esc(x.nombre || x.usuario)}</span>${x.nota ? `<br>${esc(x.nota)}` : ""}</div>`).join("") : '<span class="muted small">Sin movimientos.</span>';
+  }, () => { const box = $("#hist"); if (box) box.innerHTML = '<span class="muted small">No disponible.</span>'; });
+  setTimeout(() => $("#fCerrar")?.focus({ preventScroll: true }), 50);
+}
+function cerrarFicha() {
+  const sh = $("#sheet"), sc = $("#scrim");
+  sh.classList.remove("on"); sc.classList.remove("on");
+  if (unsubHist) { unsubHist(); unsubHist = null; }
+  setTimeout(() => { sh.hidden = true; sc.hidden = true; }, 300);
+}
+$("#scrim").addEventListener("click", cerrarFicha);
+addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden) cerrarFicha(); });
+
+/* ---------- Usuarios (solo administrador) ---------- */
+function selRol(v, extra = "") { return `<select ${extra} aria-label="Rol">${Object.entries(ROLES).map(([k, t]) => `<option value="${k}" ${k === v ? "selected" : ""}>${t}</option>`).join("")}</select>`; }
+function selTopo(v, extra = "") { return `<select ${extra} aria-label="Topógrafo"><option value="">Sin clave de topógrafo</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${t.id === v ? "selected" : ""}>${esc(t.id)} · ${esc(t.nombre)}</option>`).join("")}</select>`; }
+function pintarUsuarios() {
+  $("#view").innerHTML = `
+  <h1 class="view-title">Usuarios</h1>
+  <p class="lead">Quien entra por primera vez con Google aparece en «Solicitudes». Asígnale un rol y apruébalo.</p>
+  <div class="card section"><h2>Solicitudes${S.solicitudes.length ? ` <span class="badge" style="background:var(--ob);color:#fff;border-radius:999px;padding:0 8px;font-size:12px">${S.solicitudes.length}</span>` : ""}</h2>
+    <div id="sol">${S.solicitudes.length ? S.solicitudes.map(s => `<div class="urow" data-uid="${esc(s.id)}"><div class="who"><b>${esc(s.nombre || s.email)}</b><span class="muted small">${esc(s.email)}</span></div>${selRol("topografo", 'data-k="rol"')}${selTopo("", 'data-k="topo"')}<button type="button" class="mini ok-btn" data-ap>Aprobar</button><button type="button" class="mini" data-rc>Rechazar</button></div>`).join("") : '<p class="muted" style="margin:0 0 12px">No hay solicitudes pendientes.</p>'}</div>
+  </div>
+  <div class="card section"><h2>Agregar por correo</h2>
+    <div class="grid">
+      <div class="f"><label for="uMail">Correo de Google</label><input id="uMail" type="email" placeholder="nombre@gmail.com"></div>
+      <div class="f"><label for="uNom">Nombre</label><input id="uNom" placeholder="Nombre y apellido"></div>
+      <div class="f"><label for="uRol">Rol</label>${selRol("topografo", 'id="uRol"')}</div>
+      <div class="f"><label for="uTopo">Clave de topógrafo</label>${selTopo("", 'id="uTopo"')}</div>
+    </div>
+    <div class="actions"><button type="button" class="btn pri" id="uAdd">Agregar usuario</button></div>
+  </div>
+  <div class="card section"><h2>Con acceso (${S.usuarios.length})</h2>
+    <div id="usr">${S.usuarios.map(u => `<div class="urow" data-mail="${esc(u.id)}"><div class="who"><b>${esc(u.nombre || u.id)}</b><span class="muted small">${esc(u.id)}${u.activo === false ? " · desactivado" : ""}</span></div>${u.id === ADMIN ? '<span class="st EC">Administrador principal</span>' : `${selRol(u.rol, 'data-k="rol"')}${selTopo(u.topografoId, 'data-k="topo"')}<button type="button" class="mini" data-act>${u.activo === false ? "Activar" : "Desactivar"}</button>`}</div>`).join("")}</div>
+  </div>`;
+  $("#sol").addEventListener("click", async e => {
+    const row = e.target.closest("[data-uid]"); if (!row) return;
+    const s = S.solicitudes.find(x => x.id === row.dataset.uid); if (!s) return;
+    if (e.target.closest("[data-ap]")) {
+      const b = writeBatch(db);
+      b.set(doc(db, "usuarios", s.email.toLowerCase()), { nombre: s.nombre || s.email, rol: row.querySelector('[data-k="rol"]').value, topografoId: row.querySelector('[data-k="topo"]').value, activo: true, creadoEn: serverTimestamp() });
+      b.delete(doc(db, "solicitudes", s.id));
+      b.commit().then(() => toast("Acceso aprobado")).catch(err => toast("No se pudo aprobar: " + err.message, "bad"));
+    } else if (e.target.closest("[data-rc]")) {
+      deleteDoc(doc(db, "solicitudes", s.id)).then(() => toast("Solicitud rechazada")).catch(err => toast(err.message, "bad"));
+    }
+  });
+  $("#uAdd").addEventListener("click", () => {
+    const m = $("#uMail").value.trim().toLowerCase();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m)) { toast("Escribe un correo válido.", "bad"); $("#uMail").focus(); return; }
+    setDoc(doc(db, "usuarios", m), { nombre: $("#uNom").value.trim() || m, rol: $("#uRol").value, topografoId: $("#uTopo").value, activo: true, creadoEn: serverTimestamp() }, { merge: true })
+      .then(() => toast("Usuario agregado")).catch(err => toast("No se pudo agregar: " + err.message, "bad"));
+  });
+  $("#usr").addEventListener("change", e => {
+    const row = e.target.closest("[data-mail]"); if (!row) return;
+    const k = e.target.dataset.k; if (!k) return;
+    updateDoc(doc(db, "usuarios", row.dataset.mail), k === "rol" ? { rol: e.target.value } : { topografoId: e.target.value })
+      .then(() => toast("Actualizado")).catch(err => toast(err.message, "bad"));
+  });
+  $("#usr").addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const row = b.closest("[data-mail]"); const u = S.usuarios.find(x => x.id === row.dataset.mail);
+    updateDoc(doc(db, "usuarios", u.id), { activo: u.activo === false }).then(() => toast(u.activo === false ? "Activado" : "Desactivado")).catch(err => toast(err.message, "bad"));
+  });
+}
+</script>
+</body>
+</html>
