@@ -177,6 +177,31 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
   .trow select{grid-column:1/-1;order:3}
 }
 
+/* Proporciones de botones en ajustes y celular */
+.nav button .sm{display:none}
+@media (max-width:620px){.nav button{font-size:12.5px;padding:8px 2px}.nav button .lg{display:none}.nav button .sm{display:inline}.nav button span{white-space:nowrap}}
+.tabs{flex-wrap:wrap;border-radius:18px}
+.tabs button{padding:8px 14px;font-size:13.5px}
+.ed .mini,.urow .mini{min-height:38px;padding:0 13px;font-size:12.5px}
+.ed input,.ed select{min-height:40px;font-size:14.5px}
+.est-h input{font-size:15.5px}
+.mini.eje{min-height:38px;justify-content:center;white-space:nowrap}
+@media (max-width:560px){
+  .srow{grid-template-columns:1fr 1fr auto auto;gap:6px}
+  .srow .sn{grid-column:1/-1}
+  .srow input.mono{font-size:13.5px;padding:8px 9px}
+  .ed .mini,.urow .mini{padding:0 10px;font-size:12px}
+  .crow{grid-template-columns:1fr 1fr auto}
+  .est{padding:12px 12px 6px}
+  .filters{padding:12px;gap:8px}
+  .up .upbtn{min-height:50px;font-size:14px}
+}
+.hist-box{display:flex;flex-direction:column;gap:10px}
+.prog{height:10px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s}
+.kpis{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px}
+.kpis b{font-family:var(--f-disp);font-size:17px}
+
 /* Panel */
 .filters{display:grid;gap:10px;grid-template-columns:repeat(4,1fr);padding:16px;margin-bottom:12px}
 .filters .f select,.filters .f input{min-height:44px;padding:9px 12px;font-size:15px}
@@ -322,7 +347,7 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 window.__arranco = true;
 
@@ -437,6 +462,7 @@ function leerPk(t) {
 }
 function fmtPk(v) {
   if (v === null || v === undefined || v === "" || isNaN(v)) return "";
+  if (v < 0) return "-" + fmtPk(-v);
   const km = Math.floor(v / 1000), r = Math.round((v - km * 1000) * 100) / 100;
   const [e, d] = r.toFixed(2).split(".");
   return km + "+" + e.padStart(3, "0") + (d === "00" ? "" : "." + d);
@@ -617,7 +643,7 @@ const ICON = {
 function vistas() {
   const v = [];
   if (rol() === "jefe") v.push({ id: "panel", t: "Panel" });
-  if (escribe()) v.push({ id: "nueva", t: "Nueva" }, { id: "mis", t: "Mis registros" });
+  if (escribe()) v.push({ id: "nueva", t: "Nueva" }, { id: "mis", t: "Mis registros", c: "Míos" });
   if (veTodo()) v.push({ id: "todos", t: "Registros" });
   if (rol() !== "jefe") v.push({ id: "panel", t: "Panel" });
   if (esAdmin()) v.push({ id: "ajustes", t: "Ajustes" });
@@ -632,7 +658,7 @@ function pintarCabecera() {
 function pintarNav() {
   const obs = S.mis.filter(r => r.estado === "OB").length;
   const sol = S.solicitudes.length;
-  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
+  $("#nav").innerHTML = vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
 }
 $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
 $("#btnSalir").addEventListener("click", () => { cortar(); signOut(auth); });
@@ -1339,7 +1365,7 @@ function leerEje(texto, pk0) {
 }
 
 /* ---------- Ajustes (solo administrador). Cada cambio se guarda al instante. ---------- */
-const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"]];
+const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["historico", "Histórico"]];
 const AJ_LISTA = { lugares: "estructuras", topografos: "topografos", tipos: "tipos" };
 const slug = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
 const nuevoId = (t, usados) => { let id = slug(t), i = 2; while (usados.has(id)) id = slug(t) + "-" + i++; return id; };
@@ -1368,7 +1394,7 @@ function pintarAjustes() {
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
-  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos })[A.tab]();
+  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico })[A.tab]();
 }
 // Cada vista de ajustes arranca con un contenedor nuevo para no acumular acciones repetidas
 function cuerpoAj() { const b = $("#ajBody"), n = b.cloneNode(false); b.replaceWith(n); return n; }
@@ -1519,6 +1545,81 @@ function ajCapas() {
       guardar("Tramo marcado"); ajCapas();
     }
   });
+}
+
+/* ---------- Importar histórico (archivo preparado a partir del Excel de protocolos) ---------- */
+function ajHistorico() {
+  cuerpoAj();
+  const A = S.aj;
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Carga el archivo <b>liberaciones-historico.json</b> preparado a partir del Excel de protocolos. Cada registro conserva su N° SKT-TOP; si lo vuelves a importar, se actualiza sin duplicarse. Se necesita internet mientras se importa.</p>
+  <div class="card section hist-box">
+    <label class="upbtn"><input type="file" id="hFile" accept=".json,application/json" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg>Elegir archivo del histórico</label>
+    <div id="hRes">${A.hist ? resumenHist(A.hist) : ""}</div>
+    <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn pri" id="hImp" ${A.hist ? "" : "disabled"}>Importar${A.hist ? " " + A.hist.registros.length.toLocaleString("es-PE") + " registros" : ""}</button></div>
+    <div class="prog" id="hProg" hidden><i></i></div><p class="small muted" id="hEst" style="margin:0 0 8px"></p>
+  </div>
+  <div class="card section"><h2>Quitar lo importado</h2><p class="muted small" style="margin:0 0 10px">Borra solo los registros que vinieron del Excel; lo registrado en la app no se toca.</p>
+    <div class="actions" style="margin:0 0 10px"><button type="button" class="btn warn" id="hBorrar">Quitar registros importados</button></div></div>`;
+  $("#hFile").addEventListener("change", async e => {
+    const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+    try {
+      const d = JSON.parse(await f.text());
+      if (!d || !Array.isArray(d.registros) || !d.registros.length || !d.registros[0].numero) throw new Error("no es el archivo del histórico");
+      A.hist = d; ajHistorico();
+    } catch (err) { toast("No se pudo leer: " + err.message, "bad"); }
+  });
+  $("#hImp").addEventListener("click", importarHist);
+  $("#hBorrar").addEventListener("click", borrarHist);
+}
+function resumenHist(d) {
+  const c = {}; d.registros.forEach(r => { c[r.estado] = (c[r.estado] || 0) + 1; });
+  const fr = {}; d.registros.forEach(r => { const k = nom(L.sub(r.subestructuraId), "Sin frente"); fr[k] = (fr[k] || 0) + 1; });
+  return `<div class="kpis"><span><b>${d.registros.length.toLocaleString("es-PE")}</b> registros</span>${Object.entries(c).map(([k, v]) => `<span><span class="st ${k}">${ESTADOS[k] || k}</span> ${v.toLocaleString("es-PE")}</span>`).join("")}<span><b>${d.registros.filter(r => r.capa).length.toLocaleString("es-PE")}</b> con capa</span></div>
+  <p class="small muted" style="margin:8px 0 0">${Object.entries(fr).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${esc(k)} ${v}`).join(" · ")}</p>`;
+}
+async function importarHist() {
+  const d = S.aj.hist; if (!d) return;
+  if (!navigator.onLine) { toast("Se necesita señal para importar.", "bad"); return; }
+  const btn = $("#hImp"), prog = $("#hProg"), est = $("#hEst");
+  btn.disabled = true; prog.hidden = false;
+  const ts = ms => ms ? Timestamp.fromDate(new Date(ms)) : null;
+  const regs = d.registros, LOTE = 400;
+  try {
+    for (let i = 0; i < regs.length; i += LOTE) {
+      const b = writeBatch(db);
+      regs.slice(i, i + LOTE).forEach(r => {
+        const { id, fechaCampo, fechaLiberacion, fechaEntrega, ...resto } = r;
+        b.set(doc(db, "liberaciones", id), { ...resto, fechaCampo: ts(fechaCampo), fechaLiberacion: ts(fechaLiberacion), fechaEntrega: ts(fechaEntrega),
+          nombreLiberacion: "", notaObservacion: "", linksCsv: [], linksFotos: [], archivos: [],
+          creadoEn: ts(fechaCampo) || serverTimestamp(), creadoPor: "importado", editadoEn: serverTimestamp(), editadoPor: S.email, origen: "excel" });
+      });
+      await b.commit();
+      const hechos = Math.min(regs.length, i + LOTE);
+      prog.firstElementChild.style.width = (hechos / regs.length * 100).toFixed(1) + "%";
+      est.textContent = `Importados ${hechos.toLocaleString("es-PE")} de ${regs.length.toLocaleString("es-PE")}…`;
+    }
+    // Topógrafos que aparecen en el Excel y aún no están en la lista
+    const nuevos = (d.topografosNuevos || []).filter(k => !S.listas.topografos.some(t => t.id === k));
+    if (nuevos.length) await setDoc(doc(db, "listas", "topografos"), { items: clon([...S.listas.topografos, ...nuevos.map(k => ({ id: k, nombre: k }))]), editadoEn: serverTimestamp(), editadoPor: S.email });
+    const c = await getDoc(doc(db, "contadores", "skt"));
+    if (!c.exists() || (c.data().ultimo || 0) < (d.ultimoNumero || 0)) await setDoc(doc(db, "contadores", "skt"), { ultimo: d.ultimoNumero });
+    est.textContent = `Listo: ${regs.length.toLocaleString("es-PE")} registros importados.${nuevos.length ? ` Se agregaron las claves ${nuevos.join(", ")} a Topógrafos; completa sus nombres.` : ""}`;
+    toast("Histórico importado");
+  } catch (e) { console.error(e); est.textContent = "Se detuvo: " + (e.code === "permission-denied" ? "sin permiso. Publica las reglas nuevas en Firebase." : e.message) + " Puedes volver a importar; no se duplica."; toast("La importación se detuvo", "bad"); }
+  btn.disabled = false;
+}
+async function borrarHist() {
+  const btn = $("#hBorrar");
+  if (!btn.dataset.ok) { btn.dataset.ok = "1"; btn.textContent = "Toca otra vez para confirmar"; setTimeout(() => { if (btn.isConnected) { delete btn.dataset.ok; btn.textContent = "Quitar registros importados"; } }, 4000); return; }
+  btn.disabled = true; btn.textContent = "Quitando…";
+  try {
+    const snap = await getDocs(query(collection(db, "liberaciones"), where("origen", "==", "excel")));
+    const ids = snap.docs.map(d => d.id);
+    for (let i = 0; i < ids.length; i += 400) { const b = writeBatch(db); ids.slice(i, i + 400).forEach(id => b.delete(doc(db, "liberaciones", id))); await b.commit(); }
+    toast(`${ids.length.toLocaleString("es-PE")} registros importados quitados`);
+  } catch (e) { toast("No se pudo quitar: " + e.message, "bad"); }
+  btn.disabled = false; delete btn.dataset.ok; btn.textContent = "Quitar registros importados";
 }
 
 function ajTopografos() {
