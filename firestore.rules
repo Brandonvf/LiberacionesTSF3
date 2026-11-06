@@ -46,6 +46,8 @@ service cloud.firestore {
     match /listas/{id}     { allow read: if member(); allow write: if isAdmin(); }
     match /config/{id}     { allow read: if member(); allow write: if isAdmin(); }
     match /contadores/{id} { allow read: if member(); allow write: if isGab(); }
+    match /ejes/{id}       { allow read: if member(); allow write: if isAdmin(); }
+    match /capas/{id}      { allow read: if member(); allow write: if isAdmin(); }
 
     // Liberaciones y levantamientos
     match /liberaciones/{id} {

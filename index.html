@@ -151,10 +151,14 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .est-h input{flex:1;font-family:var(--f-disp);font-weight:800;font-size:16px}
 .ed input,.ed select{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 12px;min-height:42px;min-width:0;width:100%}
 .ed input:focus,.ed select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.srow{display:grid;grid-template-columns:1fr 92px 92px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:1fr 92px 92px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .srow.head{border-top:0;padding:0 0 4px;font-size:12px;font-weight:700;color:var(--muted)}
 .srow .mono{font-size:14px}
 .trow{display:grid;grid-template-columns:1fr 150px auto auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.crow{display:grid;grid-template-columns:1fr 130px auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.crow.head,.nrow.head{border-top:0;padding:0 0 4px;font-size:12px;font-weight:700;color:var(--muted)}
+.nrow{display:grid;grid-template-columns:150px 100px 100px 90px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+@media (max-width:720px){.nrow{grid-template-columns:1fr 1fr}.nrow.head{display:none}.nrow select{grid-column:1/-1}.nrow [data-k="nota"],.nrow #nNota{grid-column:1/-1}}
 .prow{display:grid;grid-template-columns:72px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
 .off-row>*:not(.mini){opacity:.5}
 .tog{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;white-space:nowrap}
@@ -194,6 +198,20 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 #chart rect.seg{cursor:pointer;transition:opacity .15s}
 #chart rect.seg:hover{opacity:.75}
 #chart .lab{font:800 13px var(--f-disp);fill:var(--ink)}
+#chart .lab2{font:700 12.5px var(--f-body);fill:var(--ink)}
+#chart .grp{font:800 12px var(--f-disp);fill:var(--accent-strong)}
+#chart .pct{font:800 12px var(--f-disp);fill:var(--accent-strong)}
+#chart .pk-ext{font:700 11.5px var(--f-mono);fill:var(--ob)}
+#chart .lab-pl{font:800 12.5px var(--f-disp);fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:4px}
+#chart path.tramo{cursor:pointer}
+#chart path.tramo:hover{opacity:.75}
+.chart-t{font-family:var(--f-disp);font-size:16px;font-weight:800;margin:10px 0 0}
+.legend i.nolib{background:#c4ceca;border:1px solid #aebab5}
+#chart .nolib-t{font:800 10.5px var(--f-body);fill:#56655f;letter-spacing:.02em}
+.legend i.hatch{background:repeating-linear-gradient(45deg,#f4f8f7 0 3px,#c9d8d3 3px 5px);border:1px solid #c9d8d3}
+.mini.eje{display:inline-flex;align-items:center;cursor:pointer;font-size:12.5px;min-height:42px}
+.mini.eje.tiene{background:var(--accent-soft);color:var(--accent-strong);border-color:#9cc7bf}
+@media (max-width:560px){.chart-h .tabs{width:100%}.chart-h .tabs button{flex:1}}
 #chart .sum{font:700 11.5px var(--f-body);fill:var(--muted)}
 #chart .tick{font:500 10.5px var(--f-mono);fill:var(--muted)}
 #chart .grid{stroke:#e3ece9;stroke-width:1}
@@ -399,14 +417,14 @@ const S = {
   view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "" } },
   editando: null, form: null, limiteTodos: 300, verTodos: 60,
   subs: [], dentro: false,
-  aj: { tab: "usuarios", sucio: false, b: null },
-  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false }, panelDatos: [], panelSub: ""
+  aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {},
+  panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "" }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ls = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
              set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-S.panel.zoom = ls.get("lib.panelZoom", false);
+S.panel.zoom = ls.get("lib.panelZoom", false); S.panel.vista = ls.get("lib.panelVista", "perfil");
 
 /* ---------- Progresivas ---------- */
 function leerPk(t) {
@@ -492,7 +510,7 @@ onAuthStateChanged(auth, async u => {
   if (!u) { S.user = null; gate("entrar"); return; }
   S.user = u; S.email = (u.email || "").toLowerCase();
   gate("cargando");
-  if (S.email === ADMIN) { try { await prepararAdmin(u); } catch (e) { console.warn("prepararAdmin", e); } }
+  if (S.email === ADMIN) { try { await prepararAdmin(u); } catch (e) { console.warn("prepararAdmin", e); setTimeout(() => toast("No se pudieron preparar las listas: " + (e.code === "permission-denied" ? "revisa que las reglas de Firestore estén publicadas." : e.message), "bad"), 800); } }
   S.subs.push(onSnapshot(doc(db, "usuarios", S.email), snap => {
     if (snap.exists() && snap.data().activo !== false) {
       S.perfil = snap.data();
@@ -511,14 +529,17 @@ async function prepararAdmin(u) {
   const ref = doc(db, "usuarios", ADMIN);
   const s = await getDoc(ref);
   if (!s.exists()) await setDoc(ref, { nombre: u.displayName || "Administrador", rol: "admin", activo: true, topografoId: "", creadoEn: serverTimestamp() });
-  const e = await getDoc(doc(db, "listas", "estructuras"));
-  if (!e.exists()) {
-    const b = writeBatch(db);
-    for (const [k, items] of Object.entries(LISTAS_INICIALES)) b.set(doc(db, "listas", k), { items, editadoEn: serverTimestamp() });
-    b.set(doc(db, "config", "general"), { obra: "Presa de relaves TSF3 — Mina Justa", prefijo: "SKT-TOP-", digitos: 5, zona: "America/Lima" });
-    b.set(doc(db, "contadores", "skt"), { ultimo: 2689 });
-    await b.commit();
+  // Crea cada lista que falte (si una carga anterior falló, se completa aquí)
+  const b = writeBatch(db); let n = 0;
+  for (const [k, items] of Object.entries(LISTAS_INICIALES)) {
+    const d = await getDoc(doc(db, "listas", k));
+    if (!d.exists() || !(d.data().items || []).length) { b.set(doc(db, "listas", k), { items, editadoEn: serverTimestamp() }); n++; }
   }
+  if (!(await getDoc(doc(db, "contadores", "skt"))).exists()) {
+    b.set(doc(db, "config", "general"), { obra: "Presa de relaves TSF3 — Mina Justa", prefijo: "SKT-TOP-", digitos: 5, zona: "America/Lima" });
+    b.set(doc(db, "contadores", "skt"), { ultimo: 2689 }); n++;
+  }
+  if (n) await b.commit();
 }
 
 const rol = () => S.perfil?.rol || "";
@@ -533,7 +554,9 @@ function entrarApp() {
   S.subs.push(onSnapshot(collection(db, "listas"), snap => {
     snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
     S.listas.tipos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
-    if (S.view === "nueva") { leerCampos(); pintarForm(); } else if (S.view === "ajustes" && S.aj.sucio) {} else render();
+    if (S.view === "nueva") { leerCampos(); pintarForm(); }
+    else if (S.view === "ajustes" && document.activeElement?.closest?.("#ajBody")) {}
+    else render();
   }, e => console.warn("listas", e)));
   if (escribe()) {
     S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("creadoPor", "==", S.email)), { includeMetadataChanges: true }, snap => {
@@ -542,6 +565,17 @@ function entrarApp() {
     }, e => console.warn("mis", e)));
   }
   if (veTodo()) suscribirTodos();
+  S.subs.push(onSnapshot(collection(db, "capas"), snap => {
+    S.capasCfg = {}; snap.docs.forEach(d => { S.capasCfg[d.id] = d.data(); });
+    if (S.view === "panel") actualizarPanel();
+    if (S.view === "ajustes" && S.aj.tab === "capas" && !document.activeElement?.closest?.("#ajBody")) ajCapas();
+    if (S.view === "nueva") { const dl = $("#dlCapas"); if (dl) { leerCampos(); pintarForm(); } }
+  }, e => console.warn("capas", e)));
+  S.subs.push(onSnapshot(collection(db, "ejes"), snap => {
+    S.ejes = {}; snap.docs.forEach(d => { S.ejes[d.id] = d.data(); });
+    if (S.view === "panel" && S.panel.vista === "planta") actualizarPanel();
+    if (S.view === "ajustes" && S.aj.tab === "lugares" && !document.activeElement?.closest?.("#ajBody")) ajLugares();
+  }, e => console.warn("ejes", e)));
   if (esAdmin()) {
     S.subs.push(onSnapshot(collection(db, "solicitudes"), snap => { S.solicitudes = snap.docs.map(d => ({ id: d.id, ...d.data() })); pintarNav(); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("solicitudes", e)));
     S.subs.push(onSnapshot(collection(db, "usuarios"), snap => { S.usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.nombre || a.id).localeCompare(b.nombre || b.id)); if (S.view === "ajustes" && S.aj.tab === "usuarios") render(); }, e => console.warn("usuarios", e)));
@@ -731,7 +765,7 @@ function pintarForm() {
       </div>
       <div class="grid">
         <div class="f"><label for="iCota">Cota <span class="opt">(opcional)</span></label><div class="inrow"><input id="iCota" name="cota" inputmode="decimal" placeholder="769.63" value="${esc(f.cota)}"><button type="button" class="mini" id="bVar">Variable</button></div></div>
-        <div class="f"><label for="iCapa">Capa <span class="opt">(opcional)</span></label><input id="iCapa" name="capa" placeholder="Capa 15" value="${esc(f.capa)}"></div>
+        <div class="f"><label for="iCapa">Capa <span class="opt">(opcional)</span></label><input id="iCapa" name="capa" placeholder="Capa 15" value="${esc(f.capa)}" list="dlCapas" autocomplete="off"><datalist id="dlCapas">${cfgTipo(f.subestructuraId, f.tipoId).capas.map(c => `<option value="${esc(c.nombre)}">${c.cota ? "cota " + esc(c.cota) : ""}</option>`).join("")}</datalist></div>
         <div class="f"><label for="iArea">Área m² <span class="opt">(opcional)</span></label><input id="iArea" name="area" inputmode="decimal" placeholder="811.55" value="${esc(f.area)}"></div>
       </div>
     </div>
@@ -747,12 +781,6 @@ function pintarForm() {
           </div>
           <div class="archs">${f.archivos.map(archRow).join("")}</div>
           <div class="hint">Las fotos se reducen solas para que suban rápido. El CSV puede pesar hasta ${kb(MAX_CSV)}.</div></div>
-        <div class="f full"><label for="iCsv">Enlaces de Drive del CSV <span class="opt">(opcional, uno o varios)</span></label>
-          <div class="inrow"><input id="iCsv" type="url" inputmode="url" placeholder="https://drive.google.com/…"><button type="button" class="mini" data-add="linksCsv">Agregar</button></div>
-          <div class="links">${f.linksCsv.map((l, i) => linkRow(l, "linksCsv", i)).join("")}</div></div>
-        <div class="f full"><label for="iFot">Enlaces de Drive de las fotos <span class="opt">(opcional, uno o varios)</span></label>
-          <div class="inrow"><input id="iFot" type="url" inputmode="url" placeholder="https://drive.google.com/…"><button type="button" class="mini" data-add="linksFotos">Agregar</button></div>
-          <div class="links">${f.linksFotos.map((l, i) => linkRow(l, "linksFotos", i)).join("")}</div></div>
       </div>
     </div>
     <div class="actions">
@@ -775,8 +803,9 @@ function conectarForm() {
   const f = S.form;
   $("#pAct").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; leerCampos(); if (f.actividad !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act; pintarForm(); });
   $("#iEst").addEventListener("change", () => { leerCampos(); f.subestructuraId = ""; pintarForm(); $("#iSub")?.focus(); });
+  $("#iSub").addEventListener("change", () => { leerCampos(); pintarForm(); });
   $("#iEle").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && t.elementoId !== f.elementoId) f.tipoId = ""; pintarForm(); $("#iTipo")?.focus(); });
-  $("#iTipo").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && !f.elementoId) { f.elementoId = t.elementoId; pintarForm(); } });
+  $("#iTipo").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && !f.elementoId) f.elementoId = t.elementoId; pintarForm(); });
   $("#iSinPk").addEventListener("change", e => { $("#gPk").hidden = e.target.checked; });
   $("#bVar").addEventListener("click", () => { $("#iCota").value = "Variable"; });
   for (const id of ["iPk1", "iPk2"]) $("#" + id).addEventListener("blur", e => { const v = leerPk(e.target.value); if (v != null && !isNaN(v)) e.target.value = fmtPk(v); });
@@ -792,7 +821,6 @@ function conectarForm() {
   });
   $("#fCsv").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "csv"); });
   $("#fFoto").addEventListener("change", e => { const fl = [...e.target.files]; e.target.value = ""; if (fl.length) leerArchivos(fl, "foto"); });
-  for (const id of ["iCsv", "iFot"]) $("#" + id).addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.target.nextElementSibling.click(); } });
   $("#bLimpiar").addEventListener("click", () => {
     if (S.editando) { const r = S.editando; S.editando = null; S.form = null; ir(r.creadoPor === S.email ? "mis" : "todos"); return; }
     ls.set(BORR, null); S.form = formVacio(); pintarForm();
@@ -1017,26 +1045,27 @@ addEventListener("keydown", e => { if (e.key === "Escape" && !$("#sheet").hidden
 /* ---------- Usuarios (solo administrador) ---------- */
 function selRol(v, extra = "") { return `<select ${extra} aria-label="Rol">${Object.entries(ROLES).map(([k, t]) => `<option value="${k}" ${k === v ? "selected" : ""}>${t}</option>`).join("")}</select>`; }
 function selTopo(v, extra = "") { return `<select ${extra} aria-label="Topógrafo"><option value="">Sin clave de topógrafo</option>${S.listas.topografos.map(t => `<option value="${esc(t.id)}" ${t.id === v ? "selected" : ""}>${esc(t.id)} · ${esc(t.nombre)}</option>`).join("")}</select>`; }
-/* ---------- Panel: barras por progresiva, una fila por capa ---------- */
+/* ---------- Panel: perfil por capas y planta ---------- */
 const COLOR = { PT: "#8a99a6", EP: "#e0a030", EC: "#2e9a5c", OB: "#d4553a" };
 let unsubPanel = null;
 function subsConDatos() { const out = []; for (const e of S.listas.estructuras) for (const s of e.subs || []) if (s.activo !== false && e.activo !== false) out.push({ e, s }); return out; }
-function suscribirPanel(subId) {
-  if (S.panelSub === subId && unsubPanel) return;
+function estDeSub(subId) { return S.listas.estructuras.find(e => (e.subs || []).some(s => s.id === subId)); }
+function suscribirPanel(estId) {
+  if (S.panelEst === estId && unsubPanel) return;
   if (unsubPanel) unsubPanel();
-  S.panelSub = subId; S.panelDatos = []; S.panelCargando = true;
-  unsubPanel = onSnapshot(query(collection(db, "liberaciones"), where("subestructuraId", "==", subId)), { includeMetadataChanges: true }, snap => {
+  S.panelEst = estId; S.panelDatos = []; S.panelCargando = true;
+  unsubPanel = onSnapshot(query(collection(db, "liberaciones"), where("estructuraId", "==", estId)), { includeMetadataChanges: true }, snap => {
     S.panelDatos = snap.docs.map(fila); S.panelCargando = false;
     if (S.view === "panel") actualizarPanel();
   }, e => { console.warn("panel", e); S.panelCargando = false; });
-  S.subs.push(() => { if (unsubPanel) { unsubPanel(); unsubPanel = null; S.panelSub = ""; } });
+  S.subs.push(() => { if (unsubPanel) { unsubPanel(); unsubPanel = null; S.panelEst = ""; } });
 }
 const natural = (a, b) => String(a).localeCompare(String(b), "es", { numeric: true, sensitivity: "base" });
 const hoyStr = () => new Date().toDateString();
-function filtrarPanel(conFiltros = true) {
+function filtrarPanel(conFiltros = true, subId = S.panel.subId) {
   const P = S.panel;
   const d0 = P.desde ? new Date(P.desde + "T00:00:00").getTime() : null, d1 = P.hasta ? new Date(P.hasta + "T23:59:59").getTime() : null;
-  return S.panelDatos.filter(r => r.estado !== "X" && r.actividad === "LIB").filter(r => {
+  return S.panelDatos.filter(r => r.estado !== "X" && r.actividad === "LIB" && (!subId || r.subestructuraId === subId)).filter(r => {
     if (!conFiltros) return true;
     const t = toDate(r.fechaCampo)?.getTime() || 0;
     if (d0 && t < d0) return false; if (d1 && t > d1) return false;
@@ -1050,12 +1079,12 @@ function filtrarPanel(conFiltros = true) {
 function pintarPanel() {
   const P = S.panel, lista = subsConDatos();
   if (!lista.length) { $("#view").innerHTML = '<h1 class="view-title">Panel</h1><div class="card empty"><b>Cargando listas…</b></div>'; return; }
-  if (!P.subId || !lista.some(x => x.s.id === P.subId)) P.subId = ls.get("lib.panelSub", "") && lista.some(x => x.s.id === ls.get("lib.panelSub", "")) ? ls.get("lib.panelSub", "") : lista[0].s.id;
-  suscribirPanel(P.subId);
+  if (!P.subId || !lista.some(x => x.s.id === P.subId)) { const g = ls.get("lib.panelSub", ""); P.subId = lista.some(x => x.s.id === g) ? g : lista[0].s.id; }
+  suscribirPanel(estDeSub(P.subId).id);
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
   $("#view").innerHTML = `
   <h1 class="view-title">Panel de liberaciones</h1>
-  <p class="lead">Avance por progresiva, capa por capa. Se actualiza al instante con cada registro.</p>
+  <p class="lead">Lo liberado y lo que falta liberar, capa por capa y por progresiva. Se actualiza al instante.</p>
   <div class="card filters">
     <div class="f wide"><label for="pSub">Frente</label><select id="pSub">${grupos}</select></div>
     <div class="f"><label for="pDesde">Desde</label><input id="pDesde" type="date" value="${esc(P.desde)}"></div>
@@ -1067,15 +1096,22 @@ function pintarPanel() {
   </div>
   <div class="stats" id="pStats"></div>
   <div class="card chartbox">
-    <div class="chart-h"><h2 id="pTit"></h2><label class="tog"><input type="checkbox" id="pZoom" ${P.zoom ? "checked" : ""}>Acercar a lo registrado</label><label class="tog"><input type="checkbox" id="pTodas" ${P.todas ? "checked" : ""}>Capas sin registros</label></div>
-    <div class="legend">${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
+    <div class="chart-h">
+      <div class="tabs" style="margin:0" role="group" aria-label="Vista"><button type="button" data-vista="perfil" aria-pressed="${P.vista !== "planta"}">Perfil por capas</button><button type="button" data-vista="planta" aria-pressed="${P.vista === "planta"}">Planta</button></div>
+      <span style="margin-left:auto"></span>
+      <label class="tog" id="tZoom" ${P.vista === "planta" ? "hidden" : ""}><input type="checkbox" id="pZoom" ${P.zoom ? "checked" : ""}>Acercar a lo registrado</label>
+      <label class="tog" id="tTodas" ${P.vista === "planta" ? "hidden" : ""}><input type="checkbox" id="pTodas" ${P.todas ? "checked" : ""}>Capas sin registros</label>
+      <div class="f" id="tTipo" ${P.vista === "planta" ? "" : "hidden"} style="min-width:220px"><select id="pTipoPl" aria-label="Capa a mostrar en planta"></select></div>
+    </div>
+    <h2 class="chart-t" id="pTit"></h2>
+    <div class="legend"><span><i class="hatch"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
     <div id="chart"></div>
     <p class="nota-g" id="pNota"></p>
   </div>
   <h2 class="sub" id="pListaT" style="font-size:16px;margin:18px 0 10px"></h2>
   <div class="list" id="pLista"></div>`;
   const set = (k, v) => { P[k] = v; actualizarPanel(); };
-  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.capa = ""; ls.set("lib.panelSub", P.subId); suscribirPanel(P.subId); actualizarPanel(); });
+  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.capa = ""; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); actualizarPanel(); });
   $("#pDesde").addEventListener("change", e => set("desde", e.target.value));
   $("#pHasta").addEventListener("change", e => set("hasta", e.target.value));
   $("#pSt").addEventListener("change", e => set("st", e.target.value));
@@ -1083,6 +1119,8 @@ function pintarPanel() {
   $("#pCapa").addEventListener("change", e => set("capa", e.target.value));
   $("#pTodas").addEventListener("change", e => set("todas", e.target.checked));
   $("#pZoom").addEventListener("change", e => { set("zoom", e.target.checked); ls.set("lib.panelZoom", e.target.checked); });
+  $("#pTipoPl").addEventListener("change", e => set("tipoPl", e.target.value));
+  $(".chart-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-vista]"); if (b) { P.vista = b.dataset.vista; ls.set("lib.panelVista", P.vista); pintarPanel(); } });
   $("#pHoy").addEventListener("click", () => { P.hoy = !P.hoy; pintarPanel(); });
   $("#pLimpiar").addEventListener("click", () => { Object.assign(P, { desde: "", hasta: "", st: "", topo: "", capa: "", hoy: false }); pintarPanel(); });
   $("#pLista").addEventListener("click", e => { const it = e.target.closest("[data-id]"); if (it) abrirFicha(S.panelDatos.find(r => r.id === it.dataset.id)); });
@@ -1090,22 +1128,32 @@ function pintarPanel() {
 }
 function actualizarPanel() {
   const P = S.panel, sub = L.sub(P.subId); if (!sub || !$("#chart")) return;
-  const base = filtrarPanel(false);
-  // Capas disponibles en este frente
-  const capas = [...new Set(base.map(r => (r.capa || "").trim()).filter(Boolean))].sort(natural);
+  const planta = P.vista === "planta";
+  const est = estDeSub(P.subId);
+  const base = filtrarPanel(false, planta ? "" : P.subId);
+  const cfgCap = planta ? [] : Object.values(S.capasCfg[P.subId]?.tipos || {}).flatMap(t => (t.capas || []).map(c => c.nombre.trim()));
+  const capas = [...new Set([...base.map(r => (r.capa || "").trim()), ...cfgCap].filter(Boolean))].sort(natural);
   if (P.capa && !capas.includes(P.capa)) P.capa = "";
   $("#pCapa").innerHTML = `<option value="">Todas</option>` + capas.map(c => `<option ${c === P.capa ? "selected" : ""}>${esc(c)}</option>`).join("");
   $("#pCapa").disabled = !capas.length;
-  // Tarjetas del frente
   const hoy = base.filter(r => toDate(r.fechaCampo)?.toDateString() === hoyStr()).length;
   const cnt = k => base.filter(r => r.estado === k).length;
   $("#pStats").innerHTML = `<div class="stat"><b>${hoy}</b><span>Registradas hoy</span></div><div class="stat PT"><b>${cnt("PT") + cnt("OB")}</b><span>Pendientes${cnt("OB") ? ` (${cnt("OB")} ${cnt("OB") === 1 ? "observada" : "observadas"})` : ""}</span></div><div class="stat EP"><b>${cnt("EP")}</b><span>En proceso</span></div><div class="stat EC"><b>${cnt("EC")}</b><span>Entregadas a Calidad</span></div>`;
-  const recs = filtrarPanel(true);
-  $("#pTit").textContent = sub.nombre;
-  dibujarGrafico(sub, recs);
-  const orden = recs.slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
-  $("#pListaT").textContent = S.panelCargando ? "Cargando…" : `${orden.length} liberaciones con estos filtros`;
-  $("#pLista").innerHTML = orden.slice(0, 40).map(tarjeta).join("") + (orden.length > 40 ? `<p class="muted small" style="text-align:center">Se muestran las 40 más recientes.</p>` : "");
+  const recs = filtrarPanel(true, planta ? "" : P.subId);
+  if (planta) {
+    const tipos = S.listas.tipos.filter(t => t.enGrafico);
+    const conDatos = tipos.filter(t => recs.some(r => r.tipoId === t.id));
+    if (!P.tipoPl || !tipos.some(t => t.id === P.tipoPl)) P.tipoPl = (conDatos[0] || tipos[0] || {}).id || "";
+    $("#pTipoPl").innerHTML = tipos.map(t => `<option value="${esc(t.id)}" ${t.id === P.tipoPl ? "selected" : ""}>${esc(t.nombre)}${recs.some(r => r.tipoId === t.id) ? "" : " (sin registros)"}</option>`).join("");
+    $("#pTit").textContent = `${est.nombre} · ${nom(L.tipo(P.tipoPl))}`;
+    dibujarPlanta(est, recs.filter(r => r.tipoId === P.tipoPl));
+  } else {
+    $("#pTit").textContent = sub.nombre;
+    dibujarPerfil(sub, recs);
+  }
+  const lst = (planta ? recs.filter(r => r.tipoId === P.tipoPl) : recs).slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
+  $("#pListaT").textContent = S.panelCargando ? "Cargando…" : `${lst.length} liberaciones con estos filtros`;
+  $("#pLista").innerHTML = lst.slice(0, 40).map(tarjeta).join("") + (lst.length > 40 ? `<p class="muted small" style="text-align:center">Se muestran las 40 más recientes.</p>` : "");
 }
 function paso(span, px) {
   const obj = span / Math.max(2, px / 78);
@@ -1116,146 +1164,243 @@ function unionLen(iv) {
   for (const [s, e] of a) { if (cs === null || s > ce) { if (cs !== null) tot += ce - cs; cs = s; ce = e; } else ce = Math.max(ce, e); }
   if (cs !== null) tot += ce - cs; return tot;
 }
-function dibujarGrafico(sub, recs) {
-  const box = $("#chart"); const W = Math.max(280, box.clientWidth);
-  const conPk = recs.filter(r => r.pkInicio != null);
-  const sinPk = recs.length - conPk.length;
+const HATCH = `<defs><pattern id="falta" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#f4f8f7"/><line x1="0" y1="0" x2="0" y2="7" stroke="#c9d8d3" stroke-width="2.2"/></pattern><pattern id="nolib" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#c4ceca"/><path d="M0 0L8 8M8 0L0 8" stroke="#aebab5" stroke-width="1"/></pattern></defs>`;
+function cfgTipo(subId, tipoId) { const t = S.capasCfg[subId]?.tipos?.[tipoId]; return { capas: t?.capas || [], noAplica: t?.noAplica || [] }; }
+function corta(t, n) { return t.length > n ? t.slice(0, n - 1) + "…" : t; }
+function conectarTramos(svg, attr) {
+  let tip = $(".tip"); if (!tip) { tip = document.createElement("div"); tip.className = "tip"; document.body.appendChild(tip); }
+  svg.addEventListener("click", e => { const s = e.target.closest(attr); if (s) { tip.classList.remove("on"); abrirFicha(S.panelDatos.find(r => r.id === s.dataset.id)); } });
+  svg.addEventListener("pointermove", e => {
+    const s = e.target.closest(attr); if (!s || e.pointerType === "touch") { tip.classList.remove("on"); return; }
+    const r = S.panelDatos.find(x => x.id === s.dataset.id); if (!r) return;
+    tip.innerHTML = `<b>${esc(r.numero || "Sin número")}</b> · ${esc(ESTADOS[r.estado] || r.estado)}<br>${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}<br><span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><br>${esc(fmtFecha(r.fechaCampo))} · ${esc(nom(L.topo(r.topografoId), r.topografoId))}`;
+    tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on");
+  });
+  svg.addEventListener("pointerleave", () => tip.classList.remove("on"));
+}
+
+// Perfil: las capas apiladas de abajo (primera en construirse) hacia arriba, a lo largo de la progresiva
+function dibujarPerfil(sub, recs) {
+  const box = $("#chart"); const W = Math.max(300, box.clientWidth), movil = W < 560;
+  const conPk = recs.filter(r => r.pkInicio != null), sinPk = recs.length - conPk.length;
   let x0 = sub.pkMin, x1 = sub.pkMax;
   const vals = conPk.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
   if (x0 == null) x0 = vals.length ? Math.min(...vals) : 0;
   if (x1 == null) x1 = vals.length ? Math.max(...vals) : x0 + 100;
   if (vals.length) { x0 = Math.min(x0, Math.min(...vals)); x1 = Math.max(x1, Math.max(...vals)); }
-  const largo = Math.max(10, x1 - x0);
-  if (S.panel.zoom && vals.length) { const a = Math.min(...vals), b = Math.max(...vals), m = Math.max(10, (b - a) * 0.06); x0 = Math.max(sub.pkMin ?? 0, a - m, 0); x1 = b + m; }
   if (x1 - x0 < 10) x1 = x0 + 10;
-  const pad = 6, X = v => pad + (v - x0) / (x1 - x0) * (W - pad * 2);
-  // Filas: tipos en gráfico, en orden constructivo
+  const largo = x1 - x0, ini = x0, fin = x1;
+  if (S.panel.zoom && vals.length) { const a = Math.min(...vals), b = Math.max(...vals), m = Math.max(10, (b - a) * 0.06); x0 = Math.max(ini, a - m); x1 = Math.min(fin, b + m); if (x1 - x0 < 10) x1 = x0 + 10; }
+  // Bandas: una por tipo; si el tipo tiene capas numeradas, una por capa
   const porTipo = new Map(); conPk.forEach(r => { if (!porTipo.has(r.tipoId)) porTipo.set(r.tipoId, []); porTipo.get(r.tipoId).push(r); });
-  const filas = S.listas.tipos.filter(t => t.enGrafico && (S.panel.todas || porTipo.has(t.id)));
-  const fueraGrafico = conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)).length;
-  const top = 26, labH = 20, maxBar = 34;
-  let y = top, partes = [];
-  const st = paso(x1 - x0, W), ticks = []; for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-6; v += st) ticks.push(v);
-  const hoy = hoyStr();
-  filas.forEach((t, fi) => {
-    const rs = (porTipo.get(t.id) || []).map(r => ({ r, s: r.pkInicio, e: Math.max(r.pkFin ?? r.pkInicio, r.pkInicio) })).sort((a, b) => a.s - b.s || a.e - b.e);
-    // Reparto en carriles para que los tramos que se superponen (capas) no se tapen
-    const ends = []; rs.forEach(o => { let k = ends.findIndex(e => e <= o.s); if (k < 0) { k = ends.length; ends.push(o.e); } else ends[k] = o.e; o.k = k; });
-    const lanes = Math.max(1, ends.length), barH = Math.min(maxBar, Math.max(16, lanes * 7)), lh = barH / lanes;
-    const len = unionLen(rs.map(o => [o.s, o.e])), lenEC = unionLen(rs.filter(o => o.r.estado === "EC").map(o => [o.s, o.e]));
-    const tot = largo, nCap = new Set(rs.map(o => (o.r.capa || "").trim()).filter(Boolean)).size;
-    const sum = rs.length ? `${Math.round(len).toLocaleString("es-PE")} m · ${Math.round(len / tot * 100)}%${lenEC ? ` · entregado ${Math.round(lenEC / tot * 100)}%` : ""}` : "sin registros";
-    partes.push(`<g class="fila"><text class="lab" x="${pad}" y="${y + 14}">${esc(t.nombre)}${nCap > 1 ? ` <tspan class="sum">· ${nCap} capas</tspan>` : rs.length > 1 ? ` <tspan class="sum">· ${rs.length}</tspan>` : ""}</text><text class="sum" x="${W - pad}" y="${y + 14}" text-anchor="end">${sum}</text>`);
-    const yb = y + labH;
-    partes.push(`<rect class="track" x="${pad}" y="${yb}" width="${W - pad * 2}" height="${barH}" rx="6"/>`);
-    rs.forEach(o => {
-      const xa = X(o.s), w = Math.max(3, X(o.e) - xa), yy = yb + o.k * lh + (lanes > 1 ? 0.5 : 0), h = Math.max(2, lh - (lanes > 1 ? 1 : 0));
-      const esHoy = toDate(o.r.fechaCampo)?.toDateString() === hoy;
-      partes.push(`<rect class="seg seg-anim" data-id="${esc(o.r.id)}" x="${xa.toFixed(1)}" y="${yy.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(4, h / 2).toFixed(1)}" fill="${COLOR[o.r.estado] || COLOR.PT}" ${esHoy ? 'stroke="#14231f" stroke-width="1.6"' : ""} style="animation-delay:${Math.min(fi * 40, 400)}ms"/>`);
+  const bandas = [];
+  S.listas.tipos.filter(t => t.enGrafico).forEach(t => {
+    const rs = porTipo.get(t.id) || [], cfg = cfgTipo(sub.id, t.id);
+    if (!(rs.length || cfg.capas.length || cfg.noAplica.length || S.panel.todas)) return;
+    const capas = [...new Set([...cfg.capas.map(c => c.nombre.trim()), ...rs.map(r => (r.capa || "").trim())].filter(Boolean))].sort(natural)
+      .filter(c => !S.panel.capa || c === S.panel.capa);
+    const sinCapa = rs.filter(r => !(r.capa || "").trim());
+    if ((sinCapa.length || !capas.length) && !S.panel.capa) bandas.push({ t, nombre: t.nombre, corto: capas.length ? "Sin capa" : t.nombre, rs: sinCapa, na: capas.length ? cfg.noAplica.filter(x => !x.capa) : cfg.noAplica });
+    capas.forEach(c => { const cc = cfg.capas.find(x => x.nombre.trim() === c); bandas.push({ t, capa: c, nombre: `${t.nombre} · ${c}${cc && cc.cota ? ` (cota ${cc.cota})` : ""}`, corto: c + (cc && cc.cota ? ` · ${cc.cota}` : ""), rs: rs.filter(r => (r.capa || "").trim() === c), na: cfg.noAplica.filter(x => !x.capa || x.capa === c) }); });
+  });
+  const fuera = conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)).length;
+  if (!bandas.length) {
+    box.innerHTML = `<div class="empty"><b>${S.panelCargando ? "Cargando…" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
+    $("#pNota").textContent = sinPk ? `+${sinPk} sin progresiva.` : ""; return;
+  }
+  const labW = movil ? 118 : 230, pctW = movil ? 40 : 52, top = 34, bh = movil ? 22 : 26;
+  const gx0 = labW, gx1 = W - pctW, X = v => gx0 + (v - x0) / (x1 - x0) * (gx1 - gx0);
+  // filas de arriba hacia abajo (la última capa construida arriba); un encabezado por tipo con varias capas
+  const filasP = []; let yy = top, prevT = null;
+  bandas.slice().reverse().forEach(b => {
+    const grupo = bandas.filter(x => x.t.id === b.t.id).length > 1;
+    if (grupo && prevT !== b.t.id) { filasP.push({ head: true, t: b.t, y: yy }); yy += 18; }
+    filasP.push({ b, y: yy, grupo }); yy += bh; prevT = b.t.id;
+  });
+  const fondo = yy, H = fondo + 26;
+  const hoy = hoyStr(), out = [HATCH];
+  const st = paso(x1 - x0, gx1 - gx0), ticks = []; for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-6; v += st) ticks.push(v);
+  ticks.forEach(v => out.push(`<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 4}" y2="${fondo + 4}"/><text class="tick" x="${X(v).toFixed(1)}" y="${top - 10}" text-anchor="middle">${fmtPk(v)}</text>`));
+  out.push(`<text class="pk-ext" x="${gx0}" y="${H - 6}">PK ${fmtPk(x0)}</text><text class="pk-ext" x="${gx1}" y="${H - 6}" text-anchor="end">PK ${fmtPk(x1)}</text>`);
+  // de arriba hacia abajo se dibuja la última capa primero
+  filasP.forEach((fp, i) => {
+    if (fp.head) {
+      out.push(`<rect x="${gx0}" y="${fp.y}" width="${gx1 - gx0}" height="18" fill="#eaf1ef"/><text class="grp" x="${movil ? 4 : gx0 - 8}" y="${fp.y + 13}" text-anchor="${movil ? "start" : "end"}">${esc(fp.t.nombre)}</text><line x1="${gx0}" x2="${gx1}" y1="${fp.y + 18}" y2="${fp.y + 18}" stroke="#2b3a36" stroke-width="1"/>`);
+      return;
+    }
+    const b = fp.b, y = fp.y;
+    const iv = b.rs.map(r => [r.pkInicio, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)]);
+    const naIv = b.na.map(x => [Math.max(ini, x.pkInicio), Math.min(fin, x.pkFin)]).filter(q => q[1] > q[0]);
+    const lib = unionLen(iv), base = Math.max(1, largo - unionLen(naIv)), pct = Math.min(100, Math.round(lib / base * 100));
+    out.push(`<rect x="${gx0}" y="${y}" width="${gx1 - gx0}" height="${bh}" fill="url(#falta)"/>`);
+    b.na.forEach(x => {
+      const a = Math.max(x0, x.pkInicio), e = Math.min(x1, x.pkFin); if (e <= a) return;
+      const xa = X(a), w = X(e) - xa;
+      out.push(`<rect class="nolib" x="${xa.toFixed(1)}" y="${y + 1}" width="${w.toFixed(1)}" height="${bh - 2}" fill="url(#nolib)"><title>No se libera · ${esc(rangoPk(x.pkInicio, x.pkFin))}${x.cota ? " · cota " + esc(x.cota) : ""}${x.nota ? " · " + esc(x.nota) : ""}</title></rect>`);
+      if (w > 86) out.push(`<text class="nolib-t" x="${(xa + w / 2).toFixed(1)}" y="${y + bh / 2 + 4}" text-anchor="middle">No se libera</text>`);
     });
-    partes.push(`</g>`);
-    y = yb + barH + 14;
+    b.rs.slice().sort((p, q) => (toDate(p.fechaCampo)?.getTime() || 0) - (toDate(q.fechaCampo)?.getTime() || 0)).forEach(r => {
+      const a = Math.max(x0, r.pkInicio), e = Math.min(x1, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)); if (e < x0 || a > x1) return;
+      const xa = X(a), w = Math.max(3, X(e) - xa), esHoy = toDate(r.fechaCampo)?.toDateString() === hoy;
+      out.push(`<rect class="seg seg-anim" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${COLOR[r.estado] || COLOR.PT}" ${esHoy ? 'stroke="#14231f" stroke-width="1.6"' : ""} style="animation-delay:${Math.min(i * 30, 450)}ms"/>`);
+    });
+    out.push(`<line x1="${gx0}" x2="${gx1}" y1="${y + bh}" y2="${y + bh}" stroke="#2b3a36" stroke-width="1.4"/>`);
+    out.push(`<text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)}</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 17 : 34))}</text>`);
+    out.push(`<text class="pct" x="${W - 2}" y="${y + bh / 2 + 4}" text-anchor="end">${b.rs.length ? pct + "%" : naIv.length && unionLen(naIv) >= largo - 1 ? "N/A" : "0%"}</text>`);
   });
-  const H = Math.max(y, top + 40);
-  const grid = ticks.map(v => `<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 6}" y2="${H - 8}"/><text class="tick" x="${X(v).toFixed(1)}" y="${top - 12}" text-anchor="${X(v) < 30 ? "start" : X(v) > W - 30 ? "end" : "middle"}">${fmtPk(v)}</text>`).join("");
-  box.innerHTML = filas.length
-    ? `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Liberaciones por progresiva en ${esc(sub.nombre)}">${grid}${partes.join("")}</svg>`
-    : `<div class="empty"><b>${S.panelCargando ? "Cargando…" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
+  // marco como en el tablero: líneas de inicio y fin y borde superior
+  out.push(`<line x1="${gx0}" x2="${gx1}" y1="${top}" y2="${top}" stroke="#2b3a36" stroke-width="1.4"/><line x1="${gx0}" x2="${gx0}" y1="${top}" y2="${fondo}" stroke="#2b3a36" stroke-width="1.8"/><line x1="${gx1}" x2="${gx1}" y1="${top}" y2="${fondo}" stroke="#2b3a36" stroke-width="1.8"/>`);
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Perfil de capas liberadas en ${esc(sub.nombre)}">${out.join("")}</svg>`;
   const notas = [];
-  if (sinPk) notas.push(`+${sinPk} ${sinPk === 1 ? "liberación" : "liberaciones"} sin progresiva`);
-  if (fueraGrafico) notas.push(`${fueraGrafico} de tipos que no están en el gráfico (se activan en Ajustes → Tipos y capas)`);
-  notas.push(`Eje de ${fmtPk(x0)} a ${fmtPk(x1)}. Toca un tramo para ver su ficha; el borde oscuro marca lo registrado hoy.`);
+  if (sinPk) notas.push(`+${sinPk} sin progresiva`);
+  if (fuera) notas.push(`${fuera} de tipos ocultos (se activan en Ajustes → Tipos y capas)`);
+  notas.push("La primera capa construida queda abajo. El % es lo liberado sobre el largo del frente. Toca un tramo para ver su ficha.");
   $("#pNota").textContent = notas.join(" · ");
-  const svg = box.querySelector("svg"); if (!svg) return;
-  let tip = $(".tip"); if (!tip) { tip = document.createElement("div"); tip.className = "tip"; document.body.appendChild(tip); }
-  svg.addEventListener("click", e => { const s = e.target.closest("rect.seg"); if (s) { tip.classList.remove("on"); abrirFicha(S.panelDatos.find(r => r.id === s.dataset.id)); } });
-  svg.addEventListener("pointermove", e => {
-    const s = e.target.closest("rect.seg"); if (!s || e.pointerType === "touch") { tip.classList.remove("on"); return; }
-    const r = S.panelDatos.find(x => x.id === s.dataset.id); if (!r) return;
-    tip.innerHTML = `<b>${esc(r.numero || "Sin número")}</b> · ${esc(ESTADOS[r.estado] || r.estado)}<br><span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>${r.capa ? " · " + esc(r.capa) : ""}<br>${esc(fmtFecha(r.fechaCampo))} · ${esc(nom(L.topo(r.topografoId), r.topografoId))}`;
-    tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on");
+  conectarTramos(box.querySelector("svg"), "rect.seg");
+}
+
+// Planta: el eje de cada frente (subido en Ajustes → Lugares) con los tramos liberados de la capa elegida
+function puntosEje(subId) { const e = S.ejes[subId]; if (!e || !e.puntos || e.puntos.length < 6) return null; const p = []; for (let i = 0; i + 2 < e.puntos.length; i += 3) p.push([e.puntos[i], e.puntos[i + 1], e.puntos[i + 2]]); return p; }
+function enEje(p, pk) {
+  if (pk <= p[0][0]) return [p[0][1], p[0][2]]; const n = p.length - 1; if (pk >= p[n][0]) return [p[n][1], p[n][2]];
+  let lo = 0, hi = n; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (p[m][0] <= pk) lo = m; else hi = m; }
+  const a = p[lo], b = p[hi], t = (pk - a[0]) / ((b[0] - a[0]) || 1); return [a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+}
+function tramoEje(p, a, b) { const out = [enEje(p, a)]; for (const q of p) if (q[0] > a && q[0] < b) out.push([q[1], q[2]]); out.push(enEje(p, b)); return out; }
+function dibujarPlanta(est, recs) {
+  const box = $("#chart"); const W = Math.max(300, box.clientWidth);
+  const subs = (est.subs || []).filter(s => s.activo !== false).map(s => ({ s, p: puntosEje(s.id) })).filter(x => x.p);
+  if (!subs.length) {
+    box.innerHTML = `<div class="empty"><b>Falta el eje de ${esc(est.nombre)}</b>Para dibujar la planta se necesita el eje de cada frente (CSV con PK, Este y Norte, como sale de Civil 3D).${esAdmin() ? '<br><br><button type="button" class="btn pri" id="irEjes">Subir ejes en Ajustes → Lugares</button>' : " Pídeselo al administrador."}</div>`;
+    $("#pNota").textContent = ""; $("#irEjes")?.addEventListener("click", () => { S.aj.tab = "lugares"; ir("ajustes"); }); return;
+  }
+  let minE = Infinity, maxE = -Infinity, minN = Infinity, maxN = -Infinity;
+  subs.forEach(x => x.p.forEach(q => { minE = Math.min(minE, q[1]); maxE = Math.max(maxE, q[1]); minN = Math.min(minN, q[2]); maxN = Math.max(maxN, q[2]); }));
+  const dx = Math.max(maxE - minE, 1), dy = Math.max(maxN - minN, 1), pad = 34;
+  const H = Math.round(Math.min(640, Math.max(260, (W - 2 * pad) * dy / dx + 2 * pad)));
+  const s = Math.min((W - 2 * pad) / dx, (H - 2 * pad) / dy);
+  const ox = (W - dx * s) / 2, oy = (H - dy * s) / 2;
+  const P = (e, n) => [(ox + (e - minE) * s).toFixed(1), (oy + (maxN - n) * s).toFixed(1)];
+  const linea = pts => pts.map((q, i) => (i ? "L" : "M") + P(q[0], q[1]).join(",")).join("");
+  const sw = W < 560 ? 11 : 14, out = [];
+  const sel = S.panel.subId;
+  subs.forEach(({ s: sb, p }) => out.push(`<path d="${linea(p.map(q => [q[1], q[2]]))}" fill="none" stroke="${sb.id === sel ? "#c3d6d0" : "#d9e5e1"}" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>`));
+  subs.forEach(({ p }) => out.push(`<path d="${linea(p.map(q => [q[1], q[2]]))}" fill="none" stroke="url(#falta)" stroke-width="${sw - 4}" stroke-linecap="round" stroke-linejoin="round"/>`));
+  const porSub = new Map(subs.map(x => [x.s.id, x.p]));
+  subs.forEach(({ s: sb, p }) => cfgTipo(sb.id, S.panel.tipoPl).noAplica.filter(x => !S.panel.capa || !x.capa || x.capa === S.panel.capa).forEach(x => {
+    out.push(`<path d="${linea(tramoEje(p, x.pkInicio, x.pkFin))}" fill="none" stroke="#b4c1bc" stroke-width="${sw - 2}" stroke-linecap="butt"><title>No se libera · ${esc(rangoPk(x.pkInicio, x.pkFin))}${x.nota ? " · " + esc(x.nota) : ""}</title></path>`);
+  }));
+  recs.filter(r => r.pkInicio != null && porSub.has(r.subestructuraId)).sort((a, b) => (toDate(a.fechaCampo)?.getTime() || 0) - (toDate(b.fechaCampo)?.getTime() || 0)).forEach(r => {
+    const p = porSub.get(r.subestructuraId), a = r.pkInicio, b = Math.max(r.pkFin ?? a, a + 0.5);
+    out.push(`<path class="tramo" data-id="${esc(r.id)}" d="${linea(tramoEje(p, a, b))}" fill="none" stroke="${COLOR[r.estado] || COLOR.PT}" stroke-width="${sw - 2}" stroke-linecap="butt" stroke-linejoin="round"/>`);
   });
-  svg.addEventListener("pointerleave", () => tip.classList.remove("on"));
+  // progresivas y nombres
+  subs.forEach(({ s: sb, p }) => {
+    const a = p[0][0], b = p[p.length - 1][0], st = b - a > 1500 ? 500 : b - a > 400 ? 200 : 100;
+    for (let v = Math.ceil(a / st) * st; v <= b; v += st) { const [x, y] = P(...enEje(p, v)); out.push(`<circle cx="${x}" cy="${y}" r="2.6" fill="#2b3a36"/><text class="tick" x="${(+x + 6).toFixed(1)}" y="${(+y - 6).toFixed(1)}">${fmtPk(v)}</text>`); }
+    const m = enEje(p, (a + b) / 2), [x, y] = P(m[0], m[1]);
+    const lib = unionLen(recs.filter(r => r.subestructuraId === sb.id && r.pkInicio != null).map(r => [r.pkInicio, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)]));
+    const largo = (sb.pkMax ?? b) - (sb.pkMin ?? a) || (b - a) || 1;
+    out.push(`<text class="lab-pl" x="${x}" y="${(+y + sw + 12).toFixed(1)}" text-anchor="middle">${esc(sb.nombre)} · ${Math.round(lib / largo * 100)}%</text>`);
+  });
+  out.push(`<g transform="translate(${W - 26},28)"><path d="M0,-14 L6,6 L0,2 L-6,6 Z" fill="#2b3a36"/><text class="tick" y="18" text-anchor="middle">N</text></g>`);
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Planta de ${esc(est.nombre)}">${HATCH}${out.join("")}</svg>`;
+  const faltan = (est.subs || []).filter(x => x.activo !== false && !puntosEje(x.id)).map(x => x.nombre);
+  $("#pNota").textContent = `Norte arriba. Toca un tramo para ver su ficha.${faltan.length ? " Sin eje: " + faltan.join(", ") + "." : ""}`;
+  conectarTramos(box.querySelector("svg"), "path.tramo");
 }
 let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (S.view === "panel" && $("#chart")) actualizarPanel(); }, 150); });
 
-/* ---------- Ajustes (solo administrador) ---------- */
-const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["topografos", "Topógrafos"], ["tipos", "Tipos y capas"]];
+/* ---------- Ejes de los frentes (para la planta) ---------- */
+function leerEje(texto, pk0) {
+  const filas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => (/[,;\t]/.test(l) ? l.split(/[,;\t]/) : l.split(/\s+/)).map(x => x.trim()));
+  if (filas.length < 2) throw new Error("El archivo tiene muy pocas líneas.");
+  const num = t => { if (/^\d+\+\d/.test(t)) return leerPk(t); const v = Number(t); return t === "" || isNaN(v) ? NaN : v; };
+  const nNum = f => f.filter(t => t && !isNaN(num(t))).length;
+  let cab = null; if (filas[0].some(t => t && isNaN(num(t))) && nNum(filas[0]) < nNum(filas[1])) cab = filas.shift().map(t => t.toLowerCase());
+  const nc = Math.max(...filas.map(f => f.length));
+  const cols = Array.from({ length: nc }, (_, i) => filas.map(f => num(f[i] ?? "")));
+  const okCol = c => c.filter(v => !isNaN(v)).length >= c.length * 0.9;
+  let iE = -1, iN = -1, iP = -1;
+  if (cab) cab.forEach((h, i) => { if (/^(pk|prog|progresiva|km|station|estaci)/.test(h)) iP = i; else if (/^(este|east|easting|x|e)$/.test(h)) iE = i; else if (/^(norte|north|northing|y|n)$/.test(h)) iN = i; });
+  cols.forEach((c, i) => {
+    if (!okCol(c)) return; const v = c.filter(x => !isNaN(x)), mn = Math.min(...v), mx = Math.max(...v);
+    if (iN < 0 && mn > 1e6 && mx < 1e7) iN = i;
+    else if (iE < 0 && mn > 1e5 && mx < 1e6 && i !== iN) iE = i;
+  });
+  if (iP < 0) cols.forEach((c, i) => { if (iP >= 0 || i === iE || i === iN || !okCol(c)) return; const v = c.filter(x => !isNaN(x)); if (Math.max(...v) < 1e5 && v.every((x, k) => !k || x >= v[k - 1])) iP = i; });
+  if (iE < 0 || iN < 0) throw new Error("No se encontraron las columnas Este y Norte (coordenadas UTM).");
+  let pts = filas.map(f => [iP >= 0 ? num(f[iP] ?? "") : NaN, num(f[iE] ?? ""), num(f[iN] ?? "")]).filter(q => !isNaN(q[1]) && !isNaN(q[2]));
+  if (iP < 0 || pts.some(q => isNaN(q[0]))) { let acc = pk0 || 0; pts = pts.map((q, k) => { if (k) acc += Math.hypot(q[1] - pts[k - 1][1], q[2] - pts[k - 1][2]); return [Math.round(acc * 100) / 100, q[1], q[2]]; }); }
+  pts.sort((a, b) => a[0] - b[0]);
+  if (pts.length > 2500) { const k = Math.ceil(pts.length / 2500); pts = pts.filter((q, i) => i % k === 0 || i === pts.length - 1); }
+  if (pts.length < 2) throw new Error("Se necesitan al menos 2 puntos del eje.");
+  return pts;
+}
+
+/* ---------- Ajustes (solo administrador). Cada cambio se guarda al instante. ---------- */
+const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"]];
 const AJ_LISTA = { lugares: "estructuras", topografos: "topografos", tipos: "tipos" };
 const slug = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
 const nuevoId = (t, usados) => { let id = slug(t), i = 2; while (usados.has(id)) id = slug(t) + "-" + i++; return id; };
+const clon = x => JSON.parse(JSON.stringify(x));
+const AJ_VALIDAR = {
+  estructuras: b => { for (const e of b) { if (!e.nombre.trim()) return "La estructura necesita un nombre."; for (const s of e.subs || []) { if (!s.nombre.trim()) return `Hay una sub-estructura sin nombre en ${e.nombre}.`; if (s.pkMin != null && s.pkMax != null && s.pkMax <= s.pkMin) return `En ${s.nombre} el PK final debe ser mayor que el inicial.`; } } return ""; },
+  topografos: b => { const v = new Set(); for (const t of b) { if (!t.id.trim() || !t.nombre.trim()) return "Cada topógrafo necesita clave y nombre."; if (v.has(t.id)) return `La clave ${t.id} está repetida.`; v.add(t.id); } return ""; },
+  tipos: b => b.some(t => !t.nombre.trim()) ? "El tipo necesita un nombre." : ""
+};
+function guardarLista(lista, items, msg = "Guardado") {
+  const err = AJ_VALIDAR[lista]?.(items); if (err) { toast(err, "bad"); pintarAjustes(); return false; }
+  const limpio = clon(items);
+  S.listas[lista] = clon(limpio);
+  setDoc(doc(db, "listas", lista), { items: limpio, editadoEn: serverTimestamp(), editadoPor: S.email })
+    .catch(e => { console.error(e); toast("No se guardó: " + (e.code === "permission-denied" ? "sin permiso. Publica las reglas nuevas en Firebase." : e.message), "bad"); });
+  toast(navigator.onLine ? msg : msg + " en el teléfono; se subirá con señal.");
+  return true;
+}
 function pintarAjustes() {
   if (!esAdmin()) { ir(vistas()[0].id); return; }
-  const A = S.aj;
-  const lista = AJ_LISTA[A.tab];
-  if (lista && !A.sucio) A.b = JSON.parse(JSON.stringify(S.listas[lista] || []));
+  const A = S.aj, lista = AJ_LISTA[A.tab];
+  if (lista) A.b = clon(S.listas[lista] || []);
   $("#view").innerHTML = `
   <h1 class="view-title">Ajustes</h1>
-  <p class="lead">Solo el administrador ve esta sección.</p>
+  <p class="lead">Solo el administrador ve esta sección. Cada cambio se guarda solo.</p>
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
-  $(".tabs").addEventListener("click", e => {
-    const b = e.target.closest("[data-tab]"); if (!b || b.dataset.tab === A.tab) return;
-    if (A.sucio && !confirmarDescarte()) return;
-    A.tab = b.dataset.tab; A.sucio = false; pintarAjustes();
-  });
-  ({ usuarios: pintarUsuarios, lugares: ajLugares, topografos: ajTopografos, tipos: ajTipos })[A.tab]();
+  $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
+  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos })[A.tab]();
 }
-function confirmarDescarte() {
-  // Sin ventanas emergentes del navegador: un segundo toque confirma.
-  if (S.aj._conf && Date.now() - S.aj._conf < 4000) { S.aj._conf = 0; return true; }
-  S.aj._conf = Date.now(); toast("Tienes cambios sin guardar. Toca otra vez para descartarlos.", "pend"); return false;
-}
-function barraGuardar() {
-  return S.aj.sucio ? `<div class="savebar"><span>Cambios sin guardar</span><span style="display:flex;gap:8px"><button type="button" class="btn sec" id="ajDesc" style="background:transparent;color:#fff;border-color:#4a5a56">Descartar</button><button type="button" class="btn pri" id="ajSave">Guardar</button></span></div>` : "";
-}
-function conectarGuardar(lista, validar) {
-  $("#ajDesc")?.addEventListener("click", () => { S.aj.sucio = false; pintarAjustes(); });
-  $("#ajSave")?.addEventListener("click", () => {
-    const msg = validar ? validar(S.aj.b) : "";
-    if (msg) { toast(msg, "bad"); return; }
-    const items = S.aj.b;
-    setDoc(doc(db, "listas", lista), { items, editadoEn: serverTimestamp(), editadoPor: S.email })
-      .then(() => toast("Ajustes guardados")).catch(e => toast("No se pudo guardar: " + e.message, "bad"));
-    S.listas[lista] = JSON.parse(JSON.stringify(items));
-    S.aj.sucio = false; pintarAjustes();
-  });
-}
-function sucio() { if (!S.aj.sucio) { S.aj.sucio = true; const sb = $("#ajSb"); if (sb) { sb.innerHTML = barraGuardar(); conectarGuardar(AJ_LISTA[S.aj.tab], AJ_VALIDAR[S.aj.tab]); } } }
+// Cada vista de ajustes arranca con un contenedor nuevo para no acumular acciones repetidas
+function cuerpoAj() { const b = $("#ajBody"), n = b.cloneNode(false); b.replaceWith(n); return n; }
 const numONull = v => { const p = leerPk(v); return p == null || isNaN(p) ? null : p; };
-const AJ_VALIDAR = {
-  lugares: b => { for (const e of b) { if (!e.nombre.trim()) return "Hay una estructura sin nombre."; for (const s of e.subs || []) { if (!s.nombre.trim()) return `Hay una sub-estructura sin nombre en ${e.nombre}.`; if (s.pkMin != null && s.pkMax != null && s.pkMax <= s.pkMin) return `En ${s.nombre} el PK final debe ser mayor que el inicial.`; } } return ""; },
-  topografos: b => { const v = new Set(); for (const t of b) { if (!t.id.trim() || !t.nombre.trim()) return "Cada topógrafo necesita clave y nombre."; if (v.has(t.id)) return `La clave ${t.id} está repetida.`; v.add(t.id); } return ""; },
-  tipos: b => b.some(t => !t.nombre.trim()) ? "Hay un tipo sin nombre." : ""
-};
 
 function ajLugares() {
+  cuerpoAj();
   const B = S.aj.b;
   const usados = new Set(); B.forEach(e => { usados.add(e.id); (e.subs || []).forEach(s => usados.add(s.id)); });
+  const ejeTxt = id => { const e = S.ejes[id]; return e && e.puntos ? `Eje · ${Math.round(e.puntos.length / 3).toLocaleString("es-PE")} pts` : "Subir eje"; };
   $("#ajBody").innerHTML = `
-  <p class="muted small" style="margin:0 0 12px">Cada estructura agrupa sus sub-estructuras o frentes. Lo que agregues aparece al instante en el formulario de campo, enlazado a su estructura. El rango de PK define el largo del gráfico. Desactivar oculta un lugar en el formulario sin borrar los registros que ya lo usan.</p>
+  <p class="muted small" style="margin:0 0 12px">Cada estructura agrupa sus sub-estructuras o frentes; lo que agregues aparece al instante en el formulario de campo, enlazado a su estructura. El rango de PK define el largo del perfil. «Subir eje» recibe el CSV del eje (PK, Este, Norte) para dibujar la planta. Desactivar oculta un lugar sin borrar sus registros.</p>
   ${B.map((e, ei) => `<div class="card est ed ${e.activo === false ? "off-row" : ""}" data-e="${ei}">
     <div class="est-h"><input value="${esc(e.nombre)}" data-k="enom" aria-label="Nombre de la estructura"><button type="button" class="mini" data-k="eact">${e.activo === false ? "Activar" : "Desactivar"}</button></div>
-    <div class="srow head"><span>Sub-estructura / frente</span><span>PK inicio</span><span>PK final</span><span></span></div>
-    ${(e.subs || []).map((s, si) => `<div class="srow ${s.activo === false ? "off-row" : ""}" data-s="${si}"><input class="sn" value="${esc(s.nombre)}" data-k="snom" aria-label="Nombre"><input class="mono" value="${esc(s.pkMin == null ? "" : fmtPk(s.pkMin))}" data-k="smin" placeholder="0+000" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(s.pkMax == null ? "" : fmtPk(s.pkMax))}" data-k="smax" placeholder="2+700" inputmode="decimal" aria-label="PK final"><button type="button" class="mini" data-k="sact">${s.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
+    <div class="srow head"><span>Sub-estructura / frente</span><span>PK inicio</span><span>PK final</span><span></span><span></span></div>
+    ${(e.subs || []).map((s, si) => `<div class="srow ${s.activo === false ? "off-row" : ""}" data-s="${si}"><input class="sn" value="${esc(s.nombre)}" data-k="snom" aria-label="Nombre"><input class="mono" value="${esc(s.pkMin == null ? "" : fmtPk(s.pkMin))}" data-k="smin" placeholder="0+000" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(s.pkMax == null ? "" : fmtPk(s.pkMax))}" data-k="smax" placeholder="2+700" inputmode="decimal" aria-label="PK final"><label class="mini eje ${S.ejes[s.id] ? "tiene" : ""}"><input type="file" accept=".csv,.txt" hidden data-eje="${esc(s.id)}">${ejeTxt(s.id)}</label><button type="button" class="mini" data-k="sact">${s.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
     <div class="addrow"><input placeholder="Nueva sub-estructura de ${esc(e.nombre)}" data-k="snew" aria-label="Nueva sub-estructura"><button type="button" class="mini ok-btn" data-k="sadd">Agregar</button></div>
   </div>`).join("")}
   <div class="card est ed"><div class="flabel" style="font-weight:800;margin-bottom:8px">Nueva estructura</div>
     <div class="addrow"><input id="eNew" placeholder="Ej. Presa Auxiliar Sur"><button type="button" class="mini ok-btn" id="eAdd">Agregar</button></div>
-    <p class="muted small" style="margin:8px 0 6px">Se crea con una sub-estructura del mismo nombre; puedes renombrarla o agregar más.</p></div>
-  <div id="ajSb">${barraGuardar()}</div>`;
-  conectarGuardar("estructuras", AJ_VALIDAR.lugares);
+    <p class="muted small" style="margin:8px 0 6px">Se crea con una sub-estructura del mismo nombre; puedes renombrarla o agregar más.</p></div>`;
   const body = $("#ajBody");
-  body.addEventListener("input", e => {
+  body.addEventListener("change", e => {
+    const ej = e.target.dataset.eje;
+    if (ej) { const f = e.target.files[0]; e.target.value = ""; if (f) subirEje(ej, f); return; }
     const k = e.target.dataset.k; const ce = e.target.closest("[data-e]"); if (!ce || !k || k === "snew") return;
     const est = B[+ce.dataset.e]; const cs = e.target.closest("[data-s]"); const sub = cs ? est.subs[+cs.dataset.s] : null;
-    if (k === "enom") est.nombre = e.target.value;
-    if (k === "snom") sub.nombre = e.target.value;
-    if (k === "smin") sub.pkMin = numONull(e.target.value);
-    if (k === "smax") sub.pkMax = numONull(e.target.value);
-    sucio();
+    if (k === "enom") est.nombre = e.target.value.trim();
+    if (k === "snom") sub.nombre = e.target.value.trim();
+    if (k === "smin" || k === "smax") { const v = numONull(e.target.value); if (e.target.value.trim() && v == null) { toast("Escribe el PK como 2+700 o 2700.", "bad"); return; } sub[k === "smin" ? "pkMin" : "pkMax"] = v; if (v != null) e.target.value = fmtPk(v); }
+    guardarLista("estructuras", B);
   });
-  body.addEventListener("focusout", e => { const k = e.target.dataset.k; if ((k === "smin" || k === "smax") && e.target.value.trim()) { const v = numONull(e.target.value); if (v != null) e.target.value = fmtPk(v); } });
   body.addEventListener("click", e => {
     const b = e.target.closest("button[data-k]"), ce = e.target.closest("[data-e]");
     if (b && ce) {
@@ -1263,19 +1408,121 @@ function ajLugares() {
       if (k === "eact") { est.activo = est.activo === false; }
       else if (k === "sact") { const s = est.subs[+b.closest("[data-s]").dataset.s]; s.activo = s.activo === false; }
       else if (k === "sadd") { const inp = ce.querySelector('[data-k="snew"]'); const n = inp.value.trim(); if (!n) { inp.focus(); return; } (est.subs ||= []).push({ id: nuevoId(n, usados), nombre: n, pkMin: 0, pkMax: null }); }
-      S.aj.sucio = true; ajLugares(); return;
+      if (guardarLista("estructuras", B, k === "sadd" ? "Sub-estructura agregada" : "Guardado")) ajLugares(); return;
     }
     if (e.target.id === "eAdd") {
       const n = $("#eNew").value.trim(); if (!n) { $("#eNew").focus(); return; }
       const id = nuevoId(n, usados); usados.add(id);
       B.push({ id, nombre: n, subs: [{ id: nuevoId(n + "-1", usados), nombre: n, pkMin: 0, pkMax: null }] });
-      S.aj.sucio = true; ajLugares();
+      if (guardarLista("estructuras", B, "Estructura agregada")) ajLugares();
     }
   });
-  body.addEventListener("keydown", e => { if (e.key === "Enter" && (e.target.dataset.k === "snew" || e.target.id === "eNew")) { e.preventDefault(); (e.target.nextElementSibling).click(); } });
+  body.addEventListener("keydown", e => { if (e.key === "Enter" && (e.target.dataset.k === "snew" || e.target.id === "eNew")) { e.preventDefault(); e.target.nextElementSibling.click(); } else if (e.key === "Enter" && e.target.tagName === "INPUT") e.target.blur(); });
+}
+async function subirEje(subId, file) {
+  try {
+    const sub = L.sub(subId);
+    const pts = leerEje(await file.text(), sub?.pkMin ?? 0);
+    const flat = pts.flatMap(q => [Math.round(q[0] * 100) / 100, Math.round(q[1] * 1000) / 1000, Math.round(q[2] * 1000) / 1000]);
+    S.ejes[subId] = { puntos: flat, nombre: file.name };
+    setDoc(doc(db, "ejes", subId), { puntos: flat, nombre: file.name, editadoEn: serverTimestamp(), editadoPor: S.email })
+      .catch(e => toast("No se guardó el eje: " + (e.code === "permission-denied" ? "publica las reglas nuevas en Firebase." : e.message), "bad"));
+    toast(`Eje de ${sub?.nombre || ""} guardado: ${pts.length} puntos, PK ${fmtPk(pts[0][0])} a ${fmtPk(pts[pts.length - 1][0])}`);
+    if (S.view === "ajustes") ajLugares();
+  } catch (e) { toast("No se pudo leer el eje: " + e.message, "bad"); }
+}
+
+function ajCapas() {
+  cuerpoAj();
+  const A = S.aj, lista = subsConDatos();
+  if (!lista.length) { $("#ajBody").innerHTML = '<p class="muted">Primero agrega lugares.</p>'; return; }
+  if (!lista.some(x => x.s.id === A.capSub)) A.capSub = lista[0].s.id;
+  const tipos = S.listas.tipos.filter(t => t.enGrafico);
+  if (!tipos.some(t => t.id === A.capTipo)) A.capTipo = (tipos.find(t => t.id === "masivo") || tipos[0] || {}).id || "";
+  const sub = L.sub(A.capSub), doc0 = clon(S.capasCfg[A.capSub] || { tipos: {} }); doc0.tipos ||= {};
+  const cfg = doc0.tipos[A.capTipo] ||= { capas: [], noAplica: [] }; cfg.capas ||= []; cfg.noAplica ||= [];
+  cfg.capas.sort((a, b) => natural(a.nombre, b.nombre));
+  const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(x => x.activo !== false).map(x => `<option value="${esc(x.id)}" ${x.id === A.capSub ? "selected" : ""}>${esc(x.nombre)}</option>`).join("")}</optgroup>`).join("");
+  const sig = (() => { const n = cfg.capas.map(c => parseInt((c.nombre.match(/\d+/) || [0])[0], 10)).filter(x => !isNaN(x)); return n.length ? Math.max(...n) + 1 : 1; })();
+  const optCapa = v => `<option value="">Todas las capas</option>` + cfg.capas.map(c => `<option ${c.nombre === v ? "selected" : ""}>${esc(c.nombre)}</option>`).join("");
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Define las capas de cada frente y marca los tramos que no se liberan. Las capas aparecen en el perfil aunque todavía no tengan registros, y se sugieren en el formulario de campo. Los tramos que no se liberan se dibujan en gris y no cuentan en el porcentaje.</p>
+  <div class="card filters" style="grid-template-columns:1fr 1fr">
+    <div class="f"><label for="cSub">Frente</label><select id="cSub">${grupos}</select></div>
+    <div class="f"><label for="cTipo">Tipo</label><select id="cTipo">${tipos.map(t => `<option value="${esc(t.id)}" ${t.id === A.capTipo ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
+  </div>
+  <div class="card section ed" id="cCapas"><h2>Capas de ${esc(nom(L.tipo(A.capTipo)))} en ${esc(sub.nombre)} (${cfg.capas.length})</h2>
+    ${cfg.capas.length ? `<div class="crow head"><span>Capa</span><span>Cota</span><span></span></div>` : '<p class="muted small" style="margin:0 0 8px">Sin capas definidas: el perfil muestra una sola banda para este tipo.</p>'}
+    ${cfg.capas.map((c, i) => `<div class="crow" data-i="${i}"><input value="${esc(c.nombre)}" data-k="nom" aria-label="Nombre de la capa"><input value="${esc(c.cota || "")}" data-k="cota" inputmode="decimal" placeholder="758.00" aria-label="Cota"><button type="button" class="mini" data-k="del">Quitar</button></div>`).join("")}
+    <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar capas</div>
+    <div class="crow" style="border-top:0"><input id="cNom" value="Capa ${sig}" aria-label="Nombre"><input id="cCota" inputmode="decimal" placeholder="Cota (opcional)" aria-label="Cota"><button type="button" class="mini ok-btn" id="cAdd">Agregar</button></div>
+    <div class="crow" style="border-top:0;grid-template-columns:auto 70px auto 70px auto"><span class="small muted">Varias: de la capa</span><input id="cDe" inputmode="numeric" value="${sig}" aria-label="Desde"><span class="small muted">a la</span><input id="cA" inputmode="numeric" value="${sig + 9}" aria-label="Hasta"><button type="button" class="mini" id="cVarias">Agregar</button></div>
+  </div>
+  <div class="card section ed" id="cNa"><h2>Tramos que no se liberan (${cfg.noAplica.length})</h2>
+    ${cfg.noAplica.length ? `<div class="nrow head"><span>Capa</span><span>PK inicio</span><span>PK final</span><span>Cota</span><span>Motivo</span><span></span></div>` : ""}
+    ${cfg.noAplica.map((x, i) => `<div class="nrow" data-i="${i}"><select data-k="capa" aria-label="Capa">${optCapa(x.capa)}</select><input class="mono" value="${esc(fmtPk(x.pkInicio))}" data-k="pki" inputmode="decimal" aria-label="PK inicio"><input class="mono" value="${esc(fmtPk(x.pkFin))}" data-k="pkf" inputmode="decimal" aria-label="PK final"><input value="${esc(x.cota || "")}" data-k="cota" inputmode="decimal" placeholder="Cota" aria-label="Cota"><input value="${esc(x.nota || "")}" data-k="nota" placeholder="Motivo" aria-label="Motivo"><button type="button" class="mini" data-k="del">Quitar</button></div>`).join("")}
+    <div class="flabel" style="font-weight:800;margin:14px 0 8px">Marcar tramo que no se libera</div>
+    <div class="nrow" style="border-top:0"><select id="nCapa" aria-label="Capa">${optCapa("")}</select><input id="nPki" class="mono" inputmode="decimal" placeholder="PK inicio" aria-label="PK inicio"><input id="nPkf" class="mono" inputmode="decimal" placeholder="PK final" aria-label="PK final"><input id="nCota" inputmode="decimal" placeholder="Cota" aria-label="Cota"><input id="nNota" placeholder="Motivo (opcional)" aria-label="Motivo"><button type="button" class="mini ok-btn" id="nAdd">Marcar</button></div>
+  </div>`;
+  const guardar = (msg = "Guardado") => {
+    S.capasCfg[A.capSub] = clon(doc0);
+    setDoc(doc(db, "capas", A.capSub), { tipos: clon(doc0.tipos), editadoEn: serverTimestamp(), editadoPor: S.email })
+      .catch(e => toast("No se guardó: " + (e.code === "permission-denied" ? "publica las reglas nuevas en Firebase." : e.message), "bad"));
+    toast(navigator.onLine ? msg : msg + " en el teléfono; se subirá con señal.");
+  };
+  $("#cSub").addEventListener("change", e => { A.capSub = e.target.value; ajCapas(); });
+  $("#cTipo").addEventListener("change", e => { A.capTipo = e.target.value; ajCapas(); });
+  const body = $("#ajBody");
+  body.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") { e.preventDefault(); const r = e.target.closest(".crow,.nrow"); const add = r && r.querySelector(".ok-btn,#cVarias"); if (add && !r.dataset.i) add.click(); else e.target.blur(); } });
+  body.addEventListener("change", e => {
+    const r = e.target.closest("[data-i]"), k = e.target.dataset.k; if (!r || !k) return;
+    const i = +r.dataset.i;
+    if (r.closest("#cCapas")) {
+      const c = cfg.capas[i];
+      if (k === "nom") { const v = e.target.value.trim(); if (!v) { toast("La capa necesita un nombre.", "bad"); e.target.value = c.nombre; return; }
+        if (cfg.capas.some((x, j) => j !== i && x.nombre === v)) { toast(`Ya existe «${v}».`, "bad"); e.target.value = c.nombre; return; }
+        cfg.noAplica.forEach(x => { if (x.capa === c.nombre) x.capa = v; }); c.nombre = v; }
+      if (k === "cota") c.cota = e.target.value.trim();
+    } else {
+      const x = cfg.noAplica[i];
+      if (k === "capa") x.capa = e.target.value;
+      if (k === "cota") x.cota = e.target.value.trim();
+      if (k === "nota") x.nota = e.target.value.trim();
+      if (k === "pki" || k === "pkf") { const v = numONull(e.target.value); if (v == null) { toast("Escribe el PK como 2+140 o 2140.", "bad"); e.target.value = fmtPk(k === "pki" ? x.pkInicio : x.pkFin); return; }
+        const ni = k === "pki" ? v : x.pkInicio, nf = k === "pkf" ? v : x.pkFin; if (nf <= ni) { toast("El PK final debe ser mayor que el inicial.", "bad"); e.target.value = fmtPk(k === "pki" ? x.pkInicio : x.pkFin); return; }
+        x.pkInicio = ni; x.pkFin = nf; e.target.value = fmtPk(v); }
+    }
+    guardar();
+  });
+  body.addEventListener("click", e => {
+    const del = e.target.closest('[data-k="del"]');
+    if (del) { const i = +del.closest("[data-i]").dataset.i;
+      if (del.closest("#cCapas")) { const [c] = cfg.capas.splice(i, 1); cfg.noAplica = cfg.noAplica.filter(x => x.capa !== c.nombre); doc0.tipos[A.capTipo] = cfg; guardar(`«${c.nombre}» quitada`); }
+      else { cfg.noAplica.splice(i, 1); guardar("Tramo quitado"); }
+      ajCapas(); return; }
+    if (e.target.id === "cAdd") {
+      const n = $("#cNom").value.trim(); if (!n) { $("#cNom").focus(); return; }
+      if (cfg.capas.some(x => x.nombre === n)) { toast(`Ya existe «${n}».`, "bad"); return; }
+      cfg.capas.push({ nombre: n, cota: $("#cCota").value.trim() }); guardar("Capa agregada"); ajCapas(); $("#cNom")?.focus(); return;
+    }
+    if (e.target.id === "cVarias") {
+      const de = parseInt($("#cDe").value, 10), a = parseInt($("#cA").value, 10);
+      if (isNaN(de) || isNaN(a) || a < de || a - de > 199) { toast("Indica un rango válido (hasta 200 capas).", "bad"); return; }
+      let n = 0; for (let k = de; k <= a; k++) { const nm = "Capa " + k; if (!cfg.capas.some(x => x.nombre === nm)) { cfg.capas.push({ nombre: nm, cota: "" }); n++; } }
+      guardar(`${n} capas agregadas`); ajCapas(); return;
+    }
+    if (e.target.id === "nAdd") {
+      const a = numONull($("#nPki").value), b = numONull($("#nPkf").value);
+      if (a == null || b == null) { toast("Indica PK inicio y PK final (ej. 2+140).", "bad"); (a == null ? $("#nPki") : $("#nPkf")).focus(); return; }
+      if (b <= a) { toast("El PK final debe ser mayor que el inicial.", "bad"); $("#nPkf").focus(); return; }
+      cfg.noAplica.push({ id: rid(), capa: $("#nCapa").value, pkInicio: a, pkFin: b, cota: $("#nCota").value.trim(), nota: $("#nNota").value.trim() });
+      guardar("Tramo marcado"); ajCapas();
+    }
+  });
 }
 
 function ajTopografos() {
+  cuerpoAj();
   const B = S.aj.b;
   $("#ajBody").innerHTML = `
   <p class="muted small" style="margin:0 0 12px">La clave (JS, CS, AB…) identifica al topógrafo en los registros y en el Excel; no se cambia una vez creada. El nombre sí se puede corregir.</p>
@@ -1283,48 +1530,48 @@ function ajTopografos() {
     ${B.map((t, i) => `<div class="prow ${t.activo === false ? "off-row" : ""}" data-i="${i}"><span class="mono" style="font-weight:500">${esc(t.id)}</span><input value="${esc(t.nombre)}" data-k="nom" aria-label="Nombre de ${esc(t.id)}"><button type="button" class="mini" data-k="act">${t.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
     <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar topógrafo</div>
     <div class="prow" style="border-top:0"><input id="tpId" class="mono" placeholder="Clave" maxlength="5" aria-label="Clave" style="text-transform:uppercase"><input id="tpNom" placeholder="Nombre y apellidos" aria-label="Nombre"><button type="button" class="mini ok-btn" id="tpAdd">Agregar</button></div>
-  </div>
-  <div id="ajSb">${barraGuardar()}</div>`;
-  conectarGuardar("topografos", AJ_VALIDAR.topografos);
+  </div>`;
   const L2 = $("#tpList");
-  L2.addEventListener("input", e => { const r = e.target.closest("[data-i]"); if (r && e.target.dataset.k === "nom") { B[+r.dataset.i].nombre = e.target.value; sucio(); } });
+  L2.addEventListener("change", e => { const r = e.target.closest("[data-i]"); if (r && e.target.dataset.k === "nom") { B[+r.dataset.i].nombre = e.target.value.trim(); guardarLista("topografos", B); } });
+  L2.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.target.id === "tpId" || e.target.id === "tpNom") $("#tpAdd").click(); else e.target.blur(); } });
   L2.addEventListener("click", e => {
     const b = e.target.closest('[data-k="act"]');
-    if (b) { const t = B[+b.closest("[data-i]").dataset.i]; t.activo = t.activo === false; S.aj.sucio = true; ajTopografos(); return; }
+    if (b) { const t = B[+b.closest("[data-i]").dataset.i]; t.activo = t.activo === false; if (guardarLista("topografos", B)) ajTopografos(); return; }
     if (e.target.id === "tpAdd") {
       const id = $("#tpId").value.trim().toUpperCase(), n = $("#tpNom").value.trim();
       if (!/^[A-ZÑ]{2,5}$/.test(id)) { toast("La clave debe tener de 2 a 5 letras.", "bad"); $("#tpId").focus(); return; }
       if (B.some(t => t.id === id)) { toast(`La clave ${id} ya existe.`, "bad"); $("#tpId").focus(); return; }
       if (!n) { $("#tpNom").focus(); return; }
-      B.push({ id, nombre: n }); S.aj.sucio = true; ajTopografos();
+      B.push({ id, nombre: n }); if (guardarLista("topografos", B, "Topógrafo agregado")) ajTopografos();
     }
   });
 }
 
 function ajTipos() {
+  cuerpoAj();
   const B = S.aj.b;
   B.sort((a, b) => (a.orden || 0) - (b.orden || 0)).forEach((t, i) => t.orden = i + 1);
   const selEle = (v, extra) => `<select ${extra}>${S.listas.elementos.map(e => `<option value="${esc(e.id)}" ${e.id === v ? "selected" : ""}>${esc(e.nombre)}</option>`).join("")}</select>`;
   $("#ajBody").innerHTML = `
-  <p class="muted small" style="margin:0 0 12px">Cada tipo es una fila (capa) del gráfico del panel, en este orden. Usa las flechas para ponerlos en el orden constructivo. «En gráfico» decide si la capa se dibuja.</p>
+  <p class="muted small" style="margin:0 0 12px">Cada tipo es una capa del perfil del panel, en orden constructivo: el primero queda abajo. Usa las flechas para ordenarlos. «En gráfico» decide si la capa se dibuja.</p>
   <div class="card section ed" id="tyList">
     ${B.map((t, i) => `<div class="trow ${t.activo === false ? "off-row" : ""}" data-i="${i}"><input value="${esc(t.nombre)}" data-k="nom" aria-label="Nombre">${selEle(t.elementoId, 'data-k="ele" aria-label="Elemento"')}<label class="tog"><input type="checkbox" data-k="gr" ${t.enGrafico ? "checked" : ""}>En gráfico</label><span class="ord"><button type="button" data-k="up" aria-label="Subir">↑</button><button type="button" data-k="dn" aria-label="Bajar">↓</button></span></div>`).join("")}
     <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar tipo</div>
     <div class="trow" style="border-top:0"><input id="tyNom" placeholder="Ej. Relleno filtro 3">${selEle("mt", 'id="tyEle" aria-label="Elemento"')}<button type="button" class="mini ok-btn" id="tyAdd">Agregar</button></div>
-  </div>
-  <div id="ajSb">${barraGuardar()}</div>`;
-  conectarGuardar("tipos", AJ_VALIDAR.tipos);
+  </div>`;
   const L2 = $("#tyList");
-  L2.addEventListener("input", e => { const r = e.target.closest("[data-i]"); if (!r) return; const t = B[+r.dataset.i];
-    if (e.target.dataset.k === "nom") t.nombre = e.target.value; if (e.target.dataset.k === "ele") t.elementoId = e.target.value; if (e.target.dataset.k === "gr") t.enGrafico = e.target.checked; sucio(); });
+  L2.addEventListener("change", e => { const r = e.target.closest("[data-i]"); if (!r) return; const t = B[+r.dataset.i], k = e.target.dataset.k;
+    if (k === "nom") t.nombre = e.target.value.trim(); else if (k === "ele") t.elementoId = e.target.value; else if (k === "gr") t.enGrafico = e.target.checked; else return;
+    guardarLista("tipos", B); });
+  L2.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.target.id === "tyNom") $("#tyAdd").click(); else e.target.blur(); } });
   L2.addEventListener("click", e => {
     const b = e.target.closest('button[data-k]');
     if (b) { const i = +b.closest("[data-i]").dataset.i, j = b.dataset.k === "up" ? i - 1 : i + 1; if (j < 0 || j >= B.length) return;
-      [B[i].orden, B[j].orden] = [B[j].orden, B[i].orden]; S.aj.sucio = true; ajTipos(); $(`#tyList [data-i="${j}"] [data-k="${b.dataset.k}"]`)?.focus(); return; }
+      [B[i].orden, B[j].orden] = [B[j].orden, B[i].orden]; if (guardarLista("tipos", B, "Orden guardado")) { ajTipos(); $(`#tyList [data-i="${j}"] [data-k="${b.dataset.k}"]`)?.focus(); } return; }
     if (e.target.id === "tyAdd") {
       const n = $("#tyNom").value.trim(); if (!n) { $("#tyNom").focus(); return; }
       B.push({ id: nuevoId(n, new Set(B.map(t => t.id))), nombre: n, elementoId: $("#tyEle").value, orden: B.length + 1, enGrafico: true });
-      S.aj.sucio = true; ajTipos();
+      if (guardarLista("tipos", B, "Tipo agregado")) ajTipos();
     }
   });
 }
