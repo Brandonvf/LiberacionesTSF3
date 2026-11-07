@@ -108,9 +108,9 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   ok(true, 'edición guardada y vuelve a la lista');
 
   // Búsqueda y filtro
-  await page.fill('#q', 'filtro');
+  await page.fill('#q', 'filtro'); await page.waitForTimeout(300);
   ok(await page.$$eval('.item', i => i.length) === 1, 'búsqueda filtra');
-  await page.fill('#q', '');
+  await page.fill('#q', ''); await page.waitForTimeout(300);
 
   // Recargar: persistencia
   await page.reload();

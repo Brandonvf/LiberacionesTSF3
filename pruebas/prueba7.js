@@ -1,5 +1,6 @@
 // Repaso: resumen por frente, «Qué falta» en celular, registrar desde un faltante, siguiente tramo, capa pareja, atrás
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
+const { seccion, grupo, filtros, rangoPk } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba7'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -35,7 +36,7 @@ async function preparar(ctx) {
   const nCards = await p.$$eval('.qf', c => c.length);
   ok(nCards > 5, `${nCards} capas con faltantes listadas`);
   ok((await p.textContent('.qf-res')).includes('Falta liberar'), 'resumen arriba: metros que faltan');
-  await p.fill('#pPk1', '1+800'); await p.press('#pPk1', 'Enter'); await p.fill('#pPk2', '2+300'); await p.press('#pPk2', 'Enter'); await p.waitForTimeout(300);
+  await rangoPk(p, '1+800', '2+300');
   await p.screenshot({ path: OUT + '/01-que-falta-movil.png', fullPage: true });
   ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'sin desplazamiento horizontal');
   // Ver completas

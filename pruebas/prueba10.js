@@ -59,11 +59,11 @@ const aceptarDlg = async p => { await p.waitForSelector('.dlg.on [type=submit]')
   await p.goBack(); await p.waitForTimeout(500);
   ok(await p.evaluate(() => location.hash) === '#todos' && await p.$('.rtab'), 'un solo «atrás» vuelve a Registros');
   // 3. Buscar por capa y por estado
-  await p.fill('#q', 'capa 12'); await p.waitForTimeout(200);
+  await p.fill('#q', 'capa 12'); await p.waitForTimeout(350);
   ok(await p.$$eval('.rtab tbody tr', t => t.length) === 1, 'buscar «capa 12» encuentra 1 registro');
-  await p.fill('#q', 'rechazado'); await p.waitForTimeout(200);
+  await p.fill('#q', 'rechazado'); await p.waitForTimeout(350);
   ok(await p.$$eval('.rtab tbody tr', t => t.length) === 1, 'buscar «rechazado» encuentra el rechazado');
-  await p.fill('#q', ''); await p.waitForTimeout(150);
+  await p.fill('#q', ''); await p.waitForTimeout(350);
   // 4. Aceptar sin señal
   await p.click('[data-v="bandeja"]'); await p.waitForSelector('.btab tr[data-rid="a1"]');
   await ctx.setOffline(true);

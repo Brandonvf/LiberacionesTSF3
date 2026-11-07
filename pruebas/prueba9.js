@@ -41,7 +41,7 @@ async function entrarComo(p, u) { await p.click('#btnSalir'); await p.waitForSel
   await p.click('[data-v="panel"]'); await p.waitForSelector('.pgrid #chart svg', { timeout: 20000 }); await p.waitForTimeout(500);
   const side = await p.$eval('.pside', e => e.getBoundingClientRect()), chart = await p.$eval('.pmain .chartbox', e => e.getBoundingClientRect());
   ok(side.right <= chart.left + 1 && Math.abs(side.top - chart.top) < 200, 'panel: filtros al costado izquierdo del gráfico');
-  ok(await p.$('.pside #pPk1') && await p.$('.pside #pCapChips'), 'progresiva y capas en la columna de filtros');
+  ok(await p.$('.pside #pAcc [data-acc="pk"]') && await p.$('.pside #pAcc [data-acc="cap"]'), 'progresiva y capas en la columna de filtros (acordeón)');
   await p.screenshot({ path: OUT + '/01-panel-pc.png' });
   // Tabla «Qué falta liberar»
   await p.waitForSelector('#pFalta .ftab2');

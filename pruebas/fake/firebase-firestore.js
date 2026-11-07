@@ -77,6 +77,8 @@ export function onSnapshot(ref, a, b, c) {
 export async function getDoc(ref) { return snapDoc(ref.path); }
 function apply(ops) {
   const paths = [];
+  // Simula que el servidor rechaza la grabación por permisos (no se escribe nada)
+  if (window.__fakeNegar) { const e = new Error('Missing or insufficient permissions.'); e.code = 'permission-denied'; return Promise.reject(e); }
   for (const o of ops) {
     if (o.k === 'set') store[o.ref.path] = o.merge ? fusion(store[o.ref.path] || {}, enc(o.data)) : limpiarDel(enc(o.data));
     else if (o.k === 'update') { if (!store[o.ref.path]) throw new Error('no existe'); const d = enc(o.data); const cur = { ...store[o.ref.path] }; for (const k in d) { if (d[k] === DEL || (d[k] && d[k].__del)) delete cur[k]; else cur[k] = d[k]; } store[o.ref.path] = cur; }

@@ -1,4 +1,5 @@
 const { chromium, devices } = require('playwright');
+const { seccion, grupo, filtros, rangoPk } = require('./filtros');
 const path = require('path'), fs = require('fs');
 const FAKE = path.join(__dirname, 'fake');
 const OUT = path.join(__dirname, 'capturas', 'prueba2'); fs.mkdirSync(OUT, { recursive: true });
@@ -90,7 +91,7 @@ async function registrar(page, o) {
   ok(filas.length === 6, 'perfil con 6 bandas: ' + filas.join(' | '));
   ok(filas[filas.length - 1].startsWith('Superficie') && filas.includes('Relleno masivo · Capa 15') && filas.indexOf('Relleno masivo · Capa 17') < filas.indexOf('Relleno masivo · Capa 15'), 'capas apiladas de abajo hacia arriba');
   ok(await page.$$eval('#chart rect.seg', r => r.length) === 7, '7 tramos dibujados');
-  await page.check('#pZoom'); await page.waitForTimeout(700);
+  await filtros(page, async () => { await seccion(page, 'pk'); await page.check('#pZoom'); }); await page.waitForTimeout(400);
   await page.screenshot({ path: OUT + '/04-panel-movil.png', fullPage: true });
   ok(await page.$eval('#chart .tick', t => t.textContent) !== '0+000', 'acercar cambia el eje');
   await page.click('[data-vista="planta"]'); await page.waitForSelector('#chart .empty');
@@ -133,11 +134,9 @@ async function registrar(page, o) {
   ok(await page.$$eval('#chart rect.nolib', r => r.length) >= 6, 'tramos que no se liberan dibujados');
   await page.screenshot({ path: OUT + '/13-perfil-capas.png', fullPage: true });
   await page.click('[data-vista="perfil"]'); await page.waitForSelector('#chart svg');
-  if (!(await page.$eval('#pCapSel', d => d.open))) await page.click('#pCapSel summary');
-  await page.click('#pCapSel [data-cap="ninguna"]'); await page.waitForTimeout(150);
-  await page.click('#pCapChips [data-key="masivo|Capa 16"]'); await page.waitForTimeout(300);
+  await filtros(page, async () => { await seccion(page, 'cap'); await page.click('[data-cap="ninguna"]'); await grupo(page, 'masivo'); await page.click('#pCapChips [data-key="masivo|Capa 16"]'); });
   ok(await page.$$eval('#chart rect.seg', r => r.length) === 1, 'filtro de capa');
-  await page.click('#pCapSel [data-cap="todas"]'); await page.waitForTimeout(300);
+  await filtros(page, async () => { await seccion(page, 'cap'); await page.click('[data-cap="todas"]'); });
   await page.click('#chart rect.seg >> nth=0'); await page.waitForSelector('#sheet.on'); ok(true, 'tocar tramo abre la ficha');
   await page.click('#fCerrar'); await page.waitForTimeout(350);
 

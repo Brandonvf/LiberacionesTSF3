@@ -1,5 +1,6 @@
 // Prueba con el histórico real: progresiva inicial, filtro de capas, huecos y Ajustes → Capas
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
+const { seccion, grupo, filtros, rangoPk } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba4'); fs.mkdirSync(OUT, { recursive: true });
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
 const errores = [];
@@ -33,14 +34,14 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   ok((await p.textContent('#pNota')).includes('fuera del rango del frente'), 'avisa registros fuera del rango');
 
   // 2. Rango visible
-  await p.fill('#pPk1', '1800'); await p.press('#pPk1', 'Enter'); await p.fill('#pPk2', '2+200'); await p.press('#pPk2', 'Enter'); await p.waitForTimeout(300);
+  await rangoPk(p, '1800', '2+200');
   ok((await ext(p)).join() === 'PK 1+800,PK 2+200', 'rango desde/hasta: ' + (await ext(p)).join(' → '));
   ok(await p.inputValue('#pPk1') === '1+800', 'el PK escrito se formatea');
-  await p.click('#pPkX'); await p.waitForTimeout(200);
+  await seccion(p, 'pk'); await p.click('#pPkX'); await p.waitForTimeout(200);
   ok((await ext(p))[0] === 'PK 0+020', 'volver a todo el frente');
 
   // 3. Capas visibles
-  if (!(await p.$eval('#pCapSel', d => d.open))) await p.click('#pCapSel summary');
+  await seccion(p, 'cap');
   const total = await p.$$eval('#pCapChips .cchip', c => c.length);
   await p.click('[data-cap="ninguna"]'); await p.waitForTimeout(200);
   ok((await p.textContent('#chart')).includes('Todas las capas están ocultas'), 'ninguna capa → aviso');
@@ -49,13 +50,13 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   ok(nU > 0 && nU < total, 'últimas 5 por tipo: ' + nU + ' bandas de ' + total + ' capas');
   await p.click('[data-cap="todas"]'); await p.waitForTimeout(300);
   const nT = await p.$$eval('#chart .lab-hit', l => l.length);
-  await p.click('#pCapChips [data-key="masivo|Capa 15"]'); await p.waitForTimeout(250);
+  await grupo(p, 'masivo'); await p.click('#pCapChips [data-key="masivo|Capa 15"]'); await p.waitForTimeout(250);
   ok(await p.$$eval('#chart .lab-hit', l => l.length) === nT - 1, 'apagar una ficha quita su banda');
   await p.$eval('#chart .lab-hit', g => g.dispatchEvent(new MouseEvent('click', { bubbles: true }))); await p.waitForTimeout(250);
   ok(await p.$$eval('#chart .lab-hit', l => l.length) === nT - 2, 'tocar el nombre en el gráfico oculta la capa');
   await p.reload(); await p.waitForSelector('#nav button'); await p.click('[data-v="panel"]'); await p.waitForSelector('#chart svg'); await p.waitForTimeout(300);
   ok(await p.$$eval('#chart .lab-hit', l => l.length) === nT - 2, 'la selección se recuerda al volver');
-  await p.click('[data-cap="todas"]'); await p.waitForTimeout(300);
+  await seccion(p, 'cap'); await p.click('[data-cap="todas"]'); await p.waitForTimeout(300);
 
   // 4. Huecos y tabla «Qué falta»
   const nH = await p.$$eval('#chart rect.hueco', r => r.length);
@@ -66,7 +67,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await p.click('#pFalta tr[data-gap] >> nth=0'); await p.waitForSelector('#ctx .ctx-i'); await p.click('#ctx .ctx-i:has-text("Ver en el dibujo")'); await p.waitForTimeout(300);
   ok(!(await p.$eval('#pInfo', i => i.hidden)) && (await p.textContent('#pInfo')).includes('Falta liberar'), 'tocar un tramo de la tabla lo marca en el gráfico');
   await p.screenshot({ path: OUT + '/01-panel-escritorio.png', fullPage: true });
-  await p.fill('#pPk1', '1+700'); await p.press('#pPk1', 'Enter'); await p.fill('#pPk2', '2+300'); await p.press('#pPk2', 'Enter'); await p.waitForTimeout(500);
+  await rangoPk(p, '1+700', '2+300'); await p.waitForTimeout(200);
   await p.locator('.chartbox').screenshot({ path: OUT + '/02-perfil-rango.png' });
   await p.locator('#pFalta').screenshot({ path: OUT + '/03-que-falta.png' });
 
@@ -98,6 +99,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await p.click('[data-v="panel"]'); await p.waitForSelector('#chart svg'); await p.waitForTimeout(300);
   await p.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('lib.vis.')) localStorage.removeItem(k); });
   await p.click('#pSub'); await p.selectOption('#pSub', 'pp-este'); await p.waitForTimeout(200); await p.selectOption('#pSub', 'pp-oeste'); await p.waitForTimeout(400);
+  await seccion(p, 'cap');
   const off = await p.$$eval('#pCapChips .cchip[aria-pressed="false"]', c => c.length);
   ok(off === 3, 'las 3 capas ocultas en Ajustes empiezan apagadas en el panel (' + off + ')');
 
@@ -107,7 +109,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await m.goto('http://127.0.0.1:8765/');
   await m.evaluate(([s, u]) => { localStorage.setItem('__fakeDB', s); localStorage.setItem('__fakeUser', JSON.stringify(u)); }, [await p.evaluate(() => localStorage.getItem('__fakeDB')), ADMIN]);
   await m.reload(); await m.waitForSelector('#nav button'); await m.click('[data-v="panel"]'); await m.waitForSelector('#chart svg');
-  await m.click('#pCapSel summary'); await m.click('[data-cap="ultimas"]'); await m.fill('#pPk1', '1+800'); await m.press('#pPk1', 'Enter'); await m.fill('#pPk2', '2+300'); await m.press('#pPk2', 'Enter'); await m.waitForTimeout(800);
+  await filtros(m, async () => { await seccion(m, 'cap'); await m.click('[data-cap="ultimas"]'); await seccion(m, 'pk'); await m.fill('#pPk1', '1+800'); await m.press('#pPk1', 'Enter'); await m.fill('#pPk2', '2+300'); await m.press('#pPk2', 'Enter'); }); await m.waitForTimeout(500);
   await m.screenshot({ path: OUT + '/05-panel-movil.png', fullPage: true });
   ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'celular sin desplazamiento horizontal');
   await m.click('[data-v="ajustes"]'); await m.click('[data-tab="capas"]'); await m.waitForSelector('#cSub'); await m.selectOption('#cSub', 'pp-oeste'); await m.selectOption('#cTipo', 'masivo'); await m.waitForTimeout(200);
