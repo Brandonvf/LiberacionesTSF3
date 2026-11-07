@@ -102,7 +102,8 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .grid{display:grid;gap:12px 14px;grid-template-columns:1fr 1fr;margin-bottom:12px}
 .grid .full{grid-column:1/-1}
 @media (max-width:520px){.grid{grid-template-columns:1fr}.grid .half-m{grid-column:auto}}
-.f label,.flabel{display:block;font-weight:700;font-size:13px;margin:0 0 6px}
+/* Solo las etiquetas de campo (sin clase): las casillas y botones con etiqueta conservan su propio estilo */
+.f label:not([class]),.flabel{display:block;font-weight:700;font-size:13px;margin:0 0 6px}
 .f label .opt{font-weight:600;color:var(--muted)}
 .f input,.f select,.f textarea{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;min-height:48px;font-size:16px;transition:border-color .15s,box-shadow .15s}
 .f textarea{min-height:84px;resize:vertical}
@@ -139,7 +140,12 @@ h1.view-title{font-family:var(--f-disp);font-weight:800;font-size:24px;letter-sp
 .upbtn{flex:1;min-width:140px;display:flex;align-items:center;justify-content:center;gap:9px;border:1.5px dashed #9cc7bf;background:var(--accent-soft);color:var(--accent-strong);border-radius:16px;min-height:56px;font-weight:800;font-family:var(--f-disp);font-size:15px;cursor:pointer;transition:transform .12s,background .2s}
 .upbtn:active{transform:scale(.97)}
 .upbtn:hover{background:#d2ece6}
-.upbtn svg{width:22px;height:22px}
+.upbtn svg{width:22px;height:22px;flex:none}
+/* iPhone: los campos de fecha no respetan el ancho y el texto sale centrado y cortado */
+@supports (-webkit-touch-callout:none){
+  input[type=date],input[type=datetime-local],input[type=time]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;text-align:left}
+  input::-webkit-date-and-time-value{text-align:left;margin:0}
+}
 .archs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .archs:empty{display:none}
 .arch{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 8px 8px 8px;animation:entra .3s cubic-bezier(.2,.7,.2,1) both}
@@ -1028,6 +1034,11 @@ function gate(tipo, extra = {}) {
     error: `<h1>Algo falló</h1><p>${esc(extra.msg || "Intenta de nuevo.")}</p><button class="btn pri gbtn" onclick="location.reload()" type="button">Reintentar</button>`
   }[tipo];
   g.innerHTML = `<div class="box card">${html}</div>`;
+  clearTimeout(gate._lento);
+  if (tipo === "cargando") gate._lento = setTimeout(() => {
+    const bx = $("#gate .box"); if ($("#gate").hidden || !bx || !$("#gate .spin") || $("#gLento")) return;
+    bx.insertAdjacentHTML("beforeend", `<p class="small" id="gLento" style="margin:14px 0 0;color:var(--muted)">${navigator.onLine ? "La señal está lenta. La primera vez en este teléfono hay que bajar los datos; sigue intentando…" : "Sin señal. La primera vez en este teléfono se necesita internet."}</p><button class="btn sec gbtn" type="button" style="margin-top:12px" onclick="location.reload()">Reintentar</button>`);
+  }, 12000);
   $("#gEntrar")?.addEventListener("click", entrar);
   $("#gInstalar")?.addEventListener("click", instalar); pintarInstalar(); avisoMudanza();
   $("#gSalir")?.addEventListener("click", () => signOut(auth));
@@ -1058,12 +1069,14 @@ onAuthStateChanged(auth, async u => {
   if (!u) { S.user = null; gate("entrar"); return; }
   S.user = u; S.email = (u.email || "").toLowerCase();
   gate("cargando");
-  if (S.email === ADMIN) { try { await prepararAdmin(u); } catch (e) { console.warn("prepararAdmin", e); setTimeout(() => toast("No se pudieron preparar las listas: " + (e.code === "permission-denied" ? "revisa que las reglas de Firestore estén publicadas." : e.message), "bad"), 800); } }
+  // Ya no se espera esta preparación para entrar: con poca señal y un teléfono sin nada guardado tardaba mucho
+  if (S.email === ADMIN) prepararAdmin(u).catch(e => { console.warn("prepararAdmin", e); if (e.code === "permission-denied") setTimeout(() => toast("No se pudieron preparar las listas: revisa que las reglas de Firestore estén publicadas.", "bad"), 800); });
   S.subs.push(onSnapshot(doc(db, "usuarios", S.email), snap => {
     if (snap.exists() && snap.data().activo !== false) {
       S.perfil = snap.data();
       if (!S.dentro) entrarApp(); else pintarCabecera();
     } else if (snap.exists()) { S.perfil = null; gate("inactivo"); }
+    else if (S.email === ADMIN) { gate("cargando"); }  // el perfil del administrador lo crea prepararAdmin
     else {
       S.perfil = null;
       if (S.solicitado !== u.uid) S.solicitado = u.uid; else { gate("espera"); return; }
@@ -1075,15 +1088,14 @@ onAuthStateChanged(auth, async u => {
 
 async function prepararAdmin(u) {
   const ref = doc(db, "usuarios", ADMIN);
-  const s = await getDoc(ref);
+  // Todas las consultas a la vez (antes iban una por una y con poca señal demoraba la entrada)
+  const ks = Object.keys(LISTAS_INICIALES);
+  const [s, cont, ...ls_] = await Promise.all([getDoc(ref), getDoc(doc(db, "contadores", "skt")), ...ks.map(k => getDoc(doc(db, "listas", k)))]);
   if (!s.exists()) await setDoc(ref, { nombre: u.displayName || "Administrador", rol: "admin", activo: true, topografoId: "", creadoEn: serverTimestamp() });
   // Crea cada lista que falte (si una carga anterior falló, se completa aquí)
   const b = writeBatch(db); let n = 0;
-  for (const [k, items] of Object.entries(LISTAS_INICIALES)) {
-    const d = await getDoc(doc(db, "listas", k));
-    if (!d.exists() || !(d.data().items || []).length) { b.set(doc(db, "listas", k), { items, editadoEn: serverTimestamp() }); n++; }
-  }
-  if (!(await getDoc(doc(db, "contadores", "skt"))).exists()) {
+  ks.forEach((k, i) => { const d = ls_[i]; if (!d.exists() || !(d.data().items || []).length) { b.set(doc(db, "listas", k), { items: LISTAS_INICIALES[k], editadoEn: serverTimestamp() }); n++; } });
+  if (!cont.exists()) {
     b.set(doc(db, "config", "general"), { obra: "Presa de relaves TSF3 — Mina Justa", prefijo: "SKT-TOP-", digitos: 5, zona: "America/Lima" });
     b.set(doc(db, "contadores", "skt"), { ultimo: 2689 }); n++;
   }
