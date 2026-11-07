@@ -1,0 +1,29 @@
+{
+  "id": "./",
+  "name": "Liberaciones TSF3",
+  "short_name": "Liberaciones",
+  "description": "Registro de liberaciones topográficas de la presa de relaves TSF3.",
+  "lang": "es-PE",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f1f6f5",
+  "theme_color": "#ffffff",
+  "categories": ["productivity", "business"],
+  "launch_handler": { "client_mode": "focus-existing" },
+  "icons": [
+    { "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "iconos/icono-mascara-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "iconos/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "Nueva liberación", "short_name": "Nueva", "url": "./#nueva", "icons": [{ "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Mis registros", "short_name": "Mis registros", "url": "./#mis", "icons": [{ "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Bandeja de gabinete", "short_name": "Bandeja", "url": "./#bandeja", "icons": [{ "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Panel de avance", "short_name": "Panel", "url": "./#panel", "icons": [{ "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}

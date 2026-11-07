@@ -28,4 +28,5 @@ bash pruebas/correr.sh prueba5    # una sola
 | prueba8 | Modelo 2D: eje con secciones y superficie de una liberación |
 | prueba9 | Computadora (menú lateral, Ctrl+K, clic derecho, ficha lateral), rechazar, papelera, «no se libera» |
 | prueba11 | Avance por capa en planta real: base (superficie o contorno), cruces, fuera de la base, lista de capas con filtros, frente sin eje |
+| prueba12 | App instalable: manifiesto, logo, botón «Instalar», número en el ícono, atajos, aviso de versión nueva y apertura sin señal |
 | prueba10 | Ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal, corregir entregados con motivo, superposición, depuración de fotos, jefe en Modelo 2D |
