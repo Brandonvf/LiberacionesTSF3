@@ -4,7 +4,7 @@ rules_version = '2';
 // - Solo entran cuentas de Google aprobadas (colección "usuarios", el id es el correo).
 // - El administrador principal entra directo y aprueba a los demás.
 // - Quien entra por primera vez deja una "solicitud" y espera aprobación.
-// - Roles: topografo (registra), gabinete (genera protocolos y cambia estados),
+// - Roles: topografo y operario (registran), gabinete (genera protocolos, cambia estados y rechaza),
 //   jefe (ve todo y tiene los mismos ajustes que el administrador), admin (todo).
 
 service cloud.firestore {
@@ -27,6 +27,9 @@ service cloud.firestore {
     function writer()  { return isOwner() || hasRol(['topografo', 'operario', 'gabinete', 'admin']); }
     // Ajustes: administrador y jefe de área tienen los mismos permisos
     function isConf()  { return isAdmin() || hasRol(['jefe']); }
+    // Cambios que solo mandan a la papelera o restauran
+    function soloPapelera() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['borrado', 'borradoPor', 'borradoNombre', 'borradoEn']); }
+    function tocaPapelera() { return request.resource.data.diff(resource.data).affectedKeys().hasAny(['borrado']); }
     function member()  { return isOwner() || hasRol(['topografo', 'operario', 'gabinete', 'jefe', 'admin']); }
 
     // Cuentas con acceso (id = correo en minúsculas)
@@ -70,16 +73,27 @@ service cloud.firestore {
         && request.resource.data.numero == ''
         && request.resource.data.origen == 'app');
 
-      // Gabinete y administrador editan todo. El topógrafo solo lo suyo mientras está
-      // pendiente u observado, y no puede tocar número, estado de entrega ni autoría.
-      allow update: if isGab() || (isConf() && request.resource.data.origen == 'excel') || (writer()
-        && resource.data.creadoPor == email()
-        && resource.data.estado in ['PT', 'OB', 'NA']
-        && request.resource.data.estado in ['PT', 'NA']
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
-             'numero', 'nombreLiberacion', 'generadoPor', 'fechaLiberacion', 'fechaEntrega',
-             'numeroCargo', 'notaObservacion', 'creadoPor', 'creadoEn', 'origen']));
+      // Gabinete y administrador editan todo, pero a la papelera gabinete solo manda lo que aún no
+      // tiene código. Jefe: el histórico importado y la papelera. El topógrafo solo lo suyo mientras
+      // está pendiente u observado (sin tocar número, entrega ni autoría) y puede mandarlo a la
+      // papelera si aún no tiene código.
+      allow update: if (isGab() && (!tocaPapelera() || isConf() || resource.data.get('numero', '') == ''))
+        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera()))
+        || (writer()
+          && resource.data.creadoPor == email()
+          && resource.data.get('numero', '') == ''
+          && resource.data.estado in ['PT', 'OB', 'NA']
+          && soloPapelera() && request.resource.data.borrado == true)
+        || (writer()
+          && resource.data.creadoPor == email()
+          && resource.data.estado in ['PT', 'OB', 'NA']
+          && request.resource.data.estado in ['PT', 'NA']
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+               'numero', 'nombreLiberacion', 'generadoPor', 'fechaLiberacion', 'fechaEntrega',
+               'numeroCargo', 'notaObservacion', 'notaRechazo', 'creadoPor', 'creadoEn', 'origen',
+               'borrado', 'borradoPor', 'borradoNombre', 'borradoEn']));
 
+      // Borrar para siempre (vaciar la papelera): administrador y jefe
       allow delete: if isConf();
     }
 
@@ -91,13 +105,13 @@ service cloud.firestore {
         && request.resource.data.datos is string
         && request.resource.data.datos.size() <= 1000000;
       allow update: if false;
-      allow delete: if isGab() || (writer() && resource.data.creadoPor == email());
+      allow delete: if isGab() || isConf() || (writer() && resource.data.creadoPor == email());
     }
 
     // Historial de cambios: se agrega, nunca se modifica
     match /historial/{id} {
       allow read: if member();
-      allow create: if writer() && request.resource.data.usuario == email();
+      allow create: if (writer() || isConf()) && request.resource.data.usuario == email();
       allow update, delete: if false;
     }
   }
