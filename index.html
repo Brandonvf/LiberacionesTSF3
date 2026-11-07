@@ -629,6 +629,9 @@ kbd{font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var
 .capb{grid-column:1/-1;height:6px;border-radius:999px;background:#eef3f1;overflow:hidden}
 .capb i{display:block;height:100%;background:var(--accent);border-radius:999px}
 .capw{grid-column:1/-1;font-size:11.5px;font-weight:700;color:#8a5a00}
+.corr{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px}
+.corr #cActual{flex:1 1 100%;font-size:14px}
+.corr input{border:1.5px solid var(--line);border-radius:12px;padding:9px 12px;min-height:44px;font-size:15px;width:150px}
 /* Tabla «Qué falta liberar» */
 .ft-ctl{display:flex;align-items:flex-start;gap:10px 16px;flex-wrap:wrap;margin:0 0 8px}
 .ft-caps{display:flex;flex-wrap:wrap;gap:5px;flex:1;min-width:0;max-height:96px;overflow:auto}
@@ -3851,7 +3854,9 @@ function ajHistorico() {
     <div class="actions" style="margin:4px 0 8px"><button type="button" class="btn pri" id="hImp" ${A.hist ? "" : "disabled"}>Importar${A.hist ? " " + A.hist.registros.length.toLocaleString("es-PE") + " registros" : ""}</button></div>
     <div class="prog" id="hProg" hidden><i></i></div><p class="small muted" id="hEst" style="margin:0 0 8px"></p>
   </div>
-  <div class="card section"><h2>Quitar lo importado</h2><p class="muted small" style="margin:0 0 10px">Borra solo los registros que vinieron del Excel; lo registrado en la app no se toca.</p>
+  <div class="card section"><h2>Correlativo SKT-TOP</h2><p class="muted small" style="margin:0 0 10px">Último código usado. Gabinete genera desde el siguiente. Solo se puede subir (bajarlo repetiría códigos). Quitar lo importado no lo cambia.</p>
+    <div class="corr"><span class="mono" id="cActual">Leyendo…</span><input id="cNuevo" class="mono" inputmode="numeric" placeholder="Ej. 02692" aria-label="Último código usado"><button type="button" class="btn sec" id="cGuardar">Cambiar</button></div></div>
+  <div class="card section"><h2>Quitar lo importado</h2><p class="muted small" style="margin:0 0 10px">Borra solo los registros que vinieron del Excel; lo registrado en la app, el correlativo, las capas y los modelos no se tocan.</p>
     <div class="actions" style="margin:0 0 10px"><button type="button" class="btn warn" id="hBorrar">Quitar registros importados</button></div></div>
   <div class="card section"><h2>Resumen del panel</h2><p class="muted small" style="margin:0 0 10px">El panel lee un resumen por frente para gastar pocas lecturas. Se actualiza solo con cada registro; usa este botón solo si ves algo raro en el panel.</p>
     <div class="actions" style="margin:0 0 10px"><button type="button" class="btn sec" id="hRes2">Reconstruir resumen</button></div></div>`;
@@ -3865,6 +3870,19 @@ function ajHistorico() {
   });
   $("#hImp").addEventListener("click", importarHist);
   $("#hBorrar").addEventListener("click", borrarHist);
+  const leerCorr = () => getDoc(doc(db, "contadores", "skt")).then(c => { const u = c.exists() ? c.data().ultimo || 0 : 0; A.corr = u; const el = $("#cActual"); if (el) el.innerHTML = `Último: <b>${esc(fmtNumero(u))}</b> · siguiente: <b>${esc(fmtNumero(u + 1))}</b>`; }).catch(e => { const el = $("#cActual"); if (el) el.textContent = "No se pudo leer: " + e.message; });
+  leerCorr();
+  $("#cGuardar").addEventListener("click", async () => {
+    const n = parseInt(String($("#cNuevo").value).replace(/\D/g, ""), 10);
+    if (!n) { toast("Escribe el número del último código (por ejemplo 02692).", "bad"); return; }
+    if (A.corr != null && n <= A.corr) { toast(`Debe ser mayor que ${fmtNumero(A.corr)}; bajarlo repetiría códigos.`, "bad"); return; }
+    if (!navigator.onLine) { toast("Se necesita señal.", "bad"); return; }
+    if (!await confirmar("Cambiar correlativo", `El último código usado pasa a <b>${esc(fmtNumero(n))}</b>. El próximo que genere gabinete será <b>${esc(fmtNumero(n + 1))}</b>.`, "Cambiar")) return;
+    try {
+      await runTransaction(db, async t => { const ref = doc(db, "contadores", "skt"), c = await t.get(ref), u = c.exists() ? c.data().ultimo || 0 : 0; if (n <= u) throw new Error(`ya va en ${fmtNumero(u)}`); t.set(ref, { ultimo: n, editadoPor: S.email, editadoEn: serverTimestamp() }, { merge: true }); });
+      toast(`Siguiente código: ${fmtNumero(n + 1)}`); $("#cNuevo").value = ""; leerCorr();
+    } catch (e) { toast("No se cambió: " + e.message, "bad"); leerCorr(); }
+  });
   $("#hRes2").addEventListener("click", async e => { const b = e.target; if (!await confirmar("Reconstruir resumen", "Se leen todos los registros para rehacer el resumen del panel. Úsalo solo si el panel no cuadra; consume lecturas.", "Reconstruir")) return; b.disabled = true; b.textContent = "Reconstruyendo…"; try { const n = await reconstruirResumen(); toast(`Resumen listo: ${n.toLocaleString("es-PE")} registros`); } catch (er) { toast("No se pudo: " + er.message, "bad"); } b.disabled = false; b.textContent = "Reconstruir resumen"; });
 }
 function resumenHist(d) {

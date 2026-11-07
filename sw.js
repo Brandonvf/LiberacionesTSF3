@@ -1,7 +1,7 @@
 /* Liberaciones TSF3: permite abrir la app sin señal. La página siempre se pide primero a internet
    (así llegan las actualizaciones); si no hay señal o tarda más de 4 s, se usa la última copia guardada.
    Los datos no pasan por aquí: Firestore los guarda en el teléfono y los sube cuando vuelve la señal. */
-const CACHE = 'liberaciones-v5';
+const CACHE = 'liberaciones-v6';
 const SHELL = ['./'];
 const CDN = /^(www\.gstatic\.com|fonts\.googleapis\.com|fonts\.gstatic\.com)$/;
 

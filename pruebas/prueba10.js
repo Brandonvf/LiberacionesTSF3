@@ -75,6 +75,13 @@ const aceptarDlg = async p => { await p.waitForSelector('.dlg.on [type=submit]')
   await p.click('[data-r="semana"]'); const dl = p.waitForEvent('download'); await p.click('#xDia'); const f = await dl;
   const csv = fs.readFileSync(await f.path(), 'utf8');
   ok(csv.split('\r\n')[0].includes('Rechazadas') && /Capa 11,1,40,0,0,1,1/.test(csv), 'avance diario: el rechazado va en su columna y no suma metros');
+  // Correlativo: subir a 02692 (el próximo será 02693) y no dejar bajarlo
+  await p.click('[data-tab="historico"]'); await p.waitForFunction(() => /siguiente/.test(document.querySelector('#cActual')?.textContent || ''));
+  ok((await p.textContent('#cActual')).includes('SKT-TOP-02689'), 'correlativo: muestra el último usado (' + (await p.textContent('#cActual')) + ')');
+  await p.fill('#cNuevo', '02600'); await p.click('#cGuardar'); await p.waitForTimeout(200);
+  ok(!(await p.$('.dlg.on')) && (await store(p))['contadores/skt'].ultimo === 2689, 'no deja bajarlo');
+  await p.fill('#cNuevo', '02692'); await p.click('#cGuardar'); await aceptarDlg(p); await p.waitForTimeout(400);
+  ok((await store(p))['contadores/skt'].ultimo === 2692 && (await p.textContent('#cActual')).includes('SKT-TOP-02693'), 'último 02692: el siguiente código será SKT-TOP-02693');
   // 6. Depuración de fotos (administrador)
   await p.click('[data-tab="archivos"]'); await p.waitForSelector('#arCalc'); await p.click('#arCalc'); await p.waitForSelector('#arBorrar');
   ok((await p.textContent('#ajBody')).includes('1 fotos') || (await p.textContent('#ajBody')).includes('1 foto'), 'espacio usado: 1 foto y 1 CSV');
