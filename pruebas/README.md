@@ -29,4 +29,5 @@ bash pruebas/correr.sh prueba5    # una sola
 | prueba9 | Computadora (menú lateral, Ctrl+K, clic derecho, ficha lateral), rechazar, papelera, «no se libera» |
 | prueba11 | Avance por capa en planta real: base (superficie o contorno), cruces, fuera de la base, lista de capas con filtros, frente sin eje |
 | prueba12 | App instalable: manifiesto, logo, botón «Instalar», número en el ícono, atajos, aviso de versión nueva y apertura sin señal |
+| prueba13 | Mudanza de dirección: aviso en la dirección vieja y paso a la nueva solo cuando no queda nada por subir |
 | prueba10 | Ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal, corregir entregados con motivo, superposición, depuración de fotos, jefe en Modelo 2D |

@@ -103,3 +103,4 @@ export async function runTransaction(db, fn) {
   const tx = { get: async ref => snapDoc(ref.path), set(ref, data, opt) { ops.push({ k: 'set', ref, data, merge: opt && opt.merge }); }, update(ref, data) { ops.push({ k: 'update', ref, data }); }, delete(ref) { ops.push({ k: 'delete', ref }); } };
   const out = await fn(tx); await apply(ops); return out;
 }
+export function waitForPendingWrites() { return pending.size ? new Promise(ok => commits.push(ok)) : Promise.resolve(); }

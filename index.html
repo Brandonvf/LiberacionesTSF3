@@ -727,6 +727,10 @@ body.poder #chart rect.nolib{cursor:pointer}
 /* Aviso de versión nueva (la app instalada suele quedar abierta varios días) */
 .vernueva{position:fixed;z-index:70;left:0;right:0;margin:0 auto;width:max-content;max-width:calc(100vw - 24px);top:calc(10px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:999px;padding:6px 6px 6px 18px;font-weight:700;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.2);animation:entra .3s both;white-space:nowrap}
 .vernueva button{border:0;border-radius:999px;background:var(--accent);color:#fff;font:inherit;padding:8px 14px;cursor:pointer}
+.mudanza{background:var(--accent-strong);top:auto;bottom:calc(var(--nav-h) + 16px + env(safe-area-inset-bottom,0px))}
+.mudanza button{background:#fff;color:var(--accent-strong)}
+body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bottom,0px))}
+@media (min-width:1024px){.mudanza{bottom:24px}}
 .vernueva button.x{background:transparent;padding:8px 10px;opacity:.7}
 /* Abierta desde el ícono (instalada): se comporta como app, sin rebotes ni selección accidental en botones y menús */
 @media (display-mode:standalone){
@@ -781,7 +785,7 @@ body.poder #chart rect.nolib{cursor:pointer}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, runTransaction, setDoc, deleteField, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, getDoc, getDocs, runTransaction, setDoc, deleteField, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, limit, writeBatch, serverTimestamp, Timestamp, waitForPendingWrites } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
 window.__arranco = true;
 
@@ -948,6 +952,7 @@ async function instalar() {
 document.body.classList.toggle("instalada", instalada());
 matchMedia("(display-mode: standalone)").addEventListener?.("change", () => { document.body.classList.toggle("instalada", instalada()); pintarInstalar(); });
 document.addEventListener("instalable", pintarInstalar);
+addEventListener("online", () => { if (S.dentro && enDirVieja()) mudarse(false); });
 addEventListener("appinstalled", () => { window.__inst = null; pintarInstalar(); });
 // Versión nueva publicada mientras la app estaba abierta: se avisa y se actualiza cuando la persona quiera
 document.addEventListener("version-nueva", () => {
@@ -977,6 +982,40 @@ function guardadoPersistente() {
   try { navigator.storage?.persisted?.().then(p => { if (!p) navigator.storage.persist().catch(() => {}); }).catch(() => {}); } catch (_) {}
 }
 
+/* ---------- Mudanza a la dirección nueva ----------
+   La app pasó a https://topografiatsf3.github.io/liberaciones/. La dirección vieja sigue funcionando un tiempo:
+   muestra el aviso y lleva a cada persona a la nueva solo cuando ya subió todo lo que tenía pendiente,
+   porque lo guardado sin señal queda en el teléfono atado a la dirección donde se registró. */
+const DIR_NUEVA = "https://topografiatsf3.github.io/liberaciones/";
+const enDirVieja = () => location.hostname === "brandonvf.github.io";
+let mudando = false, noPreguntar = false, pidio = false;
+function avisoMudanza() {
+  if (!enDirVieja() || $("#mudanza")) return;
+  const d = document.createElement("div"); d.id = "mudanza"; d.className = "vernueva mudanza"; d.setAttribute("role", "status");
+  d.innerHTML = '<span>La app se mudó de dirección</span><button type="button">Ir a la nueva</button>';
+  d.querySelector("button").onclick = () => mudarse(true);
+  document.body.append(d);
+}
+async function mudarse(manual) {
+  if (!navigator.onLine) { if (manual) toast("Necesitas señal para pasar a la dirección nueva", "bad"); return; }
+  if (manual) pidio = true;
+  if (mudando) { if (manual) toast("Subiendo lo pendiente; apenas termine se pasa a la dirección nueva", "pend"); return; }
+  mudando = true;
+  try {
+    if (S.dentro) {
+      const pend = new Set([...S.mis, ...S.todos].filter(r => r._pend).map(r => r.id)).size;
+      if (pend && manual) toast(`Subiendo ${pend === 1 ? "1 registro" : pend + " registros"} antes de pasar…`, "pend");
+      await Promise.race([waitForPendingWrites(db), new Promise((_, no) => setTimeout(() => no(new Error("tarda")), manual ? 30000 : 120000))]);
+    }
+    if (!pidio && noPreguntar) { mudando = false; return; }
+    if (S.dentro && !pidio && !await confirmar("La app se mudó", `Ahora está en <b>topografiatsf3.github.io/liberaciones</b>. Ya se subió todo lo tuyo, así que no se pierde nada. Al abrirla entra otra vez con tu cuenta de Google${instalada() ? " e instálala de nuevo desde ahí (después puedes borrar este ícono)" : ""}.`, "Ir a la nueva")) { mudando = false; noPreguntar = true; return; }
+    location.replace(DIR_NUEVA + location.hash);
+  } catch (_) {
+    mudando = false;
+    if (manual) toast("Todavía hay registros por subir. Espera a tener buena señal y vuelve a intentar.", "bad");
+  }
+}
+
 function gate(tipo, extra = {}) {
   S.dentro = false;
   $("#app").hidden = true; const g = $("#gate"); g.hidden = false;
@@ -990,7 +1029,7 @@ function gate(tipo, extra = {}) {
   }[tipo];
   g.innerHTML = `<div class="box card">${html}</div>`;
   $("#gEntrar")?.addEventListener("click", entrar);
-  $("#gInstalar")?.addEventListener("click", instalar); pintarInstalar();
+  $("#gInstalar")?.addEventListener("click", instalar); pintarInstalar(); avisoMudanza();
   $("#gSalir")?.addEventListener("click", () => signOut(auth));
 }
 
@@ -1063,6 +1102,7 @@ function entrarApp() {
   S.dentro = true;
   $("#gate").hidden = true; $("#app").hidden = false;
   guardadoPersistente(); pintarInstalar();
+  if (enDirVieja()) { avisoMudanza(); setTimeout(() => mudarse(false), 1500); }
   S.subs.push(onSnapshot(collection(db, "listas"), snap => {
     snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
     S.listas.tipos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
