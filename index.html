@@ -836,6 +836,43 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
 .hoja-limpiar{float:right;margin:-4px 0 0}
 .acc-hoja{margin-top:0;border-top:0;clear:both}
 @media (min-width:1024px){.pgrid{grid-template-columns:280px minmax(0,1fr)}}
+
+/* «Qué se liberó»: buscador único, letra grande para leer en campo */
+.tsel .flabel{margin-bottom:8px}
+.tsel-sub{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px}
+.tsel-sub:first-of-type{margin-top:0}
+.tsel-chips{display:flex;flex-wrap:wrap;gap:8px}
+.tsel-chips .chip{min-height:44px;padding:0 16px;font-size:15px}
+.f .tsel-q,.tsel-q{width:100%;border:1px solid var(--line);border-radius:8px;min-height:52px;padding:0 14px;font-size:17px;background:var(--surface)}
+.f .tsel-q:focus,.tsel-q:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.tsel-res{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:8px;background:var(--surface)}
+.tsel-res:empty{display:none}
+.tsel-i{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:12px 14px;min-height:52px;cursor:pointer}
+.tsel-i:last-child{border-bottom:0}
+.tsel-i b{display:block;font-weight:600;font-size:16px;line-height:1.3}
+.tsel-i small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+.tsel-i mark{background:#fff0b0;color:inherit;border-radius:2px;padding:0 1px}
+.tsel-i:active{background:var(--surface-2)}
+@media (hover:hover){.tsel-i:hover{background:var(--surface-2)}}
+.tsel-add,.tsel-ver{color:var(--accent-strong);font-weight:600;font-size:15px;background:var(--surface-2)}
+.tsel-g{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--bg);padding:8px 14px;border-bottom:1px solid var(--line)}
+.tsel-nada{margin:0;padding:12px 14px;color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
+.tsel-ok{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--accent);background:var(--accent-soft);border-radius:8px;padding:12px 14px;min-height:56px;cursor:pointer}
+.tsel-ok>span:first-child{flex:1;min-width:0}
+.tsel-ok b{display:block;font-size:17px;font-weight:700;color:var(--accent-strong)}
+.tsel-ok small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.tsel-ok .c{font-weight:600;font-size:14px;color:var(--accent-strong)}
+.f.err .tsel-q,.f.err .tsel-ok{border-color:var(--ob)}
+.sim{margin:10px 0 0;font-size:14px;font-weight:600;color:var(--muted)}
+.sim.muy{background:var(--ep-bg);color:var(--ep);border-radius:8px;padding:10px 12px}
+.nuevo-tag{display:inline-block;background:var(--ep-bg);color:var(--ep);border-radius:999px;font-size:11.5px;font-weight:600;padding:1px 8px;margin-left:6px;white-space:nowrap}
+.nuevos{border:1px solid var(--ep);border-radius:8px;padding:12px 14px;margin-bottom:16px;background:var(--surface)}
+.nuevos h3{margin:0 0 4px;font-size:15px}
+.nv{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+.nv:first-of-type{border-top:0}
+.nv .nn{flex:1;min-width:180px}
+.nv .nn b{display:block}
+.nv .nn small{color:var(--muted)}
 </style>
 </head>
 <body>
@@ -1023,6 +1060,67 @@ const L = {
   act: id => S.listas.actividades.find(e => e.id === id)
 };
 const nom = (o, alt = "") => o ? o.nombre : alt;
+
+/* ---------- Nombres parecidos: buscar con errores y evitar duplicados al agregar tipos o elementos ----------
+   Iguala tildes, mayúsculas, signos, plurales, palabras de enlace («de», «para»…), orden de las palabras,
+   letras cambiadas o faltantes y abreviaturas («rell.» = relleno). Los números cuentan: «filtro 1» ≠ «filtro 2». */
+const ENLACE = new Set(["de", "del", "la", "las", "el", "los", "para", "en", "y", "a", "con", "al", "por", "o", "e"]);
+const sinTilde = t => String(t ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ñ/g, "n");
+const singular = w => /^\d+$/.test(w) ? w : w.length > 4 && /[lrndzj]es$/.test(w) ? w.slice(0, -2) : w.length > 3 && w.endsWith("s") ? w.slice(0, -1) : w;
+function palabras(t) {
+  return sinTilde(t).replace(/(\d+)/g, " $1 ").replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter(w => w && !ENLACE.has(w)).map(singular);
+}
+function lev(a, b) {
+  if (a === b) return 0; if (!a.length) return b.length; if (!b.length) return a.length;
+  let v = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) { const w = [i]; for (let j = 1; j <= b.length; j++) w[j] = Math.min(v[j] + 1, w[j - 1] + 1, v[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); v = w; }
+  return v[b.length];
+}
+const esNum = w => /^\d+$/.test(w);
+function parecePalabra(a, b) {
+  if (a === b) return 1;
+  if (esNum(a) || esNum(b)) return 0;
+  if ((a.length >= 3 && b.startsWith(a)) || (b.length >= 3 && a.startsWith(b))) return 0.88;   // abreviatura
+  const r = 1 - lev(a, b) / Math.max(a.length, b.length);
+  return r >= 0.6 ? r : 0;
+}
+// 0 a 1: qué tan parecidos son dos nombres (1 = el mismo nombre escrito distinto)
+function similitud(a, b) {
+  const ta = palabras(a), tb = palabras(b); if (!ta.length || !tb.length) return 0;
+  if (ta.slice().sort().join(" ") === tb.slice().sort().join(" ")) return 1;
+  const mejor = (x, ys) => Math.max(0, ...ys.map(y => parecePalabra(x, y)));
+  let sc = (ta.reduce((t, x) => t + mejor(x, tb), 0) / ta.length + tb.reduce((t, y) => t + mejor(y, ta), 0) / tb.length) / 2;
+  const ja = ta.slice().sort().join(""), jb = tb.slice().sort().join("");
+  sc = Math.max(sc, (1 - lev(ja, jb) / Math.max(ja.length, jb.length)) * 0.95);
+  if (ta.filter(esNum).join() !== tb.filter(esNum).join()) sc *= 0.7;
+  return Math.min(sc, 0.99);
+}
+// Los parecidos a «nombre» dentro de una lista, de más a menos parecido
+const parecidos = (nombre, lista, min = 0.55) => lista.map(o => ({ o, s: similitud(nombre, o.nombre) })).filter(x => x.s >= min).sort((a, b) => b.s - a.s);
+// Buscador mientras se escribe: cada palabra escrita tiene que parecerse a alguna del nombre
+function buscarNombres(q, lista) {
+  const qt = palabras(q); if (!qt.length) return [];
+  const cortas = qt.every(w => w.length < 3), nq = sinTilde(q).trim();
+  return lista.map(o => {
+    const ot = palabras(o.nombre);
+    if (cortas) return { o, s: sinTilde(o.nombre).includes(nq) ? 0.8 : 0, ok: new Set() };
+    let t = 0; const ok = new Set();
+    for (const w of qt) {
+      let m = 0, cual = null; for (const y of ot) { const v = parecePalabra(w, y); if (v > m) { m = v; cual = y; } }
+      // Un número que no coincide no descarta (muestra los parecidos), pero baja el puesto
+      if (m < 0.6) { if (esNum(w)) { t += 0.3; continue; } return { o, s: 0 }; }
+      t += m; ok.add(cual);
+    }
+    // Primero el que tiene menos palabras de más y el que empieza igual
+    return { o, s: t / qt.length + 0.08 * Math.min(1, qt.length / ot.length) + (sinTilde(o.nombre).startsWith(nq) ? 0.05 : 0), ok };
+  }).filter(x => x.s > 0).sort((a, b) => b.s - a.s || a.o.nombre.localeCompare(b.o.nombre));
+}
+// Resalta las palabras del nombre que coinciden con lo buscado
+function resaltar(nombre, ok) {
+  if (!ok || !ok.size) return esc(nombre);
+  return String(nombre).split(/(\s+)/).map(w => { const p = palabras(w)[0]; return p && ok.has(p) ? `<mark>${esc(w)}</mark>` : esc(w); }).join("");
+}
+const capital = t => { const x = String(t || "").trim().replace(/\s+/g, " "); return x ? x[0].toUpperCase() + x.slice(1) : x; };
 
 /* ---------- Avisos ---------- */
 let tTimer;
@@ -1235,6 +1333,7 @@ function entrarApp() {
   if (enDirVieja()) { avisoMudanza(); setTimeout(() => mudarse(false), 1500); }
   S.subs.push(onSnapshot(collection(db, "listas"), snap => {
     snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
+    pintarNav();
     S.listas.tipos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
     if (S.view === "nueva") { leerCampos(); pintarForm(); }
     else if (S.view === "ajustes" && document.activeElement?.closest?.("#ajBody")) {}
@@ -1323,10 +1422,10 @@ function pintarCabecera() {
   pintarNav(); estadoSync();
 }
 function pintarNav() {
-  const obs = S.mis.filter(r => r.estado === "OB").length;
+  const obs = S.mis.filter(r => r.estado === "OB").length, nNuevos = puedeAjustes() ? [...S.listas.tipos, ...S.listas.elementos].filter(x => x.nuevo && x.activo !== false).length : 0;
   const sol = S.solicitudes.length, pt = (esGab() ? S.bandeja.pend.filter(r => r.estado === "PT").length : 0) + (puedeAjustes() ? aspasPorProcesar().length : 0);
   document.body.classList.toggle("poder", poder());
-  $("#nav").innerHTML = (poder() && enPC() ? `<button type="button" class="nbuscar" data-buscar aria-label="Buscar en todo (Ctrl+K)">${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></button>` : "") + vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
+  $("#nav").innerHTML = (poder() && enPC() ? `<button type="button" class="nbuscar" data-buscar aria-label="Buscar en todo (Ctrl+K)">${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></button>` : "") + vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol + nNuevos ? `<span class="badge">${sol + nNuevos}</span>` : ""}</span></button>`).join("");
   insigniaApp(obs + pt + (puedeAjustes() ? sol : 0));
 }
 $("#nav").addEventListener("click", e => { if (e.target.closest("[data-buscar]")) { abrirBuscador(); return; } const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
@@ -1435,7 +1534,6 @@ function pintarForm() {
   const est = L.est(f.estructuraId);
   const subs = est ? est.subs || [] : [];
   if (subs.length === 1 && !f.subestructuraId) f.subestructuraId = subs[0].id;
-  const tipos = S.listas.tipos.filter(t => !f.elementoId || t.elementoId === f.elementoId);
   const esLib = f.actividad === "LIB";
   const listo = S.listas.estructuras.length > 0;
   $("#view").innerHTML = `
@@ -1458,8 +1556,7 @@ function pintarForm() {
       <div class="grid">
         <div class="f"><label for="iEst">Estructura</label><select id="iEst" name="estructuraId" required>${opciones(S.listas.estructuras, f.estructuraId, "Elegir…")}</select></div>
         <div class="f"><label for="iSub">Sub-estructura / frente</label><select id="iSub" name="subestructuraId" required ${!est ? "disabled" : ""}>${opciones(subs, f.subestructuraId, est ? "Elegir…" : "Primero la estructura")}</select></div>
-        <div class="f"><label for="iEle">Elemento <span class="opt">${esLib ? "" : "(opcional)"}</span></label><select id="iEle" name="elementoId">${opciones(S.listas.elementos, f.elementoId, "Elegir…")}</select></div>
-        <div class="f"><label for="iTipo">Tipo de liberación <span class="opt">${esLib ? "" : "(opcional)"}</span></label><select id="iTipo" name="tipoId">${opciones(tipos, f.tipoId, "Elegir…")}</select></div>
+        ${selectorTipo(f, esLib)}
       </div>
     </div>
     <div class="card section">
@@ -1497,6 +1594,129 @@ function pintarForm() {
   </form>`;
   conectarForm();
 }
+/* --- «Qué se liberó»: un solo buscador; el elemento se pone solo según el tipo --- */
+const tiposActivos = () => S.listas.tipos.filter(t => t.activo !== false);
+// Los tipos que más usa esta persona (sus registros y lo último que guardó)
+function tiposUsados() {
+  const c = {}; S.mis.forEach(r => { if (r.tipoId) c[r.tipoId] = (c[r.tipoId] || 0) + 1; });
+  const u = ls.get(ULT(), {}); if (u.tipoId) c[u.tipoId] = (c[u.tipoId] || 0) + 1000;
+  return Object.entries(c).sort((a, b) => b[1] - a[1]).map(([id]) => L.tipo(id)).filter(t => t && t.activo !== false).slice(0, 4);
+}
+function selectorTipo(f, esLib) {
+  const t = L.tipo(f.tipoId), e = L.ele(f.elementoId) || (t && L.ele(t.elementoId));
+  const ocultos = `<input type="hidden" name="tipoId" value="${esc(f.tipoId)}"><input type="hidden" name="elementoId" value="${esc(f.elementoId)}">`;
+  const titulo = `<span class="flabel">${esLib ? "Qué se liberó" : 'Tipo <span class="opt">(opcional)</span>'}</span>`;
+  if (t || (e && !esLib)) return `<div class="f full tsel" id="tSel">${titulo}${ocultos}<button type="button" class="tsel-ok" id="tCambiar" aria-label="Cambiar tipo"><span><b>${esc(t ? t.nombre : "Sin tipo")}</b><small>${esc(nom(e, "Sin elemento"))}</small></span><span class="c">Cambiar</span></button></div>`;
+  const usados = tiposUsados();
+  return `<div class="f full tsel" id="tSel">${titulo}${ocultos}
+    ${usados.length ? `<span class="tsel-sub">Usados por ti</span><div class="tsel-chips">${usados.map(u => `<button type="button" class="chip" data-tipo="${esc(u.id)}">${esc(u.nombre)}</button>`).join("")}</div><span class="tsel-sub">Buscar otro</span>` : ""}
+    <input id="iTipoQ" class="tsel-q" type="search" placeholder="Ej.: relleno masivo" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(S._tq || "")}" aria-label="Buscar tipo">
+    <div class="tsel-res" id="tRes"></div></div>`;
+}
+function pintarTipoRes() {
+  const box = $("#tRes"); if (!box) return;
+  const q = (S._tq || "").trim(), todos = tiposActivos();
+  const fila = (t, ok) => `<button type="button" class="tsel-i" data-tipo="${esc(t.id)}"><b>${resaltar(t.nombre, ok)}</b><small>${esc(nom(L.ele(t.elementoId)))}</small></button>`;
+  if (!q) {
+    box.innerHTML = S._tTodos
+      ? S.listas.elementos.map(e => { const ts = todos.filter(t => t.elementoId === e.id); return ts.length ? `<div class="tsel-g">${esc(e.nombre)}</div>${ts.map(t => fila(t)).join("")}` : ""; }).join("") + `<button type="button" class="tsel-i tsel-add" data-nuevo="">＋ Agregar un tipo nuevo</button>`
+      : `<button type="button" class="tsel-i tsel-ver" data-todos>Ver todos los tipos (${todos.length})</button>`;
+    return;
+  }
+  const r = buscarNombres(q, todos).slice(0, 6), igual = todos.some(t => similitud(t.nombre, q) === 1);
+  box.innerHTML = r.map(x => fila(x.o, x.ok)).join("") + (!r.length ? `<p class="tsel-nada">No hay ningún tipo parecido a «${esc(q)}».</p>` : "")
+    + (!igual && palabras(q).length && q.length >= 3 ? `<button type="button" class="tsel-i tsel-add" data-nuevo="${esc(q)}">＋ Agregar «${esc(capital(q))}» como nuevo</button>` : "");
+}
+function elegirTipo(f, id) {
+  leerCampos(); const t = L.tipo(id); if (!t) return;
+  f.tipoId = t.id; f.elementoId = t.elementoId || ""; S._tq = ""; S._tTodos = false;
+  pintarForm(); guardarBorrador();
+  const sig = f.sinPk ? $("#iDesc") : $("#iPk1"); if (sig && !sig.value) sig.focus({ preventScroll: false });
+}
+function conectarSelectorTipo(f) {
+  const box = $("#tSel"); if (!box) return;
+  pintarTipoRes();
+  box.addEventListener("click", e => {
+    const t = e.target.closest("[data-tipo]"); if (t) { elegirTipo(f, t.dataset.tipo); return; }
+    if (e.target.closest("#tCambiar")) { leerCampos(); f.tipoId = ""; f.elementoId = ""; S._tq = ""; pintarForm(); $("#iTipoQ")?.focus(); return; }
+    if (e.target.closest("[data-todos]")) { S._tTodos = true; pintarTipoRes(); return; }
+    const n = e.target.closest("[data-nuevo]"); if (n) agregarTipo(n.dataset.nuevo);
+  });
+  $("#iTipoQ")?.addEventListener("input", e => { S._tq = e.target.value; pintarTipoRes(); });
+  $("#iTipoQ")?.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); const p = $("#tRes [data-tipo]"); if (p) elegirTipo(f, p.dataset.tipo); } });
+}
+// Agregar un tipo (y si hace falta, un elemento) desde campo: antes muestra los nombres parecidos que ya existen
+function agregarTipo(nombre0) {
+  if (!navigator.onLine) { toast("Se necesita señal para agregar un nombre nuevo. Mientras tanto elige uno de la lista.", "bad"); return; }
+  const f = S.form; leerCampos();
+  const st = { ele: f.elementoId || ls.get(ULT(), {}).elementoId || "", eleNuevo: false };
+  const eles = () => S.listas.elementos.filter(e => e.activo !== false);
+  const d = dialogo("Agregar tipo nuevo", `<p class="dlg-p muted small">Se agrega para todos. Revisa que no exista ya con otro nombre.</p>
+    <div class="f"><label for="nNom">Nombre</label><input id="nNom" name="nombre" value="${esc(capital(nombre0))}" autocomplete="off" maxlength="60" placeholder="Ej. Relleno filtro 3"></div>
+    <div id="nSim"></div>
+    <div class="f" style="margin-top:12px"><span class="flabel">Elemento</span><div class="tsel-chips" id="nEle"></div></div>
+    <div class="f" id="nEleBox" hidden style="margin-top:8px"><label for="nEleNom">Nombre del elemento nuevo</label><input id="nEleNom" autocomplete="off" maxlength="40" placeholder="Ej. Drenaje"><div id="nEleSim"></div></div>`,
+    () => { guardarNuevo(); return false; }, "Agregar", { ancho: "medio" });
+  const nNom = d.querySelector("#nNom"), nEleNom = d.querySelector("#nEleNom"), sub = d.querySelector("[type=submit]");
+  const simHtml = (lista, nombre, attr) => {
+    const p = nombre.trim().length >= 3 ? parecidos(nombre, lista).slice(0, 3) : []; if (!p.length) return { html: "", top: null };
+    const top = p[0], muy = top.s >= 0.8;
+    return { top: muy ? top : null, html: `<div class="sim ${muy ? "muy" : ""}">${top.s === 1 ? "Ese nombre ya existe." : muy ? "Ya existe uno muy parecido. ¿Es este?" : "Parecidos que ya existen:"}</div><div class="tsel-res">${p.map(x => `<button type="button" class="tsel-i" ${attr}="${esc(x.o.id)}"><b>${esc(x.o.nombre)}</b>${x.o.elementoId ? `<small>${esc(nom(L.ele(x.o.elementoId)))}</small>` : ""}</button>`).join("")}</div>` };
+  };
+  const pintar = () => {
+    const nombre = nNom.value, r = simHtml(tiposActivos(), nombre, "data-usar");
+    d.querySelector("#nSim").innerHTML = r.html + (r.top ? `<button type="button" class="btn pri" style="width:100%;margin-top:8px" data-usar="${esc(r.top.o.id)}">Usar «${esc(r.top.o.nombre)}»</button>` : "");
+    d.querySelector("#nEle").innerHTML = eles().map(e => `<button type="button" class="chip" data-ele="${esc(e.id)}" aria-pressed="${!st.eleNuevo && st.ele === e.id}">${esc(e.nombre)}</button>`).join("") + `<button type="button" class="chip" data-ele="" aria-pressed="${st.eleNuevo}">＋ Otro elemento</button>`;
+    d.querySelector("#nEleBox").hidden = !st.eleNuevo;
+    if (st.eleNuevo) { const re = simHtml(eles(), nEleNom.value, "data-usar-ele"); d.querySelector("#nEleSim").innerHTML = re.html; }
+    const exacto = r.top && r.top.s === 1, nom0 = capital(nombre);
+    sub.disabled = exacto || nom0.length < 3;
+    sub.textContent = exacto ? "Ya existe" : r.top ? `No, agregar «${nom0}»` : "Agregar";
+    sub.className = "btn " + (r.top ? "sec" : "pri");
+  };
+  d.addEventListener("input", e => { if (e.target === nNom || e.target === nEleNom) pintar(); });
+  d.addEventListener("click", e => {
+    const u = e.target.closest("[data-usar]"); if (u) { d.cerrar(true); elegirTipo(f, u.dataset.usar); return; }
+    const ue = e.target.closest("[data-usar-ele]"); if (ue) { st.ele = ue.dataset.usarEle; st.eleNuevo = false; nEleNom.value = ""; pintar(); return; }
+    const c = e.target.closest("[data-ele]"); if (c) { if (c.dataset.ele) { st.ele = c.dataset.ele; st.eleNuevo = false; } else { st.eleNuevo = true; setTimeout(() => nEleNom.focus(), 30); } pintar(); }
+  });
+  pintar(); setTimeout(() => { nNom.focus(); nNom.setSelectionRange(nNom.value.length, nNom.value.length); }, 80);
+  async function guardarNuevo() {
+    const nombre = capital(nNom.value), eleNom = st.eleNuevo ? capital(nEleNom.value) : "";
+    if (nombre.length < 3) { toast("Escribe el nombre del tipo.", "bad"); nNom.focus(); return; }
+    if (st.eleNuevo ? eleNom.length < 3 : !st.ele) { toast(st.eleNuevo ? "Escribe el nombre del elemento nuevo." : "Elige a qué elemento pertenece.", "bad"); return; }
+    if (!navigator.onLine) { toast("Se necesita señal para agregar un nombre nuevo.", "bad"); return; }
+    sub.disabled = true; sub.textContent = "Agregando…";
+    const meta = { nuevo: true, creadoPor: S.email, creadoNombre: S.perfil?.nombre || "", creadoEn: new Date().toISOString() };
+    try {
+      const res = await runTransaction(db, async tx => {
+        const rT = doc(db, "listas", "tipos"), rE = doc(db, "listas", "elementos");
+        const sT = await tx.get(rT), sE = st.eleNuevo ? await tx.get(rE) : null;
+        const tipos = (sT.exists() && sT.data().items) || [];
+        const ya = tipos.find(t => t.activo !== false && similitud(t.nombre, nombre) === 1); if (ya) return { ya };
+        let eleId = st.ele;
+        if (st.eleNuevo) {
+          const els = (sE.exists() && sE.data().items) || [], ex = els.find(e => similitud(e.nombre, eleNom) === 1);
+          if (ex) eleId = ex.id;
+          else { eleId = nuevoId(eleNom, new Set(els.map(e => e.id))); tx.set(rE, { items: [...els, { id: eleId, nombre: eleNom, ...meta }], editadoEn: serverTimestamp(), editadoPor: S.email }); }
+        }
+        const id = nuevoId(nombre, new Set(tipos.map(t => t.id)));
+        const item = { id, nombre, elementoId: eleId, orden: Math.max(0, ...tipos.map(t => t.orden || 0)) + 1, enGrafico: f.actividad === "LIB", ...meta };
+        tx.set(rT, { items: [...tipos, item], editadoEn: serverTimestamp(), editadoPor: S.email });
+        return { item, eleId, ele: st.eleNuevo ? { id: eleId, nombre: eleNom, ...meta } : null };
+      });
+      if (res.ya) { d.cerrar(true); elegirTipo(f, res.ya.id); toast(`«${res.ya.nombre}» ya existía; se eligió ese.`); return; }
+      // Se agrega ya en el teléfono para no esperar a que llegue la lista actualizada
+      if (!L.tipo(res.item.id)) S.listas.tipos.push(res.item);
+      if (res.ele && !L.ele(res.ele.id)) S.listas.elementos.push(res.ele);
+      d.cerrar(true); elegirTipo(f, res.item.id);
+      toast(`«${res.item.nombre}» agregado para todos`);
+    } catch (e) {
+      console.error(e); sub.disabled = false; pintar();
+      toast("No se pudo agregar: " + (e.code === "permission-denied" ? "sin permiso (hay que publicar las reglas nuevas)." : e.message), "bad");
+    }
+  }
+}
 function linkRow(l, k, i) { return `<div class="link"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ""))}</a><button type="button" data-del="${k}" data-i="${i}" aria-label="Quitar enlace">×</button></div>`; }
 
 function leerCampos() {
@@ -1511,8 +1731,7 @@ function conectarForm() {
   $("#pAct").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; leerCampos(); if (f.actividad !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act; pintarForm(); });
   $("#iEst").addEventListener("change", () => { leerCampos(); f.subestructuraId = ""; pintarForm(); $("#iSub")?.focus(); });
   $("#iSub").addEventListener("change", () => { leerCampos(); pintarForm(); });
-  $("#iEle").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && t.elementoId !== f.elementoId) f.tipoId = ""; pintarForm(); $("#iTipo")?.focus(); });
-  $("#iTipo").addEventListener("change", () => { leerCampos(); const t = L.tipo(f.tipoId); if (t && !f.elementoId) f.elementoId = t.elementoId; pintarForm(); });
+  conectarSelectorTipo(f);
   $("#iSinPk").addEventListener("change", e => { $("#gPk").hidden = e.target.checked; });
   $("#bSig")?.addEventListener("click", () => { const u = ls.get(ULT(), {}); leerCampos(); f.pkInicio = fmtPk(u.pkFin); f.pkFin = fmtPk(u.pkFin + u.largo); if (!f.capa && u.capa) f.capa = u.capa; pintarForm(); $("#iDesc")?.focus(); });
   $("#iCapa").addEventListener("blur", e => { const v = normCapa(e.target.value, f.subestructuraId, f.tipoId); if (v !== e.target.value.trim()) e.target.value = v; });
@@ -1550,8 +1769,7 @@ function validar(f) {
   if (!f.topografoId) err.topografoId = "Elige el topógrafo.";
   if (!f.estructuraId) err.estructuraId = "Elige la estructura.";
   if (!f.subestructuraId) err.subestructuraId = "Elige la sub-estructura.";
-  if (esLib && !f.elementoId) err.elementoId = "Elige el elemento.";
-  if (esLib && !f.tipoId) err.tipoId = "Elige el tipo de liberación.";
+  if (esLib && !f.tipoId) err.tipoId = "Elige qué se liberó (busca el tipo o agrégalo).";
   let p1 = null, p2 = null;
   if (!f.sinPk) {
     p1 = leerPk(f.pkInicio); p2 = leerPk(f.pkFin);
@@ -1573,7 +1791,7 @@ function marcarErrores(err) {
     const el = fm.querySelector(`[name="${k}"]`); if (!el) continue;
     const box = el.closest(".f"); box.classList.add("err");
     const m = document.createElement("div"); m.className = "err-msg"; m.textContent = msg; box.appendChild(m);
-    if (!primero) primero = el;
+    if (!primero) primero = el.type === "hidden" ? (box.querySelector("input:not([type=hidden]),button") || box) : el;
   }
   if (primero) { primero.scrollIntoView({ behavior: "smooth", block: "center" }); setTimeout(() => primero.focus({ preventScroll: true }), 300); }
 }
@@ -4004,7 +4222,7 @@ function pintarAjustes() {
   $("#view").innerHTML = `
   <h1 class="view-title">Ajustes</h1>
   <p class="lead">Solo el administrador y el jefe de área ven esta sección. Cada cambio se guarda solo.</p>
-  <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
+  <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}${k === "tipos" && [...S.listas.tipos, ...S.listas.elementos].some(x => x.nuevo && x.activo !== false) ? ` (${[...S.listas.tipos, ...S.listas.elementos].filter(x => x.nuevo && x.activo !== false).length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
   ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico, archivos: ajArchivos, exportar: ajExportar })[A.tab]();
@@ -4438,29 +4656,86 @@ function ajTopografos() {
   });
 }
 
+// Pasa los registros de un tipo repetido al correcto y quita el repetido de la lista
+async function unirTipo(viejoId, destinoId) {
+  const viejo = L.tipo(viejoId), dest = L.tipo(destinoId); if (!viejo || !dest) return;
+  if (!navigator.onLine) { toast("Se necesita señal para unir.", "bad"); return; }
+  if (!await confirmar("Unir tipos", `Los registros de «${esc(viejo.nombre)}» pasan a «${esc(dest.nombre)}» y «${esc(viejo.nombre)}» se quita de la lista.`, "Unir")) return;
+  try {
+    const regs = (await getDocs(query(collection(db, "liberaciones"), where("tipoId", "==", viejo.id)))).docs.map(fila);
+    await lotes(regs, (b, r) => { const dat = { tipoId: dest.id, elementoId: dest.elementoId || r.elementoId || "", editadoEn: serverTimestamp(), editadoPor: S.email }; b.update(doc(db, "liberaciones", r.id), dat); resumenEn(b, r.id, { ...r, ...dat }); hist(b, r, "editado", `Tipo unido: «${viejo.nombre}» → «${dest.nombre}»`); }, 120);
+    guardarLista("tipos", S.listas.tipos.filter(t => t.id !== viejo.id), `Unido con «${dest.nombre}» · ${regs.length} ${regs.length === 1 ? "registro" : "registros"}`);
+  } catch (e) { console.error(e); toast("No se pudo unir: " + (e.code === "permission-denied" ? "sin permiso (publica las reglas nuevas)." : e.message), "bad"); }
+}
+async function unirElemento(viejoId, destinoId) {
+  const viejo = L.ele(viejoId), dest = L.ele(destinoId); if (!viejo || !dest) return;
+  if (!navigator.onLine) { toast("Se necesita señal para unir.", "bad"); return; }
+  if (!await confirmar("Unir elementos", `Los tipos y registros de «${esc(viejo.nombre)}» pasan a «${esc(dest.nombre)}» y «${esc(viejo.nombre)}» se quita de la lista.`, "Unir")) return;
+  try {
+    const regs = (await getDocs(query(collection(db, "liberaciones"), where("elementoId", "==", viejo.id)))).docs.map(fila);
+    await lotes(regs, (b, r) => { b.update(doc(db, "liberaciones", r.id), { elementoId: dest.id, editadoEn: serverTimestamp(), editadoPor: S.email }); hist(b, r, "editado", `Elemento unido: «${viejo.nombre}» → «${dest.nombre}»`); }, 150);
+    const tipos = clon(S.listas.tipos); tipos.forEach(t => { if (t.elementoId === viejo.id) t.elementoId = dest.id; });
+    guardarLista("tipos", tipos, "Tipos actualizados");
+    guardarLista("elementos", S.listas.elementos.filter(e => e.id !== viejo.id), `Unido con «${dest.nombre}» · ${regs.length} ${regs.length === 1 ? "registro" : "registros"}`);
+  } catch (e) { console.error(e); toast("No se pudo unir: " + (e.code === "permission-denied" ? "sin permiso (publica las reglas nuevas)." : e.message), "bad"); }
+}
 function ajTipos() {
   cuerpoAj();
   const B = S.aj.b;
   B.sort((a, b) => (a.orden || 0) - (b.orden || 0)).forEach((t, i) => t.orden = i + 1);
+  const nT = S.listas.tipos.filter(t => t.nuevo && t.activo !== false), nE = S.listas.elementos.filter(e => e.nuevo && e.activo !== false);
+  const otrosT = id => tiposActivos().filter(t => t.id !== id).sort((a, b) => a.nombre.localeCompare(b.nombre));
+  const otrosE = id => S.listas.elementos.filter(e => e.id !== id && e.activo !== false);
+  const quien = x => `Agregado por ${esc(x.creadoNombre || x.creadoPor || "")}${x.creadoEn ? " · " + esc(fmtFecha(x.creadoEn)) : ""}`;
+  const parec = (x, lista) => { const p = parecidos(x.nombre, lista.filter(o => o.id !== x.id), 0.6)[0]; return p ? ` · se parece a «${esc(p.o.nombre)}»` : ""; };
+  const nuevos = nT.length || nE.length ? `<div class="nuevos" id="nvBox"><h3>Agregados desde campo (${nT.length + nE.length})</h3><p class="muted small" style="margin:0 0 4px">Revisa que no estén repetidos. «Unir con…» pasa sus registros al nombre correcto y quita el repetido.</p>
+    ${nT.map(t => `<div class="nv" data-nt="${esc(t.id)}"><div class="nn"><b>${esc(t.nombre)}</b><small>Tipo · ${esc(nom(L.ele(t.elementoId)))} · ${quien(t)}${parec(t, tiposActivos())}</small></div><select data-k="unir" aria-label="Unir con"><option value="">Unir con…</option>${otrosT(t.id).map(o => `<option value="${esc(o.id)}">${esc(o.nombre)}</option>`).join("")}</select><button type="button" class="mini ok-btn" data-k="rev">Revisado</button></div>`).join("")}
+    ${nE.map(e => `<div class="nv" data-ne="${esc(e.id)}"><div class="nn"><b>${esc(e.nombre)}</b><small>Elemento · ${quien(e)}${parec(e, S.listas.elementos)}</small></div><select data-k="unir" aria-label="Unir con"><option value="">Unir con…</option>${otrosE(e.id).map(o => `<option value="${esc(o.id)}">${esc(o.nombre)}</option>`).join("")}</select><button type="button" class="mini ok-btn" data-k="rev">Revisado</button></div>`).join("")}</div>` : "";
   const selEle = (v, extra) => `<select ${extra}>${S.listas.elementos.map(e => `<option value="${esc(e.id)}" ${e.id === v ? "selected" : ""}>${esc(e.nombre)}</option>`).join("")}</select>`;
-  $("#ajBody").innerHTML = `
+  $("#ajBody").innerHTML = `${nuevos}
   <p class="muted small" style="margin:0 0 12px">Cada tipo es una capa del perfil del panel, en orden constructivo: el primero queda abajo. Usa las flechas para ordenarlos. «En gráfico» decide si la capa se dibuja.</p>
   <div class="card section ed" id="tyList">
-    ${B.map((t, i) => `<div class="trow ${t.activo === false ? "off-row" : ""}" data-i="${i}"><input value="${esc(t.nombre)}" data-k="nom" aria-label="Nombre">${selEle(t.elementoId, 'data-k="ele" aria-label="Elemento"')}<label class="tog"><input type="checkbox" data-k="gr" ${t.enGrafico ? "checked" : ""}>En gráfico</label><span class="ord"><button type="button" data-k="up" aria-label="Subir">↑</button><button type="button" data-k="dn" aria-label="Bajar">↓</button></span></div>`).join("")}
+    ${B.map((t, i) => `<div class="trow ${t.activo === false ? "off-row" : ""}" data-i="${i}"><input value="${esc(t.nombre)}" data-k="nom" aria-label="Nombre" ${t.nuevo ? `title="Agregado desde campo por ${esc(t.creadoNombre || t.creadoPor || "")}"` : ""}>${selEle(t.elementoId, 'data-k="ele" aria-label="Elemento"')}<label class="tog"><input type="checkbox" data-k="gr" ${t.enGrafico ? "checked" : ""}>En gráfico</label><span class="ord"><button type="button" data-k="up" aria-label="Subir">↑</button><button type="button" data-k="dn" aria-label="Bajar">↓</button></span></div>`).join("")}
     <div class="flabel" style="font-weight:800;margin:14px 0 8px">Agregar tipo</div>
     <div class="trow" style="border-top:0"><input id="tyNom" placeholder="Ej. Relleno filtro 3">${selEle("mt", 'id="tyEle" aria-label="Elemento"')}<button type="button" class="mini ok-btn" id="tyAdd">Agregar</button></div>
+  </div>
+  <div class="card section ed" id="elList">
+    <div class="flabel" style="margin:0 0 8px">Elementos</div>
+    ${S.listas.elementos.map(e => `<div class="trow" data-e="${esc(e.id)}"><input value="${esc(e.nombre)}" data-k="enom" aria-label="Nombre del elemento">${e.nuevo ? '<span class="nuevo-tag">Nuevo</span>' : ""}<span class="muted small">${tiposActivos().filter(t => t.elementoId === e.id).length} tipos</span></div>`).join("")}
+    <div class="trow" style="border-top:0"><input id="elNom" placeholder="Ej. Drenaje"><button type="button" class="mini ok-btn" id="elAdd">Agregar elemento</button></div>
   </div>`;
+  $("#nvBox")?.addEventListener("click", e => {
+    if (e.target.dataset.k !== "rev") return; const r = e.target.closest(".nv");
+    const [lista, id] = r.dataset.nt ? ["tipos", r.dataset.nt] : ["elementos", r.dataset.ne];
+    const items = clon(S.listas[lista]); const x = items.find(o => o.id === id); if (!x) return; x.nuevo = false;
+    if (guardarLista(lista, items, "Marcado como revisado")) { if (lista === "tipos") S.aj.b = clon(items); ajTipos(); }
+  });
+  $("#nvBox")?.addEventListener("change", e => {
+    if (e.target.dataset.k !== "unir" || !e.target.value) return; const r = e.target.closest(".nv");
+    (r.dataset.nt ? unirTipo(r.dataset.nt, e.target.value) : unirElemento(r.dataset.ne, e.target.value)).then(() => { S.aj.b = clon(S.listas.tipos); if (S.view === "ajustes" && S.aj.tab === "tipos") ajTipos(); });
+  });
+  const EL = $("#elList");
+  EL.addEventListener("change", e => { if (e.target.dataset.k !== "enom") return; const items = clon(S.listas.elementos), x = items.find(o => o.id === e.target.closest("[data-e]").dataset.e), v = e.target.value.trim(); if (!x || !v) { ajTipos(); return; } x.nombre = v; guardarLista("elementos", items, "Elemento guardado"); });
+  EL.addEventListener("click", async e => {
+    if (e.target.id !== "elAdd") return; const n = capital($("#elNom").value); if (n.length < 2) { $("#elNom").focus(); return; }
+    const p = parecidos(n, S.listas.elementos, 0.8)[0];
+    if (p && !await confirmar("Elemento parecido", `Ya existe «${esc(p.o.nombre)}». ¿Agregar «${esc(n)}» igual?`, "Agregar igual")) return;
+    const items = clon(S.listas.elementos); items.push({ id: nuevoId(n, new Set(items.map(o => o.id))), nombre: n });
+    if (guardarLista("elementos", items, "Elemento agregado")) ajTipos();
+  });
   const L2 = $("#tyList");
   L2.addEventListener("change", e => { const r = e.target.closest("[data-i]"); if (!r) return; const t = B[+r.dataset.i], k = e.target.dataset.k;
     if (k === "nom") t.nombre = e.target.value.trim(); else if (k === "ele") t.elementoId = e.target.value; else if (k === "gr") t.enGrafico = e.target.checked; else return;
     guardarLista("tipos", B); });
   L2.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.target.id === "tyNom") $("#tyAdd").click(); else e.target.blur(); } });
-  L2.addEventListener("click", e => {
+  L2.addEventListener("click", async e => {
     const b = e.target.closest('button[data-k]');
     if (b) { const i = +b.closest("[data-i]").dataset.i, j = b.dataset.k === "up" ? i - 1 : i + 1; if (j < 0 || j >= B.length) return;
       [B[i].orden, B[j].orden] = [B[j].orden, B[i].orden]; if (guardarLista("tipos", B, "Orden guardado")) { ajTipos(); $(`#tyList [data-i="${j}"] [data-k="${b.dataset.k}"]`)?.focus(); } return; }
     if (e.target.id === "tyAdd") {
-      const n = $("#tyNom").value.trim(); if (!n) { $("#tyNom").focus(); return; }
+      const n = capital($("#tyNom").value); if (!n) { $("#tyNom").focus(); return; }
+      const p = parecidos(n, B, 0.8)[0];
+      if (p && !await confirmar("Tipo parecido", `Ya existe «${esc(p.o.nombre)}». ¿Agregar «${esc(n)}» igual?`, "Agregar igual")) return;
       B.push({ id: nuevoId(n, new Set(B.map(t => t.id))), nombre: n, elementoId: $("#tyEle").value, orden: B.length + 1, enGrafico: true });
       if (guardarLista("tipos", B, "Tipo agregado")) ajTipos();
     }

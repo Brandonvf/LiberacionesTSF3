@@ -2,7 +2,7 @@
 // filtros del panel (acordeón en computadora, hoja con «Aplicar» en celular, chips de lo activo)
 // y correcciones: búsqueda sin trabarse, hora actual en la siguiente liberación y no perder lo escrito si falla la grabación.
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
-const { seccion, grupo } = require('./filtros');
+const { seccion, grupo, tipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba14'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -144,7 +144,7 @@ const cerrado = p => p.waitForSelector('.dlg', { state: 'detached', timeout: 300
     await p.click('#nav [data-v="nueva"]'); await p.waitForSelector('#fLib');
     const llenar = async (desc, pk = 500) => {
       await p.selectOption('#iTopo', 'GN'); await p.selectOption('#iEst', 'pp'); await p.waitForTimeout(100); await p.selectOption('#iSub', 'pp-oeste');
-      await p.selectOption('#iEle', 'mt'); await p.waitForTimeout(100); await p.selectOption('#iTipo', 'filtro2');
+      await tipo(p, 'filtro2');
       await p.fill('#iPk1', '2+' + pk); await p.fill('#iPk2', '2+' + (pk + 20)); await p.fill('#iDesc', desc);
     };
     await llenar('Primera de prueba'); await p.fill('#iFecha', '2026-11-01T08:00');

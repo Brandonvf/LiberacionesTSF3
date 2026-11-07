@@ -1,6 +1,7 @@
 // Repaso de errores y flujo: ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal,
 // corregir entregados con motivo, aviso de superposición, depuración de fotos, jefe en Modelo 2D, avance diario
 const { chromium } = require('playwright'); const path = require('path'), fs = require('fs');
+const { tipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba10'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -110,7 +111,7 @@ const aceptarDlg = async p => { await p.waitForSelector('.dlg.on [type=submit]')
 
   // 8. Superposición: el operario registra un tramo que se cruza con 0+100 – 0+140 de la misma capa
   await entrarComo(p, OPER); await p.click('[data-v="nueva"]'); await p.waitForSelector('#fLib:not([hidden])');
-  await p.selectOption('#iTopo', 'GN'); await p.selectOption('#iEst', 'pp'); await p.selectOption('#iSub', 'pp-oeste'); await p.selectOption('#iEle', 'mt'); await p.selectOption('#iTipo', 'filtro1');
+  await p.selectOption('#iTopo', 'GN'); await p.selectOption('#iEst', 'pp'); await p.selectOption('#iSub', 'pp-oeste'); await tipo(p, 'filtro1');
   await p.waitForTimeout(300);
   await p.fill('#iPk1', '0+120'); await p.fill('#iPk2', '0+160'); await p.fill('#iCapa', 'capa 11'); await p.fill('#iDesc', 'Tramo que se cruza');
   await p.click('#bGuardar'); await p.waitForSelector('.dlg.on .solist');

@@ -1,5 +1,5 @@
 const { chromium, devices } = require('playwright');
-const { seccion, grupo, filtros, rangoPk } = require('./filtros');
+const { seccion, grupo, filtros, rangoPk, tipo } = require('./filtros');
 const path = require('path'), fs = require('fs');
 const FAKE = path.join(__dirname, 'fake');
 const OUT = path.join(__dirname, 'capturas', 'prueba2'); fs.mkdirSync(OUT, { recursive: true });
@@ -20,7 +20,7 @@ async function registrar(page, o) {
   await page.click('[data-v="nueva"]'); await page.waitForSelector('#fLib:not([hidden])');
   await page.selectOption('#iTopo', o.topo || 'AB');
   await page.selectOption('#iEst', o.est || 'pp'); await page.selectOption('#iSub', o.sub || 'pp-oeste');
-  await page.selectOption('#iEle', 'mt'); await page.selectOption('#iTipo', o.tipo);
+  await tipo(page, o.tipo);
   await page.fill('#iPk1', o.a); await page.fill('#iPk2', o.b);
   await page.fill('#iCapa', o.capa || '');
   await page.fill('#iDesc', o.d || 'Liberación ' + o.tipo + ' ' + o.a);
@@ -124,7 +124,7 @@ async function registrar(page, o) {
   ok(await page.$$eval('#cCapas .ct-row[data-i]', r => r.length) === 5, 'quitar capa');
   await page.screenshot({ path: OUT + '/12-ajustes-capas.png', fullPage: true });
   await page.click('[data-v="nueva"]'); await page.waitForSelector('#fLib:not([hidden])');
-  await page.selectOption('#iEst', 'pp'); await page.selectOption('#iSub', 'pp-oeste'); await page.selectOption('#iEle', 'mt'); await page.selectOption('#iTipo', 'masivo');
+  await page.selectOption('#iEst', 'pp'); await page.selectOption('#iSub', 'pp-oeste'); await tipo(page, 'masivo');
   ok(await page.$$eval('#dlCapas option', o => o.length) === 5, 'formulario sugiere las capas del frente');
   await page.click('#bLimpiar');
   await page.click('[data-v="panel"]'); await page.waitForSelector('#chart svg');

@@ -1,4 +1,5 @@
 const { chromium, devices } = require('playwright');
+const { tipo } = require('./filtros');
 const path = require('path'), fs = require('fs');
 const FAKE = path.join(__dirname, 'fake');
 const OUT = path.join(__dirname, 'capturas', 'prueba'); fs.mkdirSync(OUT, { recursive: true });
@@ -48,8 +49,7 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await page.selectOption('#iTopo', 'AB');
   await page.selectOption('#iEst', 'pp');
   await page.selectOption('#iSub', 'pp-oeste');
-  await page.selectOption('#iEle', 'mt');
-  await page.selectOption('#iTipo', 'filtro2');
+  await tipo(page, 'filtro2');
   await page.fill('#iPk1', '2+627');
   await page.fill('#iPk2', '2642');
   await page.locator('#iPk2').blur();
@@ -74,7 +74,7 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
 
   // Sin señal
   await page.fill('#iPk1', '2+100'); await page.fill('#iPk2', '2+140');
-  await page.selectOption('#iTipo', 'stn');
+  await tipo(page, 'stn');
   await page.fill('#iDesc', 'Superficie de terreno nivelado sin señal');
   await page.evaluate(() => { window.__fakeOffline = true; });
   await ctx.setOffline(true);
@@ -148,7 +148,7 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await page.waitForSelector('#fLib:not([hidden])');
   ok(await page.inputValue('#iTopo') === 'AB', 'topógrafo tiene su clave preseleccionada');
   await page.click('[data-act="LEV"]');
-  ok((await page.textContent('label[for="iTipo"]')).includes('opcional'), 'levantamiento: tipo opcional');
+  ok((await page.textContent('#tSel .flabel')).includes('opcional'), 'levantamiento: tipo opcional');
   await page.selectOption('#iEst', 'cas');
   ok(await page.inputValue('#iSub') === '', 'caseta con 2 opciones pide elegir');
   await page.selectOption('#iSub', 'cas-01');

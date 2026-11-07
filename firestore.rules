@@ -4,7 +4,7 @@ rules_version = '2';
 // - Solo entran cuentas de Google aprobadas (colección "usuarios", el id es el correo).
 // - El administrador principal entra directo y aprueba a los demás.
 // - Quien entra por primera vez deja una "solicitud" y espera aprobación.
-// - Roles: topografo y operario (registran), gabinete (genera protocolos, cambia estados y rechaza),
+// - Roles: topografo y operario (registran y pueden agregar tipos y elementos nuevos), gabinete (genera protocolos, cambia estados y rechaza),
 //   jefe (ve todo, tiene los mismos ajustes que el administrador y procesa las aspas), admin (todo).
 
 service cloud.firestore {
@@ -33,6 +33,16 @@ service cloud.firestore {
     function soloArchivos() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archivos']); }
     // Aspas para vuelo de dron: marcar como procesado o devolver (administrador y jefe de área)
     function soloProcesado() { return resource.data.actividad == 'ASP' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['procesado', 'procesadoPor', 'procesadoNombre', 'procesadoEn']); }
+    // Unir un tipo o elemento repetido: solo cambia a qué tipo y elemento pertenece el registro
+    function soloTipo() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tipoId', 'elementoId', 'editadoEn', 'editadoPor']); }
+    // Desde campo solo se puede AGREGAR un nombre al final de la lista de tipos o elementos (no cambiar ni borrar los que hay)
+    function soloAgrega() {
+      let n = resource.data.items.size();
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'editadoEn', 'editadoPor'])
+        && request.resource.data.items.size() == n + 1
+        && request.resource.data.items.hasAll(resource.data.items)
+        && request.resource.data.items[n].creadoPor == email();
+    }
     function tocaPapelera() { return request.resource.data.diff(resource.data).affectedKeys().hasAny(['borrado']); }
     function member()  { return isOwner() || hasRol(['topografo', 'operario', 'gabinete', 'jefe', 'admin']); }
 
@@ -52,7 +62,10 @@ service cloud.firestore {
     }
 
     // Listas editables, configuración y correlativo SKT-TOP
-    match /listas/{id}     { allow read: if member(); allow write: if isConf(); }
+    match /listas/{id}     {
+      allow read: if member();
+      allow write: if isConf() || (id in ['tipos', 'elementos'] && writer() && soloAgrega());
+    }
     match /config/{id}     { allow read: if member(); allow write: if isConf(); }
     match /contadores/{id} { allow read: if member(); allow write: if isGab() || isConf(); }
     match /ejes/{id}       { allow read: if member(); allow write: if isGab() || isConf(); }
@@ -83,9 +96,9 @@ service cloud.firestore {
       // tiene código. Jefe: el histórico importado y la papelera. El topógrafo solo lo suyo mientras
       // está pendiente u observado (sin tocar número, entrega ni autoría) y puede mandarlo a la
       // papelera si aún no tiene código. Jefe también puede depurar fotos (solo la lista de archivos)
-      // y marcar como procesados los levantamientos de aspas.
+      // marcar como procesados los levantamientos de aspas y unir tipos o elementos repetidos.
       allow update: if (isGab() && (!tocaPapelera() || isConf() || resource.data.get('numero', '') == ''))
-        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera() || soloArchivos() || soloProcesado()))
+        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera() || soloArchivos() || soloProcesado() || soloTipo()))
         || (writer()
           && resource.data.creadoPor == email()
           && resource.data.get('numero', '') == ''

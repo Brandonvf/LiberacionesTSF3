@@ -1,4 +1,5 @@
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
+const { tipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba5'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -16,7 +17,7 @@ const login = async (p, u) => { await p.evaluate(u => { window.__fakeLogin = u; 
 const salir = async p => { await p.click('#btnSalir'); await p.waitForSelector('#gEntrar'); };
 async function registrar(p, o) {
   await p.click('[data-v="nueva"]'); await p.waitForSelector('#fLib:not([hidden])');
-  await p.selectOption('#iTopo', 'AB'); await p.selectOption('#iEst', 'pp'); await p.selectOption('#iSub', 'pp-oeste'); await p.selectOption('#iEle', 'mt'); await p.selectOption('#iTipo', o.tipo);
+  await p.selectOption('#iTopo', 'AB'); await p.selectOption('#iEst', 'pp'); await p.selectOption('#iSub', 'pp-oeste'); await tipo(p, o.tipo);
   await p.fill('#iPk1', o.a); await p.fill('#iPk2', o.b); await p.fill('#iCapa', o.capa || ''); await p.fill('#iDesc', o.d);
   await p.click('#bGuardar'); await p.waitForTimeout(150);
 }

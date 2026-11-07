@@ -23,3 +23,10 @@ async function rangoPk(p, a, b) {
   await filtros(p, async () => { await seccion(p, 'pk'); await p.fill('#pPk1', a); await p.press('#pPk1', 'Enter'); await seccion(p, 'pk'); await p.fill('#pPk2', b); await p.press('#pPk2', 'Enter'); });
 }
 module.exports = { seccion, grupo, filtros, rangoPk };
+// Elige el tipo en «Qué se liberó» (buscador único; el elemento se pone solo)
+async function tipo(p, id) {
+  if (await p.$('#tCambiar')) { if (await p.inputValue('#fLib [name="tipoId"]') === id) return; await p.click('#tCambiar'); }
+  if (!(await p.$(`#tRes [data-tipo="${id}"]`))) await p.click('#tRes [data-todos]');
+  await p.click(`#tRes [data-tipo="${id}"]`); await p.waitForSelector('#tCambiar');
+}
+module.exports.tipo = tipo;

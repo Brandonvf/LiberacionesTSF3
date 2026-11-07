@@ -1,6 +1,6 @@
 // Repaso: resumen por frente, «Qué falta» en celular, registrar desde un faltante, siguiente tramo, capa pareja, atrás
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
-const { seccion, grupo, filtros, rangoPk } = require('./filtros');
+const { seccion, grupo, filtros, rangoPk, tipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba7'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -48,7 +48,7 @@ async function preparar(ctx) {
   ok((await p.textContent('.dlg')).includes('Falta liberar'), 'tocar un faltante muestra el detalle');
   await p.screenshot({ path: OUT + '/02-faltante.png' });
   await p.click('.dlg button[type=submit]'); await p.waitForSelector('#fLib:not([hidden])');
-  ok(await p.inputValue('#iSub') === 'pp-oeste' && await p.inputValue('#iTipo') === 'masivo' && await p.inputValue('#iCapa') === capa, `«Nueva» queda llena: Presa Principal Oeste · Relleno masivo · ${capa}`);
+  ok(await p.inputValue('#iSub') === 'pp-oeste' && await p.inputValue('#fLib [name="tipoId"]') === 'masivo' && await p.inputValue('#iCapa') === capa, `«Nueva» queda llena: Presa Principal Oeste · Relleno masivo · ${capa}`);
   const pk1 = await p.inputValue('#iPk1'), pk2 = await p.inputValue('#iPk2');
   ok(/^\d\+\d{3}/.test(pk1) && /^\d\+\d{3}/.test(pk2), `PK del faltante: ${pk1} – ${pk2}`);
   await p.screenshot({ path: OUT + '/03-nueva-llena.png', fullPage: true });
@@ -63,7 +63,7 @@ async function preparar(ctx) {
   await p.click('#bSig');
   ok(await p.inputValue('#iPk1') === '2+140' && await p.inputValue('#iPk2') === '2+180' && await p.inputValue('#iCapa') === 'Capa 31', 'siguiente tramo llena PK y capa');
   await p.fill('#iDesc', 'Relleno masivo capa 31 tramo siguiente'); await p.click('#bGuardar'); await p.waitForTimeout(300);
-  await p.fill('#iPk1', '2+180'); await p.fill('#iPk2', '2+220'); await p.selectOption('#iEle', 'mt'); await p.selectOption('#iTipo', 'masivo'); await p.fill('#iCapa', '31'); await p.fill('#iDesc', 'tercer tramo'); await p.waitForTimeout(800); await p.click('#bGuardar'); await p.waitForTimeout(300);
+  await p.fill('#iPk1', '2+180'); await p.fill('#iPk2', '2+220'); await tipo(p, 'masivo'); await p.fill('#iCapa', '31'); await p.fill('#iDesc', 'tercer tramo'); await p.waitForTimeout(800); await p.click('#bGuardar'); await p.waitForTimeout(300);
   const mis = await p.evaluate(() => Object.values(window.__fakeStore()).filter(x => x.creadoPor === 'operario@gmail.com').map(x => x.capa));
   ok(mis.length === 3 && mis.every(c => c === 'Capa 31'), `3 registros seguidos guardados, todos «Capa 31» (${mis.join(', ')})`);
   // El resumen se actualizó con lo nuevo
