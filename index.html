@@ -977,7 +977,7 @@ const S = {
   editando: null, form: null, limiteTodos: 100, verTodos: 60,
   subs: [], dentro: false,
   aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {}, config: null,
-  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, todos() { return [...this.pend, ...this.ep, ...this.epHist]; } },
+  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, aspas: [], aspVer: "por", todos() { return [...this.pend, ...this.ep, ...this.epHist, ...this.aspas]; } },
   panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "", mGrupo: "", mSel: "", mSta: null, mZoom: 1 }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
@@ -1248,6 +1248,7 @@ function entrarApp() {
   }
   if (veTodo()) suscribirTodos();
   if (esGab()) suscribirBandeja();
+  if (puedeAjustes()) suscribirAspas();
   S.subs.push(onSnapshot(collection(db, "capas"), snap => {
     S.capasCfg = {}; snap.docs.forEach(d => { S.capasCfg[d.id] = d.data(); });
     if (S.view === "panel") actualizarPanel();
@@ -1309,7 +1310,7 @@ function vistas() {
   const v = [];
   if (rol() === "jefe") v.push({ id: "panel", t: "Panel" });
   if (escribe()) v.push({ id: "nueva", t: "Nueva" }, { id: "mis", t: "Mis registros", c: "Míos" });
-  if (esGab()) v.push({ id: "bandeja", t: "Bandeja" });
+  if (esGab() || puedeAjustes()) v.push({ id: "bandeja", t: "Bandeja" });
   if (veTodo()) v.push({ id: "todos", t: "Registros" });
   if (rol() !== "jefe") v.push({ id: "panel", t: "Panel" });
   if (puedeAjustes()) v.push({ id: "ajustes", t: "Ajustes" });
@@ -1323,10 +1324,10 @@ function pintarCabecera() {
 }
 function pintarNav() {
   const obs = S.mis.filter(r => r.estado === "OB").length;
-  const sol = S.solicitudes.length, pt = S.bandeja.pend.filter(r => r.estado === "PT").length;
+  const sol = S.solicitudes.length, pt = (esGab() ? S.bandeja.pend.filter(r => r.estado === "PT").length : 0) + (puedeAjustes() ? aspasPorProcesar().length : 0);
   document.body.classList.toggle("poder", poder());
   $("#nav").innerHTML = (poder() && enPC() ? `<button type="button" class="nbuscar" data-buscar aria-label="Buscar en todo (Ctrl+K)">${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></button>` : "") + vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol ? `<span class="badge">${sol}</span>` : ""}</span></button>`).join("");
-  insigniaApp(obs + (esGab() ? pt : 0) + (puedeAjustes() ? sol : 0));
+  insigniaApp(obs + pt + (puedeAjustes() ? sol : 0));
 }
 $("#nav").addEventListener("click", e => { if (e.target.closest("[data-buscar]")) { abrirBuscador(); return; } const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
 $("#btnSalir").addEventListener("click", async () => {
@@ -1753,7 +1754,7 @@ function resumenArch(r) {
 function tarjeta(r, i) {
   const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
   return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
-    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
+    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
     <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
     <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}${resumenArch(r)}</div>
     ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}${r.estado === "RE" && r.notaRechazo ? `<div class="nota re">Rechazo: ${esc(r.notaRechazo)}</div>` : ""}${r.borrado ? `<div class="nota re">En la papelera · ${esc(r.borradoNombre || r.borradoPor || "")}${r.borradoEn ? " · " + esc(fmtFecha(r.borradoEn)) : ""}</div>` : ""}
@@ -1796,6 +1797,7 @@ function abrirFicha(r) {
       ${fila("Fecha liberación", esc(fmtFecha(r.fechaLiberacion, false)))}
       ${fila("Entrega a Calidad", esc(fmtFecha(r.fechaEntrega, false)))}
       ${fila("Observaciones", esc(r.observaciones))}
+      ${r.actividad === "ASP" && r.procesado ? fila("Procesado", esc(`${r.procesadoNombre || r.procesadoPor || ""} · ${fmtFecha(r.procesadoEn)}`)) : ""}
     </dl>
     ${(r.linksCsv || []).length ? `<div class="sub">CSV</div><div class="links">${links(r.linksCsv)}</div>` : ""}
     ${(r.linksFotos || []).length ? `<div class="sub">Fotos</div><div class="links">${links(r.linksFotos)}</div>` : ""}
@@ -1806,6 +1808,7 @@ function abrirFicha(r) {
       ${esGab() && r.actividad === "LIB" && ["PT", "OB"].includes(r.estado) ? '<button type="button" class="btn pri block" id="fAceptar">Aceptar y generar código</button><button type="button" class="btn sec" id="fObservar">Observar</button><button type="button" class="btn warn" id="fRechazar">Rechazar</button>' : ""}
       ${esGab() && r.estado === "EP" ? '<button type="button" class="btn pri block" id="fEntregar">Entregar a Calidad</button>' : ""}
       ${esGab() && r.estado === "RE" ? '<button type="button" class="btn pri block" id="fReabrir">Devolver a pendientes</button>' : ""}
+      ${puedeAjustes() && r.actividad === "ASP" ? (r.procesado ? '<button type="button" class="btn sec" id="fDesprocesar">Devolver a por procesar</button>' : '<button type="button" class="btn pri block" id="fProcesar">Marcar procesado</button>') : ""}
       ${puedeEditar(r) && r.estado !== "RE" ? `<button type="button" class="btn ${esGab() && ["PT", "OB", "EP"].includes(r.estado) && r.actividad === "LIB" ? "sec" : "pri block"}" id="fEditar">Editar</button>` : ""}
       <button type="button" class="btn sec ${puedeEditar(r) ? "" : "block"}" id="fCerrar">Cerrar</button>`}
     </div>
@@ -1825,6 +1828,8 @@ function abrirFicha(r) {
   $("#fRechazar")?.addEventListener("click", () => rechazar(r));
   sh.querySelectorAll("[data-abrir]").forEach(b => b.addEventListener("click", () => abrirFichaId(b.dataset.abrir)));
   $("#fReabrir")?.addEventListener("click", () => reabrir(r));
+  $("#fProcesar")?.addEventListener("click", () => marcarProcesado([r], true));
+  $("#fDesprocesar")?.addEventListener("click", () => marcarProcesado([r], false));
   $("#fBorrar")?.addEventListener("click", () => aPapelera([r]));
   $("#fRestaurar")?.addEventListener("click", () => restaurar([r]));
   $("#fBorrarSiempre")?.addEventListener("click", () => borrarSiempre([r]));
@@ -1833,7 +1838,7 @@ function abrirFicha(r) {
   unsubHist = onSnapshot(query(collection(db, "historial"), where("liberacionId", "==", r.id)), snap => {
     const h = snap.docs.map(d => d.data({ serverTimestamps: "estimate" })).sort((a, b) => (toDate(a.fecha)?.getTime() || 0) - (toDate(b.fecha)?.getTime() || 0));
     const box = $("#hist"); if (!box) return;
-    box.innerHTML = h.length ? h.map(x => `<div><b>${esc({ creado: "Registrado", editado: "Editado", estado: "Cambio de estado", borrado: "Enviado a la papelera", restaurado: "Restaurado" }[x.accion] || x.accion)}</b>${x.a && x.de !== x.a ? ` · <span class="st ${esc(x.a)}">${esc(ESTADOS[x.a] || x.a)}</span>` : ""}<br><span class="muted small">${esc(fmtFecha(x.fecha))} · ${esc(x.nombre || x.usuario)}</span>${x.nota ? `<br>${esc(x.nota)}` : ""}</div>`).join("") : '<span class="muted small">Sin movimientos.</span>';
+    box.innerHTML = h.length ? h.map(x => `<div><b>${esc({ creado: "Registrado", editado: "Editado", estado: "Cambio de estado", borrado: "Enviado a la papelera", restaurado: "Restaurado", procesado: "Aspas procesadas", sinprocesar: "Devuelto a por procesar" }[x.accion] || x.accion)}</b>${x.a && x.de !== x.a ? ` · <span class="st ${esc(x.a)}">${esc(ESTADOS[x.a] || x.a)}</span>` : ""}<br><span class="muted small">${esc(fmtFecha(x.fecha))} · ${esc(x.nombre || x.usuario)}</span>${x.nota ? `<br>${esc(x.nota)}` : ""}</div>`).join("") : '<span class="muted small">Sin movimientos.</span>';
   }, () => { const box = $("#hist"); if (box) box.innerHTML = '<span class="muted small">No disponible.</span>'; });
   if (unsubArch) { unsubArch(); unsubArch = null; }
   const datosArch = {};
@@ -1925,6 +1930,7 @@ function accionesReg(r) {
   if (esGab() && lib && ["PT", "OB"].includes(r.estado)) it.push({ sep: 1 }, { t: "Aceptar y generar código", fn: () => aceptarUno(r) }, ...(r.estado === "PT" ? [{ t: "Observar", fn: () => observar(r) }] : []), { t: "Rechazar", fn: () => rechazar(r) });
   if (esGab() && r.estado === "EP") it.push({ sep: 1 }, { t: "Entregar a Calidad", fn: () => entregar([r.id]) });
   if (esGab() && ["OB", "EP", "RE"].includes(r.estado)) it.push({ t: "Devolver a pendientes", fn: () => reabrir(r) });
+  if (puedeAjustes() && r.actividad === "ASP") it.push({ sep: 1 }, r.procesado ? { t: "Devolver a por procesar", fn: () => marcarProcesado([r], false) } : { t: "Marcar procesado", fn: () => marcarProcesado([r], true) });
   if (puedeEditar(r) && r.estado !== "RE") it.push({ t: "Editar", fn: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } });
   if (puedeBorrar(r)) it.push({ sep: 1 }, { t: "Mandar a la papelera", fn: () => aPapelera([r]), peligro: true });
   return it;
@@ -3792,8 +3798,53 @@ function suscribirBandeja() {
   }, e => { console.warn("bandeja ep", e); S.bandeja.errEP = e.code === "failed-precondition" ? "Firebase pide un índice para esta lista: abre la consola del navegador (F12) y sigue el enlace que aparece para crearlo. Tarda unos minutos." : "No se pudo leer esta lista: " + e.message; if (S.view === "bandeja") pintarBandeja(); }));
   getDoc(doc(db, "config", "general")).then(d => { if (d.exists()) S.config = d.data(); }).catch(() => {});
 }
+/* ---------- Aspas para vuelo de dron: llegan a la bandeja del administrador y del jefe de área para procesarlas ---------- */
+const aspasPorProcesar = () => S.bandeja.aspas.filter(r => !r.procesado);
+function suscribirAspas() {
+  S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("actividad", "==", "ASP")), { includeMetadataChanges: true }, snap => {
+    S.bandeja.aspas = snap.docs.map(fila).filter(vivo); pintarNav(); if (S.view === "bandeja") pintarBandeja();
+  }, e => console.warn("aspas", e)));
+}
+async function marcarProcesado(regs0, si = true) {
+  const regs = regs0.filter(r => r.actividad === "ASP" && !!r.procesado !== si); if (!regs.length) return 0;
+  const n = regs.length;
+  if (!si && !await confirmar("Devolver a «Por procesar»", `${n === 1 ? "El levantamiento vuelve" : `Los ${n} levantamientos vuelven`} a la lista de aspas por procesar.`, "Devolver")) return 0;
+  const p = lotes(regs, (b, r) => {
+    b.update(doc(db, "liberaciones", r.id), si ? { procesado: true, procesadoPor: S.email, procesadoNombre: S.perfil?.nombre || "", procesadoEn: serverTimestamp() } : { procesado: false, procesadoPor: "", procesadoNombre: "", procesadoEn: null });
+    hist(b, r, si ? "procesado" : "sinprocesar", si ? "Aspas procesadas" : "Devuelto a por procesar");
+  });
+  S.bandeja.sel.clear();
+  if (S._ficha && regs.some(r => r.id === S._ficha.id)) cerrarFicha();
+  return await escribir(p, si ? (n === 1 ? "Marcado como procesado" : `${n} marcados como procesados`) : (n === 1 ? "Devuelto a por procesar" : `${n} devueltos a por procesar`), "No se pudo guardar: ") ? n : 0;
+}
+function pintarAspas() {
+  const B = S.bandeja, por = B.aspVer !== "hechas";
+  const fuente = B.aspas.filter(r => por ? !r.procesado : r.procesado);
+  const q = B.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const vis = fuente.filter(r => { if (!q.length) return true; const s = textoBusqueda(r); return q.every(x => s.includes(x)); })
+    .sort((a, b) => por ? (toDate(a.fechaCampo)?.getTime() || 0) - (toDate(b.fechaCampo)?.getTime() || 0) : (toDate(b.procesadoEn)?.getTime() || 0) - (toDate(a.procesadoEn)?.getTime() || 0));
+  B.sel = new Set([...B.sel].filter(id => fuente.some(r => r.id === id)));
+  const ns = B.sel.size, lim = B.ver || 60, nPor = aspasPorProcesar().length, nHechas = B.aspas.length - nPor;
+  const arch = r => { const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c; return [c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ") || '<span class="muted">Sin archivos</span>'; };
+  const acc = r => por ? `<button type="button" class="mini ok-btn" data-a="procesar">Marcar procesado</button>` : `<button type="button" class="mini" data-a="desprocesar">Devolver a por procesar</button>`;
+  const lista = !vis.length ? `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : por ? "No hay aspas por procesar" : "Aún no hay aspas procesadas"}</b>${fuente.length || !por ? "" : "Los levantamientos de aspas para vuelo de dron que registren en campo aparecerán aquí al instante."}</div>`
+    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Fecha en campo</th><th>Topógrafo</th><th>Archivos</th><th>${por ? "Registrado por" : "Procesado"}</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r._pend ? '<span class="pend-tag" style="margin:2px 0 0;align-self:flex-start">Por subir</span>' : ""}${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}${r.pkInicio != null ? `<br><span class="mono small">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}</td><td class="nw">${esc(fmtFecha(r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td class="nw">${arch(r)}</td><td>${por ? esc(r.creadoPor || "") : `${esc(r.procesadoNombre || r.procesadoPor || "")}<br><span class="muted small">${esc(fmtFecha(r.procesadoEn))}</span>`}</td><td><div class="bact">${acc(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Toca una fila para ver la ficha y descargar el CSV y las fotos.</p>`
+    : `<div class="list" id="blist">${vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}${por ? "" : `<div class="muted small" style="padding:4px 2px 0">Procesado por ${esc(r.procesadoNombre || r.procesadoPor || "")} · ${esc(fmtFecha(r.procesadoEn))}</div>`}<div class="bact">${acc(r)}</div></div></div>`).join("")}</div>`;
+  return { vis, fuente, lim, html: `
+  <div class="chips" role="group" aria-label="Aspas"><button type="button" class="chip" data-asp="por" aria-pressed="${por}">Por procesar<span class="c">${nPor}</span></button><button type="button" class="chip" data-asp="hechas" aria-pressed="${!por}">Procesadas<span class="c">${nHechas}</span></button></div>
+  <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar descripción, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
+  <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionado" : "seleccionados"}</span>
+    ${por ? '<button type="button" class="mini ok-btn" data-bk="procesar">Marcar procesados</button>' : '<button type="button" class="mini" data-bk="desprocesar">Devolver a por procesar</button>'}<button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
+  ${!ns && vis.length > 1 ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${por ? "marcar como procesados" : "devolver"}</label>` : ""}
+  ${lista}
+  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}` };
+}
 function pintarBandeja() {
-  const B = S.bandeja, t = B.tab;
+  const B = S.bandeja;
+  // El jefe de área solo ve la pestaña Aspas; gabinete no la ve
+  if (!esGab()) B.tab = "ASP"; else if (B.tab === "ASP" && !puedeAjustes()) B.tab = "PT";
+  const t = B.tab;
+  if (t === "ASP") return pintarBandejaAspas();
   const fuente = t === "EP" ? [...B.ep, ...B.epHist] : B.pend.filter(r => r.estado === t);
   const q = B.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const vis = fuente.filter(r => { if (!q.length) return true; const s = textoBusqueda(r); return q.every(x => s.includes(x)); })
@@ -3804,7 +3855,7 @@ function pintarBandeja() {
   $("#view").innerHTML = `
   <h1 class="view-title">Bandeja de gabinete</h1>
   <p class="lead">Lo que llega de campo. Al aceptar se genera el código único para el protocolo; luego se entrega a Calidad.</p>
-  <div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="${t === "PT"}">Por aceptar <span class="cnt">${nPT}</span></button><button type="button" data-bt="OB" aria-pressed="${t === "OB"}">Observadas <span class="cnt">${nOB}</span></button><button type="button" data-bt="EP" aria-pressed="${t === "EP"}">Por entregar <span class="cnt">${nEP}</span></button></div>
+  <div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="${t === "PT"}">Por aceptar <span class="cnt">${nPT}</span></button><button type="button" data-bt="OB" aria-pressed="${t === "OB"}">Observadas <span class="cnt">${nOB}</span></button><button type="button" data-bt="EP" aria-pressed="${t === "EP"}">Por entregar <span class="cnt">${nEP}</span></button>${puedeAjustes() ? `<button type="button" data-bt="ASP" aria-pressed="false">Aspas <span class="cnt">${aspasPorProcesar().length}</span></button>` : ""}</div>
   <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar N°, PK, tipo, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
   ${t === "EP" && B.errEP ? `<p class="pinfo" style="margin:0 0 12px">${esc(B.errEP)}</p>` : ""}
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
@@ -3828,6 +3879,30 @@ function pintarBandeja() {
     const r = fuente.find(x => x.id === row.dataset.rid); if (!r) return;
     const a = e.target.closest("[data-a]");
     if (a) { ({ aceptar: () => aceptarUno(r), observar: () => observar(r), rechazar: () => rechazar(r), entregar: () => entregar([r.id]), reabrir: () => reabrir(r), editar: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } })[a.dataset.a]?.(); return; }
+    if (e.target.closest(".item") || (row.tagName === "TR" && !e.target.closest("button,input,label,.ck"))) abrirFicha(r);
+  });
+}
+
+function pintarBandejaAspas() {
+  const B = S.bandeja, { vis, fuente, lim, html } = pintarAspas();
+  $("#view").innerHTML = `
+  <h1 class="view-title">${esGab() ? "Bandeja de gabinete" : "Bandeja"}</h1>
+  <p class="lead">Levantamientos de aspas para vuelo de dron. Descarga el CSV y las fotos desde la ficha y márcalos como procesados.</p>
+  ${esGab() ? `<div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="false">Por aceptar <span class="cnt">${B.pend.filter(r => r.estado === "PT").length}</span></button><button type="button" data-bt="OB" aria-pressed="false">Observadas <span class="cnt">${B.pend.filter(r => r.estado === "OB").length}</span></button><button type="button" data-bt="EP" aria-pressed="false">Por entregar <span class="cnt">${B.ep.length + B.epHist.length}</span></button><button type="button" data-bt="ASP" aria-pressed="true">Aspas <span class="cnt">${aspasPorProcesar().length}</span></button></div>` : ""}
+  ${html}`;
+  $(".tabs")?.addEventListener("click", e => { const b = e.target.closest("[data-bt]"); if (b) { B.tab = b.dataset.bt; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
+  $("#view .chips").addEventListener("click", e => { const c = e.target.closest("[data-asp]"); if (c) { B.aspVer = c.dataset.asp; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
+  const bq = $("#bq"); bq.addEventListener("input", () => { B.q = bq.value; clearTimeout(S._qt); S._qt = setTimeout(() => { if (S.view !== "bandeja" || !$("#bq")) return; const v = $("#bq"), pos = v.selectionStart, foco = document.activeElement === v; pintarBandeja(); const n = $("#bq"); if (foco) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} } }, 150); });
+  const todo = on => { vis.slice(0, lim).forEach(r => on ? B.sel.add(r.id) : B.sel.delete(r.id)); pintarBandeja(); };
+  $("#bAll")?.addEventListener("change", e => todo(e.target.checked)); $("#bAll2")?.addEventListener("change", e => todo(e.target.checked));
+  $("#bBulk").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (!b) return; const regs = regsDe([...B.sel]), k = b.dataset.bk;
+    if (k === "limpiar") { B.sel.clear(); pintarBandeja(); } else if (k === "exportar") exportarSel(regs); else marcarProcesado(regs, k === "procesar"); });
+  $("#bMas")?.addEventListener("click", () => { B.ver = (B.ver || 60) + 60; pintarBandeja(); });
+  $("#blist")?.addEventListener("change", e => { if (!e.target.matches("[data-sel]")) return; const id = e.target.closest("[data-rid]").dataset.rid; e.target.checked ? B.sel.add(id) : B.sel.delete(id); pintarBandeja(); });
+  $("#blist")?.addEventListener("click", e => {
+    const row = e.target.closest("[data-rid]"); if (!row) return;
+    const r = fuente.find(x => x.id === row.dataset.rid); if (!r) return;
+    const a = e.target.closest("[data-a]"); if (a) { marcarProcesado([r], a.dataset.a === "procesar"); return; }
     if (e.target.closest(".item") || (row.tagName === "TR" && !e.target.closest("button,input,label,.ck"))) abrirFicha(r);
   });
 }

@@ -3,7 +3,7 @@
    Al instalarse se guardan de una vez la página, el logo y las librerías de Firebase, para que la app
    instalada abra al instante y sin señal aunque nunca se haya usado sin internet.
    Los datos no pasan por aquí: Firestore los guarda en el teléfono y los sube cuando vuelve la señal. */
-const CACHE = 'liberaciones-v9';
+const CACHE = 'liberaciones-v10';
 const SHELL = ['./', 'manifest.webmanifest', 'iconos/logo.svg', 'iconos/icono-192.png', 'iconos/icono-512.png',
   'iconos/icono-mascara-512.png', 'iconos/apple-touch-icon.png', 'iconos/favicon-32.png'];
 const FB = 'https://www.gstatic.com/firebasejs/13.2.0/';

@@ -31,6 +31,7 @@ bash pruebas/correr.sh prueba5    # una sola
 | prueba12 | App instalable: manifiesto, logo, botón «Instalar», número en el ícono, atajos, aviso de versión nueva y apertura sin señal |
 | prueba13 | Mudanza de dirección: aviso en la dirección vieja y paso a la nueva solo cuando no queda nada por subir |
 | prueba14 | Estilo «Cuaderno de obra»: ventanas emergentes (✕, Escape, «Atrás», tocar fuera, tamaños), filtros del panel (acordeón y hoja con «Aplicar»), búsqueda sin trabarse, hora actual y no perder lo escrito si falla la grabación |
+| prueba15 | Aspas para vuelo de dron: llegan a la bandeja del administrador y del jefe de área, se descargan y se marcan como procesadas; gabinete no las ve |
 | prueba10 | Ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal, corregir entregados con motivo, superposición, depuración de fotos, jefe en Modelo 2D |
 
 `capturas.js` toma fotos de las pantallas principales en celular y computadora (`node pruebas/capturas.js <carpeta>`), útil para comparar antes y después de un cambio de diseño. `filtros.js` reúne las ayudas que usan las pruebas para manejar los filtros del panel.
