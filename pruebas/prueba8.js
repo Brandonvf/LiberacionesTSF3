@@ -22,14 +22,14 @@ const store = p => p.evaluate(() => window.__fakeStore());
   const d = JSON.parse(fs.readFileSync(path.join(__dirname, 'datos', 'historico-prueba.json')));
   await p.evaluate(([d, u]) => { localStorage.clear(); const st = {}; d.registros.forEach(r => { const { id, ...x } = r; ['fechaCampo', 'fechaLiberacion', 'fechaEntrega'].forEach(k => { x[k] = x[k] ? { __ts: x[k] } : null; }); x.creadoEn = x.fechaCampo; x.origen = 'excel'; st['liberaciones/' + id] = x; });
     st['usuarios/operario@gmail.com'] = { nombre: 'Pedro Operario', rol: 'operario', topografoId: 'GN', activo: true };
-    localStorage.setItem('__fakeDB', JSON.stringify(st)); localStorage.setItem('__fakeUser', JSON.stringify(u)); localStorage.setItem('lib.panelVista', JSON.stringify('perfil')); }, [d, ADMIN]);
+    localStorage.setItem('__fakeDB', JSON.stringify(st)); localStorage.setItem('__fakeUser', JSON.stringify(u)); localStorage.setItem('lib.panelVista', JSON.stringify('perfil')); localStorage.setItem('lib.mModo', JSON.stringify('des')); }, [d, ADMIN]);
   await p.reload(); await p.waitForSelector('#nav button');
   await p.waitForFunction(() => Object.keys(window.__fakeStore()).some(k => k.startsWith('resumen/')), null, { timeout: 30000 });
 
   await p.click('[data-v="panel"]'); await p.waitForSelector('#pSub');
   await p.selectOption('#pSub', 'pp-oeste'); await p.waitForSelector('[data-vista="modelo"]');
   ok(true, 'gabinete/administrador ve la pestaña «Modelo 2D»');
-  await p.click('[data-vista="modelo"]'); await p.waitForFunction(() => /Falta el modelo/.test(document.querySelector('#mBody')?.textContent || ''));
+  await p.click('[data-vista="modelo"]'); await p.waitForFunction(() => /Aún no hay modelo/.test(document.querySelector('#mBody')?.textContent || ''));
   ok(true, 'sin modelo: explica qué subir');
   await p.screenshot({ path: OUT + '/01-sin-modelo.png' });
 
@@ -110,7 +110,7 @@ const store = p => p.evaluate(() => window.__fakeStore());
   // Celular
   const ctxM = await b.newContext({ ...devices['iPhone 13'] }); await preparar(ctxM);
   const m = await ctxM.newPage(); m.on('pageerror', e => { errores.push('m: ' + e.message); console.log('PAGEERROR m', e.message); });
-  await m.goto(URL); await m.evaluate(([s, u]) => { localStorage.setItem('__fakeDB', s); localStorage.setItem('__fakeUser', JSON.stringify(u)); localStorage.setItem('lib.panelVista', JSON.stringify('modelo')); localStorage.setItem('lib.panelSub', JSON.stringify('pp-oeste')); }, [await p.evaluate(() => localStorage.getItem('__fakeDB')), ADMIN]);
+  await m.goto(URL); await m.evaluate(([s, u]) => { localStorage.setItem('__fakeDB', s); localStorage.setItem('__fakeUser', JSON.stringify(u)); localStorage.setItem('lib.panelVista', JSON.stringify('modelo')); localStorage.setItem('lib.panelSub', JSON.stringify('pp-oeste')); localStorage.setItem('lib.mModo', JSON.stringify('des')); }, [await p.evaluate(() => localStorage.getItem('__fakeDB')), ADMIN]);
   await m.reload(); await m.waitForSelector('#nav button'); await m.click('[data-v="panel"]'); await m.waitForSelector('#mPlan .msup', { timeout: 20000 });
   await m.selectOption('#mGrupo', 'filtro1|Capa 11'); await m.waitForTimeout(300);
   ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'celular: sin desplazamiento horizontal');

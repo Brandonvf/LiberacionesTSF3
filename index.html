@@ -581,6 +581,54 @@ kbd{font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var
 .solist .st{font-size:11px}
 .arch.purg{opacity:.7}
 .arch.purg .an span{font-style:italic}
+
+/* Planta real por capa */
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:7px 14px;font-weight:800;font-size:13px;color:var(--muted);min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(16,40,34,.12)}
+.seg button[disabled]{opacity:.45}
+.mbar-sp{flex:1}
+.mreal{position:relative;border:1px solid var(--line);border-radius:16px;background:#fbfdfc;overflow:hidden}
+#mReal{display:block;cursor:grab;touch-action:pan-y;user-select:none}
+#mReal:active{cursor:grabbing}
+#mReal .rlib{cursor:pointer}
+#mReal .rlab{font:800 11px var(--f-mono);fill:#14231f;paint-order:stroke;stroke:#fff;stroke-width:3px;pointer-events:none}
+#mReal .rlab.pk{font-weight:600;fill:#2b3a36}
+.norte{position:absolute;bottom:10px;left:10px;width:30px;height:34px;background:rgba(255,255,255,.88);border-radius:10px;padding:2px}
+.norte text{font:800 11px var(--f-body);fill:#2b3a36}
+.mreal .mex{top:10px;right:10px}
+.rzoom{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:4px}
+.rzoom button{min-width:40px;min-height:36px;border:1px solid var(--line);background:rgba(255,255,255,.94);border-radius:12px;font-weight:800;font-size:15px;box-shadow:0 2px 8px rgba(16,40,34,.08)}
+.rzoom button[data-rz="0"]{font-size:12px}
+.rzoom button:hover{background:var(--surface-2)}
+.legend i.crz{background:repeating-linear-gradient(-45deg,#1d2b27 0 2px,transparent 2px 5px);border:1px solid #1d2b27}
+.legend i.fue{background:repeating-linear-gradient(45deg,#e0a43a 0 2px,#fff4dd 2px 5px)}
+.avc{display:flex;gap:16px;align-items:center;margin:8px 0 6px}
+.avc-n{display:flex;flex-direction:column;align-items:flex-start;min-width:96px}
+.avc-n b{font-family:var(--f-disp);font-size:30px;line-height:1;color:var(--accent-strong)}
+.avc-n span{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.avc-d{flex:1;min-width:0}
+.avc-b{height:12px;border-radius:999px;background:#fbe3df;overflow:hidden}
+.avc-b i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.avc-d p{margin:6px 0 0;font-size:13px;color:var(--muted);font-weight:600}
+.avc-d p b{color:var(--ob)}
+.avc-w{margin:0 0 8px;background:#fff6e5;color:#7a4b00}
+.capl h2{font-size:16px}
+.capf{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 8px}
+.capf input{grid-column:1/-1}
+.capf input,.capf select{border:1.5px solid var(--line);border-radius:12px;padding:7px 10px;min-height:38px;font-size:13.5px;background:var(--surface);min-width:0}
+.capr{display:flex;flex-direction:column;gap:4px;max-height:520px;overflow:auto;margin:0 -4px;padding:0 4px}
+.capi{display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;text-align:left;border:1.5px solid transparent;background:transparent;border-radius:14px;padding:8px 10px;transition:background .15s,border-color .15s}
+.capi:hover{background:var(--surface-2)}
+.capi.on{background:var(--accent-soft);border-color:var(--accent)}
+.capn{min-width:0}
+.capn b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.capn small,.capv small{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+.capv{text-align:right;white-space:nowrap}
+.capv b{font-family:var(--f-disp);font-size:15px}
+.capb{grid-column:1/-1;height:6px;border-radius:999px;background:#eef3f1;overflow:hidden}
+.capb i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.capw{grid-column:1/-1;font-size:11.5px;font-weight:700;color:#8a5a00}
 /* Tabla «Qué falta liberar» */
 .ft-ctl{display:flex;align-items:flex-start;gap:10px 16px;flex-wrap:wrap;margin:0 0 8px}
 .ft-caps{display:flex;flex-wrap:wrap;gap:5px;flex:1;min-width:0;max-height:96px;overflow:auto}
@@ -2278,7 +2326,7 @@ let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(
 /* ---------- Modelo 2D (solo gabinete): eje y secciones de Civil 3D + la superficie de cada liberación ----------
    Lecturas: 1 documento con las secciones de diseño del frente, 1 resumen de superficies (en vivo) y las
    superficies del frente una sola vez por sesión; después solo se leen las nuevas. */
-const MOD = { secc: {}, sup: {}, res: {}, cargando: {}, supOk: {}, unsub: null, resSub: "" };
+const MOD = { secc: {}, sup: {}, res: {}, bases: {}, med: {}, cargando: {}, supOk: {}, unsub: null, unsubB: null, resSub: "" };
 const xHijos = (el, tag) => el ? [...el.children].filter(c => c.localName === tag) : [];
 const xUno = (el, tag) => xHijos(el, tag)[0];
 const xTodos = (el, tag) => [...el.getElementsByTagNameNS("*", tag)];
@@ -2396,7 +2444,13 @@ function suscribirModelo(subId) {
     traerSuperficies(subId);
     if (S.view === "panel" && S.panel.vista === "modelo") dibujarModelo();
   }, e => { console.warn("superficies", e); MOD.res[subId] = {}; });
-  S.subs.push(() => { MOD.unsub?.(); MOD.unsub = null; MOD.resSub = ""; });
+  // Bases de las capas del frente (pocas; se escuchan en vivo)
+  MOD.unsubB?.(); MOD.bases[subId] ||= null;
+  MOD.unsubB = onSnapshot(query(collection(db, "bases"), where("subId", "==", subId)), snap => {
+    MOD.bases[subId] = new Map(snap.docs.map(d => { const x = d.data(); return [x.grupo, { id: d.id, ...x, anillos: (x.anillos || []).map(decLinea) }]; }));
+    if (S.view === "panel" && S.panel.vista === "modelo") dibujarModelo();
+  }, e => { console.warn("bases", e); MOD.bases[subId] = new Map(); });
+  S.subs.push(() => { MOD.unsub?.(); MOD.unsub = null; MOD.unsubB?.(); MOD.unsubB = null; MOD.resSub = ""; });
 }
 async function traerSuperficies(subId) {
   const res = MOD.res[subId] || {}, mapa = MOD.sup[subId] ||= new Map();
@@ -2416,13 +2470,25 @@ async function traerSuperficies(subId) {
   if (S.view === "panel" && S.panel.vista === "modelo") dibujarModelo();
 }
 function decSup(id, d) {
-  const borde = []; for (let i = 0; i + 1 < (d.borde || []).length; i += 2) borde.push([d.borde[i], d.borde[i + 1]]);
+  const par = a => { const o = []; for (let i = 0; i + 1 < (a || []).length; i += 2) o.push([a[i], a[i + 1]]); return o; };
+  const borde = par(d.borde);
+  let bordeEN = par(d.bordeEN);
+  // Superficies subidas antes: el contorno real se calcula desde progresiva y desfase con el eje
+  if (bordeEN.length < 3 && borde.length > 2) { const eje = puntosEje(d.subId); if (eje) bordeEN = borde.map(([s, o]) => enDeSO(eje, s, o)); }
   const cortes = new Map(); (d.cs || []).forEach(t => { const k = t.indexOf("|"); cortes.set(+t.slice(0, k), t.slice(k + 1).split("/").map(decLinea)); });
-  return { id, ...d, borde, cortes, _v: d.v || 0 };
+  return { id, ...d, borde, bordeEN, cortes, _v: d.v || 0 };
 }
-// [nombre, código, tipo, capa, pk0, pk1, oMin, oMax, zMed, dzMed, área, superficie de referencia, versión]
-const supCompacto = x => [x.nombre, x.codigo || "", x.tipoId || "", (x.capa || "").trim(), x.pk0, x.pk1, x.oMin, x.oMax, x.zMed, x.dzMed ?? null, x.area ?? null, x.supRef || "", x.v || 0];
-const supDeRes = (id, a) => ({ id, nombre: a[0], codigo: a[1], tipoId: a[2], capa: a[3], pk0: a[4], pk1: a[5], oMin: a[6], oMax: a[7], zMed: a[8], dzMed: a[9], area: a[10], supRef: a[11], v: a[12], grupo: grupoDe(a[2], a[3]) });
+// [nombre, código, tipo, capa, pk0, pk1, oMin, oMax, zMed, dzMed, área, superficie de referencia, versión, fecha]
+const supCompacto = x => [x.nombre, x.codigo || "", x.tipoId || "", (x.capa || "").trim(), x.pk0 ?? null, x.pk1 ?? null, x.oMin ?? null, x.oMax ?? null, x.zMed, x.dzMed ?? null, x.area ?? null, x.supRef || "", x.v || 0, x.fecha || 0];
+const supDeRes = (id, a) => ({ id, nombre: a[0], codigo: a[1], tipoId: a[2], capa: a[3], pk0: a[4], pk1: a[5], oMin: a[6], oMax: a[7], zMed: a[8], dzMed: a[9], area: a[10], supRef: a[11], v: a[12], fecha: a[13] || 0, grupo: grupoDe(a[2], a[3]) });
+// Punto real (Este, Norte) a partir de progresiva y desfase (+ a la derecha del eje)
+function enDeSO(eje, s, o) {
+  let lo = 0, hi = eje.length - 1;
+  if (s <= eje[0][0]) hi = 1; else if (s >= eje[hi][0]) lo = hi - 1; else while (hi - lo > 1) { const m = (lo + hi) >> 1; if (eje[m][0] <= s) lo = m; else hi = m; }
+  const a = eje[lo], b = eje[hi], L = (b[0] - a[0]) || 1, t = (s - a[0]) / L;
+  const dx = b[1] - a[1], dy = b[2] - a[2], d = Math.hypot(dx, dy) || 1;
+  return [a[1] + dx * t + o * dy / d, a[2] + dy * t - o * dx / d];
+}
 
 /* Cota del diseño en (progresiva, desfase): interpola entre las dos secciones vecinas que tienen esa superficie */
 function zEnSeccion(sec, i, o) {
@@ -2462,19 +2528,21 @@ function leerTin(sEl) {
   for (const f of xHijos(xUno(def, "Faces"), "F")) { if (f.getAttribute("i") === "1") continue; const t = f.textContent.trim().split(/\s+/).map(k => id.get(k)); if (t.length === 3 && t.every(x => x != null)) F.push(t); }
   return { P, F };
 }
-function bordeTin(Q, F) {
+function bordeTin(Q, F) { const m = buclesTin(F).reduce((a, b) => b.length > a.length ? b : a, []); return m.map(i => [Q[i][0], Q[i][1]]); }
+// Todos los contornos de una TIN (el exterior y los huecos), como listas de índices de puntos
+function buclesTin(F) {
   const cuenta = new Map(), k = (a, b) => a < b ? a + "," + b : b + "," + a;
   F.forEach(([a, b, c]) => [[a, b], [b, c], [c, a]].forEach(([u, v]) => { const x = k(u, v); cuenta.set(x, (cuenta.get(x) || 0) + 1); }));
   const ady = new Map();
   cuenta.forEach((n, x) => { if (n !== 1) return; const [u, v] = x.split(",").map(Number); (ady.get(u) || ady.set(u, []).get(u)).push(v); (ady.get(v) || ady.set(v, []).get(v)).push(u); });
-  const usado = new Set(); let mejor = [];
+  const usado = new Set(), lazos = [];
   for (const ini of ady.keys()) {
     if (usado.has(ini)) continue;
     const lazo = [ini]; usado.add(ini); let prev = -1, cur = ini;
     for (let g = 0; g < 200000; g++) { const sig = (ady.get(cur) || []).find(v => v !== prev && !usado.has(v)); if (sig == null) break; lazo.push(sig); usado.add(sig); prev = cur; cur = sig; }
-    if (lazo.length > mejor.length) mejor = lazo;
+    if (lazo.length > 2) lazos.push(lazo);
   }
-  return mejor.map(i => [Q[i][0], Q[i][1]]);
+  return lazos;
 }
 function casco(pts) {
   const p = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]); if (p.length < 3) return p;
@@ -2508,7 +2576,19 @@ function simplificarBorde(b) {
 function supDesdeTin(sEl, subId, mod) {
   const nombre = (sEl.getAttribute("name") || "Superficie").trim();
   const { P, F } = leerTin(sEl); if (P.length < 3) throw new Error(`«${nombre}» no tiene puntos`);
-  const eje = puntosEje(subId); if (!eje) throw new Error("primero sube el XML del eje de este frente");
+  // Contorno en coordenadas reales (no necesita eje)
+  let bordeEN = F.length ? bordeTin(P, F) : []; if (bordeEN.length < 3) bordeEN = casco(P.map(p => [p[0], p[1]]));
+  bordeEN = simplificarBorde(bordeEN);
+  const enPlano = bordeEN.flatMap(q => [r2(q[0]), r2(q[1])]);
+  const eje = puntosEje(subId);
+  if (!eje) {
+    let area = 0; F.forEach(([a, b, c]) => { area += Math.abs((P[b][0] - P[a][0]) * (P[c][1] - P[a][1]) - (P[c][0] - P[a][0]) * (P[b][1] - P[a][1])) / 2; });
+    if (!F.length) area = Math.abs(areaAnillo(bordeEN));
+    const [zMin, zMax, zMed] = mm(P.map(p => p[2]));
+    return { id: idSup(subId, nombre), subId, nombre, codigo: codigoDe(nombre), pk0: null, pk1: null, oMin: null, oMax: null,
+      zMed: r3(zMed), zMin: r3(zMin), zMax: r3(zMax), area: Math.round(area * 10) / 10, supRef: "", dzMed: null, dzMin: null, dzMax: null,
+      borde: [], bordeEN: enPlano, cs: [], origen: "tin", puntos: P.length };
+  }
   const pr = proyector(eje), Q = P.map(([E, N, z]) => { const [s, o, d] = pr(E, N); return [s, o, d, z]; });
   const lejos = Q.filter(q => q[2] > 250).length;
   if (lejos > Q.length / 2) throw new Error(`«${nombre}» está a más de 250 m del eje: ¿es de otro frente?`);
@@ -2522,7 +2602,7 @@ function supDesdeTin(sEl, subId, mod) {
   return { id: idSup(subId, nombre), subId, nombre, codigo: codigoDe(nombre), pk0: r2(pk0), pk1: r2(pk1), oMin: r2(oMin), oMax: r2(oMax),
     zMed: r3(zMed), zMin: r3(zMin), zMax: r3(zMax), area: Math.round(area * 10) / 10,
     supRef: cmp?.supRef || "", dzMed: cmp?.dzMed ?? null, dzMin: cmp?.dzMin ?? null, dzMax: cmp?.dzMax ?? null,
-    borde: borde.flatMap(q => [r2(q[0]), r2(q[1])]), cs, origen: "tin", puntos: P.length };
+    borde: borde.flatMap(q => [r2(q[0]), r2(q[1])]), bordeEN: enPlano, cs, origen: "tin", puntos: P.length };
 }
 // Liberación que ya viene cortada en las secciones del XML del eje (sin la superficie completa)
 function supDesdeSecciones(nombre, porSta, subId, mod) {
@@ -2539,7 +2619,7 @@ function supDesdeSecciones(nombre, porSta, subId, mod) {
   return { id: idSup(subId, nombre), subId, nombre, codigo: codigoDe(nombre), pk0: r2(pk0), pk1: r2(pk1), oMin: r2(oMin), oMax: r2(oMax),
     zMed: r3(zMed), zMin: r3(zMin), zMax: r3(zMax), area: Math.round(area * 10) / 10,
     supRef: cmp?.supRef || "", dzMed: cmp?.dzMed ?? null, dzMin: cmp?.dzMin ?? null, dzMax: cmp?.dzMax ?? null,
-    borde: borde.flatMap(q => [r2(q[0]), r2(q[1])]), cs, origen: "secciones", puntos: todos.length };
+    borde: borde.flatMap(q => [r2(q[0]), r2(q[1])]), bordeEN: (() => { const eje = puntosEje(subId); return eje ? borde.flatMap(([s, o]) => enDeSO(eje, s, o).map(r2)) : []; })(), cs, origen: "secciones", puntos: todos.length };
 }
 // Registro de la app que tiene ese código (para tipo, capa y color de estado)
 function registroDe(codigo) { return codigo ? S.panelDatos.find(r => r.numero === codigo) || null : null; }
@@ -2608,10 +2688,11 @@ function prevSuperficies(nuevas, subId) {
   const tipos = S.listas.tipos.filter(t => t.enGrafico);
   const capasDe = new Set(); Object.values(res).forEach(a => a[3] && capasDe.add(a[3])); S.panelDatos.forEach(r => r.capa && capasDe.add(r.capa)); Object.values(S.capasCfg[subId]?.tipos || {}).forEach(t => (t.capas || []).forEach(c => capasDe.add(c.nombre)));
   const filas = nuevas.map((x, i) => {
-    const r = registroDe(x.codigo), t = r?.tipoId || tipoSugerido(x.nombre), c = r?.capa || ls.get("lib.modCapa", "");
+    const [gt, gc] = (S.panel.mGrupo || "|").split("|");
+    const r = registroDe(x.codigo), t = r?.tipoId || (S.panel.mGrupo ? gt : tipoSugerido(x.nombre)), c = r?.capa || (S.panel.mGrupo ? gc : ls.get("lib.modCapa", ""));
     return `<div class="mprev-c">
       <div class="mprev-h"><b>${esc(x.nombre)}</b>${res[x.id] ? '<span class="st OB">Reemplaza la que ya está</span>' : ""}</div>
-      <div class="muted small mono">PK ${esc(rangoPk(x.pk0, x.pk1))} · cota ${x.zMin.toFixed(2)} a ${x.zMax.toFixed(2)} · ${Math.round(x.area).toLocaleString("es-PE")} m² · ${x.cs.length} ${x.cs.length === 1 ? "sección" : "secciones"}${x.supRef ? ` · Δz ${fmtDz(x.dzMed)} vs ${esc(x.supRef)}` : ""}</div>
+      <div class="muted small mono">${x.pk0 != null ? `PK ${esc(rangoPk(x.pk0, x.pk1))} · ` : "Sin eje: se ubica por sus coordenadas · "}cota ${x.zMin.toFixed(2)} a ${x.zMax.toFixed(2)} · ${Math.round(x.area).toLocaleString("es-PE")} m²${x.pk0 != null ? ` · ${x.cs.length} ${x.cs.length === 1 ? "sección" : "secciones"}` : ""}${x.supRef ? ` · Δz ${fmtDz(x.dzMed)} vs ${esc(x.supRef)}` : ""}</div>
       <div class="muted small">${x.codigo ? (r ? `${esc(x.codigo)}: registro ${esc(ESTADOS[r.estado] || r.estado)}` : `${esc(x.codigo)}: no hay registro con ese código en este frente`) : "Sin código SKT-TOP en el nombre"}</div>
       <div class="grid g3"><div class="f"><label for="pk${i}">Código</label><input id="pk${i}" name="k${i}" class="mono" value="${esc(x.codigo)}" placeholder="SKT-TOP-…"></div>
       <div class="f"><label for="pt${i}">Tipo</label><select id="pt${i}" name="t${i}"><option value="">Sin tipo</option>${tipos.map(y => `<option value="${esc(y.id)}" ${y.id === t ? "selected" : ""}>${esc(y.nombre)}</option>`).join("")}</select></div>
@@ -2620,7 +2701,7 @@ function prevSuperficies(nuevas, subId) {
   dialogo(nuevas.length === 1 ? "Subir superficie de liberación" : `Subir ${nuevas.length} superficies`, `<datalist id="dlModCapa">${[...capasDe].sort(natural).map(c => `<option value="${esc(c)}">`).join("")}</datalist>${filas}`, o => {
     const lst = nuevas.map((x, i) => { const codigo = (o["k" + i] || "").toUpperCase(); return { ...x, codigo, tipoId: o["t" + i] || "", capa: normCapa(o["c" + i] || "", subId, o["t" + i] || "") }; });
     if (lst.length) { ls.set("lib.modTipo", lst[lst.length - 1].tipoId); ls.set("lib.modCapa", lst[lst.length - 1].capa); }
-    guardarSuperficies(lst, subId).then(() => { const g = lst[0]; S.panel.mGrupo = grupoDe(g.tipoId, g.capa); S.panel.mSel = g.id; const sta = (MOD.secc[subId]?.est || []).find(s => s >= g.pk0 - 0.05 && s <= g.pk1 + 0.05); if (sta != null) S.panel.mSta = sta; dibujarModelo(); });
+    guardarSuperficies(lst, subId).then(() => { const g = lst[0]; S.panel.mGrupo = grupoDe(g.tipoId, g.capa); S.panel.mSel = g.id; const sta = g.pk0 == null ? null : (MOD.secc[subId]?.est || []).find(s => s >= g.pk0 - 0.05 && s <= g.pk1 + 0.05); if (sta != null) S.panel.mSta = sta; S.panel.mVB = null; dibujarModelo(); });
   }, nuevas.length === 1 ? "Guardar superficie" : `Guardar ${nuevas.length}`, { ancho: true, sinFoco: true });
 }
 async function guardarSuperficies(lst, subId, msg) {
@@ -2629,7 +2710,7 @@ async function guardarSuperficies(lst, subId, msg) {
     for (let i = 0; i < lst.length; i += 200) {
       const b = writeBatch(db), r = {};
       lst.slice(i, i + 200).forEach(x => {
-        const { id: _id, ...resto } = x, v = (res[x.id]?.[12] || 0) + 1, d = { ...resto, grupo: grupoDe(x.tipoId, x.capa), v, editadoEn: serverTimestamp(), editadoPor: S.email };
+        const { id: _id, ...resto } = x, v = (res[x.id]?.[12] || 0) + 1, d = { ...resto, grupo: grupoDe(x.tipoId, x.capa), v, fecha: Date.now(), editadoEn: serverTimestamp(), editadoPor: S.email };
         b.set(doc(db, "superficies", x.id), d); r[x.id] = supCompacto(d); res[x.id] = r[x.id]; mapa.set(x.id, decSup(x.id, d));
       });
       b.set(doc(db, "superficiesRes", subId), { r }, { merge: true });
@@ -2669,6 +2750,260 @@ function editarSuperficie(id) {
 const fmtDz = v => v == null ? "—" : (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v).toFixed(2) + " m";
 const fmtOff = v => v == null ? "—" : (v < 0 ? "I " : "D ") + Math.abs(v).toFixed(1);
 
+/* --- Avance por capa en planta real: XML base (100 %) y liberaciones con su contorno real --- */
+const areaAnillo = r => { let a = 0; for (let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j][0] + r[i][0]) * (r[j][1] - r[i][1]); return a / 2; };
+function dentroDe(p, r) { let c = false; for (let i = 0, j = r.length - 1; i < r.length; j = i++) { if (((r[i][1] > p[1]) !== (r[j][1] > p[1])) && p[0] < (r[j][0] - r[i][0]) * (p[1] - r[i][1]) / ((r[j][1] - r[i][1]) || 1e-12) + r[i][0]) c = !c; } return c; }
+// Anillos ordenados: el más grande es el borde; los que caen dentro de él son huecos
+function ordenarAnillos(rs) {
+  rs = rs.filter(r => r.length > 2 && Math.abs(areaAnillo(r)) > 0.01).sort((a, b) => Math.abs(areaAnillo(b)) - Math.abs(areaAnillo(a)));
+  if (!rs.length) return [];
+  const ext = rs[0], huecos = rs.slice(1).filter(r => dentroDe(r[0], ext));
+  return [ext, ...huecos];
+}
+const areaBase = an => an.length ? Math.abs(areaAnillo(an[0])) - an.slice(1).reduce((t, r) => t + Math.abs(areaAnillo(r)), 0) : 0;
+// Base de una capa: superficie TIN (su borde) o contorno cerrado (parcela, línea característica, límite de superficie)
+function baseDeXml(d) {
+  const rings = [];
+  for (const s of xTodos(d, "Surface")) {
+    const def = xUno(s, "Definition"); if (!def) continue;
+    const { P, F } = leerTin(s); if (P.length < 3) continue;
+    if (F.length) buclesTin(F).forEach(l => rings.push(l.map(i => [P[i][0], P[i][1]])));
+    else rings.push(casco(P.map(p => [p[0], p[1]])));
+  }
+  if (!rings.length) {
+    const tags = ["Parcel", "PlanFeature", "Boundary", "Breakline", "Contour"];
+    for (const t of tags) for (const el of xTodos(d, t)) {
+      const cg = xUno(el, "CoordGeom");
+      if (cg) {
+        const r = [];
+        for (const g of cg.children) {
+          const a = nums(xUno(g, "Start")?.textContent), b = nums(xUno(g, "End")?.textContent); if (a.length < 2 || b.length < 2) continue;
+          if (g.localName === "Curve") {
+            const [cN, cE] = nums(xUno(g, "Center")?.textContent), R = Math.hypot(a[1] - cE, a[0] - cN), ccw = g.getAttribute("rot") === "ccw";
+            let a0 = Math.atan2(a[0] - cN, a[1] - cE), d1 = Math.atan2(b[0] - cN, b[1] - cE) - a0; if (ccw && d1 < 0) d1 += 2 * Math.PI; if (!ccw && d1 > 0) d1 -= 2 * Math.PI;
+            const n = Math.max(4, Math.ceil(Math.abs(d1) * R)); for (let i = 0; i <= n; i++) { const an = a0 + d1 * i / n; r.push([cE + R * Math.cos(an), cN + R * Math.sin(an)]); }
+          } else { r.push([a[1], a[0]]); r.push([b[1], b[0]]); }
+        }
+        if (r.length > 2) rings.push(r);
+        continue;
+      }
+      const pl = xUno(el, "PntList3D") || xUno(el, "PntList2D");
+      if (pl) { const v = nums(pl.textContent), st = pl.localName === "PntList3D" ? 3 : 2, r = []; for (let i = 0; i + 1 < v.length; i += st) r.push([v[i + 1], v[i]]); if (r.length > 2) rings.push(r); }
+    }
+  }
+  const limpios = rings.map(r => { const q = r.filter((p, i) => !i || Math.hypot(p[0] - r[i - 1][0], p[1] - r[i - 1][1]) > 1e-3); if (q.length > 3 && Math.hypot(q[0][0] - q[q.length - 1][0], q[0][1] - q[q.length - 1][1]) < 1e-3) q.pop(); return q; });
+  return ordenarAnillos(limpios).map(r => { let tol = 0.05, x = simplificarBorde(r); while (x.length > 1500 && tol < 5) { tol *= 2; x = dp(r.concat([r[0]]), tol).slice(0, -1); } return x; });
+}
+async function subirBase(file) {
+  const P = S.panel, subId = P.subId, g = P.mGrupo; if (!g) { toast("Elige primero la capa.", "bad"); return; }
+  let an;
+  try { an = baseDeXml(leerXml(await file.text())); } catch (e) { toast(`${file.name}: ${e.message}`, "bad"); return; }
+  if (!an.length) { toast("El XML no tiene una superficie ni un contorno cerrado.", "bad"); return; }
+  const area = areaBase(an), previa = MOD.bases[subId]?.get(g);
+  const eje = puntosEje(subId); let lejos = false;
+  if (eje) { const pr = proyector(eje); lejos = an[0].filter((_, i) => i % 10 === 0).every(p => pr(p[0], p[1])[2] > 300); }
+  dialogo("Subir base de la capa", `<p class="dlg-p">Base de <b>${esc(nomGrupo(g))}</b> en <b>${esc(L.sub(subId)?.nombre || "")}</b>: ${esc(file.name)}.</p>
+    <dl class="kv" style="margin:0 0 8px"><dt>Área (100 %)</dt><dd class="mono">${Math.round(area).toLocaleString("es-PE")} m²</dd><dt>Borde</dt><dd>${an[0].length} vértices${an.length > 1 ? ` · ${an.length - 1} ${an.length === 2 ? "hueco" : "huecos"}` : ""}</dd></dl>
+    ${lejos ? `<p class="dlg-p aviso">Está a más de 300 m del eje del frente: revisa que sea el frente correcto.</p>` : ""}
+    ${previa ? `<p class="dlg-p aviso">Reemplaza la base actual (${esc(previa.nombre || "")}, ${Math.round(previa.area || 0).toLocaleString("es-PE")} m²).</p>` : ""}`, () => {
+    const [tipoId, capa] = g.split("|"), id = idSup(subId, "base-" + g);
+    const d = { subId, grupo: g, tipoId, capa, nombre: file.name, area: Math.round(area * 10) / 10, anillos: an.map(r => r.map(p => r2(p[0]) + "," + r2(p[1])).join(" ")), v: (previa?.v || 0) + 1, editadoEn: serverTimestamp(), editadoPor: S.email };
+    (MOD.bases[subId] ||= new Map()).set(g, { id, ...d, anillos: an });
+    P.mVB = null; dibujarModelo();
+    escribir(setDoc(doc(db, "bases", id), d), "Base guardada", "No se guardó la base: ");
+  }, previa ? "Reemplazar base" : "Guardar base", { sinFoco: true });
+}
+async function quitarBase() {
+  const P = S.panel, b = MOD.bases[P.subId]?.get(P.mGrupo); if (!b) return;
+  if (!await confirmar("Quitar base", `Se quita la base de <b>${esc(nomGrupo(P.mGrupo))}</b> (${esc(b.nombre || "")}). Las liberaciones se quedan; la capa queda sin porcentaje hasta subir otra.`, "Quitar", true)) return;
+  MOD.bases[P.subId].delete(P.mGrupo); dibujarModelo();
+  escribir(deleteDoc(doc(db, "bases", b.id)), "Base quitada", "No se pudo quitar: ");
+}
+
+// Giro de la planta: a lo largo del eje si existe (progresiva creciendo a la derecha); si no, según la forma de la capa
+function rotacion(pts, eje) {
+  let cx = 0, cy = 0; pts.forEach(p => { cx += p[0]; cy += p[1]; }); cx /= pts.length; cy /= pts.length;
+  let ang = null, sRango = null;
+  if (eje) {
+    const pr = proyector(eje), paso = Math.max(1, Math.floor(pts.length / 400)), ss = [];
+    for (let i = 0; i < pts.length; i += paso) { const q = pr(pts[i][0], pts[i][1]); if (q[2] < 400) ss.push(q[0]); }
+    if (ss.length > 1) { const [a, b] = mm(ss); sRango = [a, b]; if (b - a > 1) { const A = enDeSO(eje, a, 0), B = enDeSO(eje, b, 0); ang = Math.atan2(B[1] - A[1], B[0] - A[0]); } }
+  }
+  if (ang == null) { let xx = 0, yy = 0, xy = 0; pts.forEach(p => { const x = p[0] - cx, y = p[1] - cy; xx += x * x; yy += y * y; xy += x * y; }); ang = 0.5 * Math.atan2(2 * xy, xx - yy); }
+  const c = Math.cos(ang), s = Math.sin(ang);
+  return { ang, cx, cy, sRango, f: p => { const x = p[0] - cx, y = p[1] - cy; return [x * c + y * s, -(-x * s + y * c)]; }, inv: (u, w) => { const v = -w; return [cx + u * c - v * s, cy + u * s + v * c]; } };
+}
+// Medición por áreas sobre una imagen: cuenta lo liberado dentro del borde una sola vez, los cruces y lo que queda fuera
+function medirCapa(an, polys, eje) {
+  const pts = [...an.flat(), ...polys.flat()]; if (pts.length < 3) return null;
+  const rot = rotacion(pts, eje), T = pts.map(rot.f);
+  const [x0, x1] = mm(T.map(t => t[0])), [y0, y1] = mm(T.map(t => t[1])), w = x1 - x0 || 1, h = y1 - y0 || 1;
+  const k = Math.min(6, Math.sqrt(3e6 / (w * h)), 8000 / w, 8000 / h), W = Math.ceil(w * k) + 4, H = Math.ceil(h * k) + 4;
+  const cv = document.createElement("canvas"); cv.width = W; cv.height = H; const c = cv.getContext("2d", { willReadFrequently: true });
+  const traza = r => r.forEach((p, i) => { const [x, y] = rot.f(p), X = (x - x0) * k + 2, Y = (y - y0) * k + 2; i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
+  if (an.length) { c.fillStyle = "rgb(255,0,0)"; c.beginPath(); an.forEach(r => { traza(r); c.closePath(); }); c.fill("evenodd"); }
+  c.globalCompositeOperation = "lighter"; c.fillStyle = "rgb(0,60,0)";
+  polys.forEach(pl => { c.beginPath(); traza(pl); c.closePath(); c.fill(); });
+  const d = c.getImageData(0, 0, W, H).data; let nb = 0, nd = 0, nf = 0, nc = 0;
+  for (let i = 0; i < d.length; i += 4) { const b = d[i] >= 128, g = d[i + 1]; if (b) nb++; if (g >= 30) { if (b) nd++; else nf++; if (g >= 90) nc++; } }
+  const px = 1 / (k * k), base = an.length ? areaBase(an) : 0;
+  const pct = an.length && nb ? Math.min(1, nd / nb) : null;
+  return { pct, base, lib: pct != null ? pct * base : (nd + nf) * px, fuera: an.length ? nf * px : 0, cruce: nc * px, total: (nd + nf) * px };
+}
+// Resultado por capa (con memoria: se recalcula solo si cambian la base o las superficies)
+function medidaGrupo(subId, g) {
+  const base = MOD.bases[subId]?.get(g), mapa = MOD.sup[subId] || new Map();
+  const xs = Object.entries(MOD.res[subId] || {}).map(([id, a]) => supDeRes(id, a)).filter(x => x.grupo === g);
+  const polys = xs.map(x => mapa.get(x.id)?.bordeEN).filter(b => b && b.length > 2);
+  const clave = (base ? base.id + ":" + base.v : "-") + "|" + xs.map(x => x.id + ":" + x.v).sort().join(",") + "|" + polys.length;
+  const memo = (MOD.med[subId] ||= {});
+  if (memo[g]?.clave !== clave) memo[g] = { clave, r: medirCapa(base?.anillos || [], polys, puntosEje(subId)), n: xs.length, sinContorno: xs.length - polys.length, ult: Math.max(0, ...xs.map(x => x.fecha || 0)) };
+  return { ...memo[g], base, xs };
+}
+const fmtM2 = v => Math.round(v || 0).toLocaleString("es-PE") + " m²";
+const fmtPct = v => v == null ? "—" : (v * 100 >= 99.95 ? "100" : (v * 100).toFixed(1)) + " %";
+// Todas las capas posibles del frente: con superficies, con base o configuradas en Ajustes → Capas
+function gruposFrente(subId) {
+  const g = new Set();
+  Object.values(MOD.res[subId] || {}).forEach(a => g.add(grupoDe(a[2], a[3])));
+  (MOD.bases[subId] || new Map()).forEach((_, k) => g.add(k));
+  const tipos = S.listas.tipos.filter(t => t.enGrafico);
+  Object.entries(S.capasCfg[subId]?.tipos || {}).forEach(([t, c]) => { if (tipos.some(x => x.id === t)) (c.capas || []).forEach(cp => g.add(grupoDe(t, cp.nombre))); });
+  return [...g];
+}
+
+/* Planta real girada de la capa elegida */
+function dibujarPlantaReal() {
+  const P = S.panel, box = $("#mPlan"), cont = $("#mPlanBox"); if (!box) return;
+  const subId = P.subId, eje = puntosEje(subId), mod = MOD.secc[subId], mapa = MOD.sup[subId] || new Map();
+  const { vis } = supsGrupo();
+  const libs = vis.map(x => ({ x, b: mapa.get(x.id)?.bordeEN })).filter(o => o.b && o.b.length > 2);
+  const base = P.mGrupo ? MOD.bases[subId]?.get(P.mGrupo) : null, an = base?.anillos || [];
+  const pts = [...an.flat(), ...libs.flatMap(o => o.b)];
+  if (!pts.length) { box.innerHTML = `<div class="empty" style="padding:28px 16px"><b>${P.mGrupo ? "Esta capa aún no tiene base ni liberaciones" : "Aún no hay superficies con contorno"}</b>${P.mGrupo ? "Sube su XML base (opcional) y los XML de cada liberación." : "Elige una capa o sube los XML de las liberaciones."}</div>`; return; }
+  const rot = rotacion(pts, eje);
+  // El tramo de eje que acompaña a la capa también entra en el encuadre
+  const ejeV = []; if (eje && rot.sRango) { const [a, b] = rot.sRango; for (let i = 0; i <= 20; i++) ejeV.push(enDeSO(eje, a + (b - a) * i / 20, 0)); }
+  const T = [...pts, ...ejeV].map(rot.f);
+  const [x0, x1] = mm(T.map(t => t[0])), [y0, y1] = mm(T.map(t => t[1])), w = x1 - x0 || 1, h = y1 - y0 || 1;
+  const W = Math.max(300, cont.clientWidth), H = innerWidth < 760 ? 300 : 420, pad = 26;
+  const k = Math.min((W - 2 * pad) / w, (H - 2 * pad) / h);
+  let ex = 1; const hObj = (H - 2 * pad) * 0.55; if (h * k < hObj) ex = Math.min(10, hObj / (h * k));
+  const ox = (W - w * k) / 2, oy = (H - h * k * ex) / 2;
+  const X = x => ox + (x - x0) * k, Y = y => oy + (y - y0) * k * ex;
+  const xy = p => { const [x, y] = rot.f(p); return X(x).toFixed(1) + "," + Y(y).toFixed(1); };
+  const pth = r => "M" + r.map(xy).join("L") + "Z";
+  const ve = 'vector-effect="non-scaling-stroke"';
+  const defs = [`<pattern id="hFal" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#fdecea"/><line x1="0" y1="0" x2="0" y2="8" stroke="#f3b8ae" stroke-width="3"/></pattern>`,
+    `<pattern id="hCru" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="6" stroke="#1d2b27" stroke-width="2"/></pattern>`,
+    `<pattern id="hFue" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="#fff4dd"/><line x1="0" y1="0" x2="0" y2="7" stroke="#e0a43a" stroke-width="2.5"/></pattern>`];
+  const out = [];
+  const dBase = an.map(pth).join("");
+  if (an.length) {
+    defs.push(`<clipPath id="cBase"><path d="${dBase}" clip-rule="evenodd"/></clipPath><mask id="mFue"><rect x="-10000" y="-10000" width="30000" height="30000" fill="#fff"/><path d="${dBase}" fill="#000" fill-rule="evenodd"/></mask>`);
+    out.push(`<path d="${dBase}" fill="url(#hFal)" fill-rule="evenodd" stroke="#b5483a" stroke-width="1.6" ${ve}/>`);
+  }
+  // Liberaciones: dentro del borde con el color de su estado; fuera, rayadas en ámbar
+  const cuerpo = libs.map(o => `<path class="rlib" data-sid="${esc(o.x.id)}" d="${pth(o.b)}" fill="${colorSup(o.x)}" fill-opacity="${P.mSel === o.x.id ? 1 : .92}" stroke="${P.mSel === o.x.id ? "#0f1f1b" : "#fff"}" stroke-width="${P.mSel === o.x.id ? 2.4 : 1}" ${ve}><title>${esc(o.x.codigo || o.x.nombre)} · ${fmtM2(o.x.area)}</title></path>`).join("");
+  if (an.length) out.push(`<g clip-path="url(#cBase)">${cuerpo}</g><g mask="url(#mFue)">${libs.map(o => `<path class="rlib" data-sid="${esc(o.x.id)}" d="${pth(o.b)}" fill="url(#hFue)" stroke="#c17f12" stroke-width="1" stroke-dasharray="4 3" ${ve}/>`).join("")}</g>`);
+  else out.push(cuerpo);
+  // Cruces entre liberaciones de la misma capa
+  const bb = libs.map(o => { const t = o.b.map(rot.f); return [mm(t.map(q => q[0])), mm(t.map(q => q[1]))]; });
+  for (let i = 0; i < libs.length; i++) for (let j = i + 1; j < libs.length; j++) {
+    const a = bb[i], b = bb[j]; if (a[0][1] < b[0][0] || b[0][1] < a[0][0] || a[1][1] < b[1][0] || b[1][1] < a[1][0]) continue;
+    defs.push(`<clipPath id="cL${i}_${j}"><path d="${pth(libs[i].b)}"/></clipPath>`);
+    out.push(`<path d="${pth(libs[j].b)}" fill="url(#hCru)" clip-path="url(#cL${i}_${j})" pointer-events="none"/>`);
+  }
+  // Eje con progresivas y la sección elegida
+  if (eje && rot.sRango) {
+    const [s0, s1] = rot.sRango, m = Math.max(10, (s1 - s0) * 0.08), a = Math.max(eje[0][0], s0 - m), b = Math.min(eje[eje.length - 1][0], s1 + m);
+    if (b > a) {
+      const n = Math.min(400, Math.ceil(b - a)), linea = []; for (let i = 0; i <= n; i++) linea.push(enDeSO(eje, a + (b - a) * i / n, 0));
+      out.push(`<path d="M${linea.map(xy).join("L")}" fill="none" stroke="#2b3a36" stroke-width="1.2" stroke-dasharray="7 5" ${ve} pointer-events="none"/>`);
+      const st = paso(b - a, W);
+      for (let v = Math.ceil(a / st) * st; v <= b; v += st) { const [px, py] = xy(enDeSO(eje, v, 0)).split(",").map(Number); out.push(`<circle cx="${px}" cy="${py}" r="2.6" fill="#2b3a36"/><text class="rlab pk" x="${px}" y="${py - 6}" text-anchor="middle">${fmtPk(v)}</text>`); }
+    }
+    if (mod && P.mSta != null && P.mSta >= a - 1 && P.mSta <= b + 1) {
+      const sec = mod.secs[idxCerca(mod, P.mSta)] || []; let oa = -30, ob = 30;
+      if (sec.length) { oa = Math.min(...sec.map(p => p.pts[0][0])); ob = Math.max(...sec.map(p => p.pts[p.pts.length - 1][0])); }
+      out.push(`<line x1="${xy(enDeSO(eje, P.mSta, oa)).split(",")[0]}" y1="${xy(enDeSO(eje, P.mSta, oa)).split(",")[1]}" x2="${xy(enDeSO(eje, P.mSta, ob)).split(",")[0]}" y2="${xy(enDeSO(eje, P.mSta, ob)).split(",")[1]}" stroke="var(--accent)" stroke-width="2.6" ${ve} pointer-events="none"/>`);
+    }
+  }
+  // Códigos sobre las liberaciones grandes
+  libs.forEach((o, i) => { const t = o.b.map(rot.f); const cx = t.reduce((s, q) => s + q[0], 0) / t.length, cy = t.reduce((s, q) => s + q[1], 0) / t.length; if ((bb[i][0][1] - bb[i][0][0]) * k > 46 && o.x.codigo) out.push(`<text class="rlab" x="${X(cx).toFixed(1)}" y="${(Y(cy) + 4).toFixed(1)}" text-anchor="middle">${esc(o.x.codigo.replace(/^SKT-TOP-/, ""))}</text>`); });
+  // Flecha del norte
+  const nx = Math.sin(rot.ang), ny = -Math.cos(rot.ang) * ex, nl = Math.hypot(nx, ny) || 1;
+  const vb = P.mVB || [0, 0, W, H];
+  box.innerHTML = `<svg id="mReal" viewBox="${vb.join(" ")}" width="100%" height="${H}" role="img" aria-label="Planta real de la capa"><defs>${defs.join("")}</defs>${out.join("")}</svg>
+    <svg class="norte" viewBox="-20 -20 40 46" aria-label="Norte"><g transform="rotate(${(Math.atan2(nx / nl, -ny / nl) * 180 / Math.PI).toFixed(1)})"><path d="M0,-15 L6,6 L0,2 L-6,6Z" fill="#2b3a36"/></g><text x="0" y="22" text-anchor="middle">N</text></svg>
+    ${ex > 1.05 ? `<span class="mex">Ancho ×${ex.toFixed(1)}</span>` : ""}`;
+  box._t = { W, H, rot, X, Y, k, ex, ox, oy, x0, y0 };
+  ajustarTextos();
+  const svg = $("#mReal");
+  // Arrastrar para mover; tocar para elegir
+  let ini = null, movio = false;
+  svg.addEventListener("pointerdown", e => { ini = { x: e.clientX, y: e.clientY, vb: (P.mVB || [0, 0, W, H]).slice() }; movio = false; });
+  svg.addEventListener("pointermove", e => {
+    if (!ini || (e.pointerType === "mouse" && !(e.buttons & 1))) return;
+    const dx = e.clientX - ini.x, dy = e.clientY - ini.y; if (!movio && Math.hypot(dx, dy) < 6) return;
+    movio = true; svg.setPointerCapture?.(e.pointerId);
+    const r = svg.getBoundingClientRect(), f = ini.vb[2] / r.width;
+    P.mVB = [ini.vb[0] - dx * f, ini.vb[1] - dy * f, ini.vb[2], ini.vb[3]]; svg.setAttribute("viewBox", P.mVB.join(" "));
+  });
+  svg.addEventListener("pointerup", e => {
+    const fue = movio; ini = null; if (fue) return;
+    const lib = e.target.closest(".rlib");
+    if (lib) { const id = lib.dataset.sid; if (P.mSel === id) { editarSuperficie(id); return; } P.mSel = id; const x = vis.find(v => v.id === id); if (mod && x && x.pk0 != null) { const dentro = mod.est.filter(t => t >= x.pk0 - 0.05 && t <= x.pk1 + 0.05); P.mSta = dentro.length ? dentro[0] : mod.est[idxCerca(mod, (x.pk0 + x.pk1) / 2)]; } dibujarModelo(); return; }
+    if (eje && mod) {
+      const r = svg.getBoundingClientRect(), v = P.mVB || [0, 0, W, H], sx = v[0] + (e.clientX - r.left) * v[2] / r.width, sy = v[1] + (e.clientY - r.top) * v[3] / r.height;
+      const E = rot.inv((sx - ox) / k + x0, (sy - oy) / (k * ex) + y0), q = proyector(eje)(E[0], E[1]);
+      P.mSta = mod.est[idxCerca(mod, q[0])]; if ($("#mSta")) $("#mSta").value = idxCerca(mod, P.mSta); dibujarSeccion(); dibujarPlantaReal();
+    }
+  });
+}
+function zoomReal(f) {
+  const P = S.panel, t = $("#mPlan")?._t; if (!t) return;
+  if (!f) { P.mVB = null; }
+  else { const v = P.mVB || [0, 0, t.W, t.H], cx = v[0] + v[2] / 2, cy = v[1] + v[3] / 2, w = Math.min(t.W, Math.max(t.W / 40, v[2] / f)), h = w * t.H / t.W; P.mVB = w >= t.W ? null : [cx - w / 2, cy - h / 2, w, h]; }
+  $("#mReal")?.setAttribute("viewBox", (P.mVB || [0, 0, t.W, t.H]).join(" ")); ajustarTextos();
+}
+function ajustarTextos() { const t = $("#mPlan")?._t, v = S.panel.mVB; const f = v ? v[2] / t.W : 1; document.querySelectorAll("#mReal .rlab").forEach(x => x.setAttribute("font-size", (11 * f).toFixed(2))); document.querySelectorAll("#mReal circle").forEach(x => x.setAttribute("r", (2.6 * f).toFixed(2))); }
+
+/* Lista de capas con su porcentaje, filtros y orden */
+function dibujarCapasLista() {
+  const box = $("#mCapas"); if (!box) return;
+  const P = S.panel, subId = P.subId, F = P.capF ||= { q: "", t: "", e: "", o: "nombre", ...ls.get("lib.capF", {}) };
+  const gs = gruposFrente(subId);
+  if (!gs.length) { box.innerHTML = ""; return; }
+  const filas = gs.map(g => { const m = medidaGrupo(subId, g), [t, c] = g.split("|"); return { g, t, c, nom: nomGrupo(g), ...m, pct: m.r?.pct ?? null, lib: m.r?.lib || 0, falta: m.base && m.r?.pct != null ? Math.max(0, m.base.area * (1 - m.r.pct)) : null, cruce: m.r?.cruce || 0, fuera: m.r?.fuera || 0 }; });
+  const tipos = [...new Set(filas.map(f => f.t))];
+  const q = F.q.trim().toLowerCase();
+  let vis = filas.filter(f => (!F.t || (f.t || "~") === F.t) && (!q || f.nom.toLowerCase().includes(q)));
+  vis = vis.filter(f => ({ "": true, incompletas: f.base && f.pct != null && f.pct < 0.9995, completas: f.pct != null && f.pct >= 0.9995, sinbase: !f.base, conbase: !!f.base, avisos: f.cruce > 0.5 || f.fuera > 0.5, sinliberar: !f.n })[F.e]);
+  const cmpO = { nombre: (a, b) => natural(a.nom, b.nom), pmas: (a, b) => (b.pct ?? -1) - (a.pct ?? -1), pmenos: (a, b) => (a.pct ?? 2) - (b.pct ?? 2), falta: (a, b) => (b.falta ?? -1) - (a.falta ?? -1), reciente: (a, b) => b.ult - a.ult }[F.o];
+  vis.sort((a, b) => cmpO(a, b) || natural(a.nom, b.nom));
+  const conBase = filas.filter(f => f.base && f.pct != null), totB = conBase.reduce((t, f) => t + f.base.area, 0), totL = conBase.reduce((t, f) => t + f.lib, 0);
+  box.innerHTML = `<div class="card section capl">
+    <h2 style="margin-bottom:2px">Capas <span class="muted small">· ${filas.length}</span></h2>
+    ${totB ? `<p class="muted small" style="margin:0 0 8px">Con base: <b>${fmtPct(totL / totB)}</b> liberado (${fmtM2(totL)} de ${fmtM2(totB)})</p>` : `<p class="muted small" style="margin:0 0 8px">Sube la base de una capa para ver su porcentaje.</p>`}
+    <div class="capf"><input type="search" id="cfQ" placeholder="Buscar capa…" value="${esc(F.q)}" aria-label="Buscar capa">
+      <select id="cfT" aria-label="Tipo"><option value="">Todos los tipos</option>${tipos.map(t => `<option value="${esc(t || "~")}" ${F.t === (t || "~") ? "selected" : ""}>${esc(t ? nom(L.tipo(t)) : "Sin tipo")}</option>`).join("")}</select>
+      <select id="cfE" aria-label="Mostrar">${[["", "Todas"], ["incompletas", "Por completar"], ["completas", "Completas"], ["conbase", "Con base"], ["sinbase", "Sin base"], ["avisos", "Con cruces o fuera de base"], ["sinliberar", "Sin liberaciones"]].map(([v, t]) => `<option value="${v}" ${F.e === v ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <select id="cfO" aria-label="Ordenar">${[["nombre", "Ordenar: capa"], ["pmas", "Mayor avance"], ["pmenos", "Menor avance"], ["falta", "Más m² por liberar"], ["reciente", "Subida más reciente"]].map(([v, t]) => `<option value="${v}" ${F.o === v ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+    <div class="capr">${vis.length ? vis.map(f => `<button type="button" class="capi ${f.g === P.mGrupo ? "on" : ""}" data-capg="${esc(f.g)}">
+      <span class="capn"><b>${esc(f.c || nom(L.tipo(f.t)) || "Sin capa")}</b><small>${esc(f.c ? nom(L.tipo(f.t)) : "")}${f.n ? ` · ${f.n} ${f.n === 1 ? "tramo" : "tramos"}` : " · sin liberaciones"}</small></span>
+      <span class="capv">${f.pct != null ? `<b>${fmtPct(f.pct)}</b>` : f.n ? `<b class="muted">${fmtM2(f.lib)}</b>` : ""}<small>${f.base ? (f.pct != null ? `faltan ${fmtM2(f.falta)}` : "") : "sin base"}</small></span>
+      <span class="capb"><i style="width:${f.pct != null ? (f.pct * 100).toFixed(1) : 0}%"></i></span>
+      ${f.cruce > 0.5 || f.fuera > 0.5 ? `<span class="capw">${f.cruce > 0.5 ? `cruces ${fmtM2(f.cruce)}` : ""}${f.cruce > 0.5 && f.fuera > 0.5 ? " · " : ""}${f.fuera > 0.5 ? `fuera ${fmtM2(f.fuera)}` : ""}</span>` : ""}
+    </button>`).join("") : '<p class="muted small" style="margin:6px 2px">Ninguna capa con ese filtro.</p>'}</div></div>`;
+  const guardar = () => ls.set("lib.capF", F);
+  $("#cfQ").addEventListener("input", e => { F.q = e.target.value; guardar(); const pos = e.target.selectionStart; dibujarCapasLista(); const n = $("#cfQ"); n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} });
+  $("#cfT").addEventListener("change", e => { F.t = e.target.value; guardar(); dibujarCapasLista(); });
+  $("#cfE").addEventListener("change", e => { F.e = e.target.value; guardar(); dibujarCapasLista(); });
+  $("#cfO").addEventListener("change", e => { F.o = e.target.value; guardar(); dibujarCapasLista(); });
+  box.querySelector(".capr").addEventListener("click", e => { const b = e.target.closest("[data-capg]"); if (!b) return; P.mGrupo = b.dataset.capg; P.mModo = "real"; ls.set("lib.mModo", "real"); P.mSel = ""; P.mVB = null; irPrimera(); dibujarModelo(); if (!enPC()) $("#mBody")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
+}
+
 /* --- Vista --- */
 const COL_DIS = ["#7c8c86", "#a8875f", "#5f84ad", "#8d73ab", "#4f9187", "#b06f6f", "#7f9655", "#5a6b66", "#c08a3e", "#6e7fb8"];
 function colorSup(x) { const r = registroDe(x.codigo); return r ? COLOR[r.estado] || COLOR.PT : "#5b7fa6"; }
@@ -2679,30 +3014,36 @@ function pintarModelo() {
   <h1 class="view-title">Panel de liberaciones</h1>
   <p class="lead" ${innerWidth < 760 ? "hidden" : ""}>Modelo 2D del frente para gabinete: el diseño de Civil 3D con las superficies de cada liberación encima.</p>
   ${enPC() ? '<div class="pgrid"><aside class="pside">' : ""}<div class="card filters"><div class="f wide"><label for="pSub">Frente</label><select id="pSub">${grupos}</select></div>
-    <div class="f wide"><label for="mGrupo">Capa</label><select id="mGrupo"></select></div></div>${enPC() ? '</aside><div class="pmain">' : ""}
+    <div class="f wide"><label for="mGrupo">Capa</label><select id="mGrupo"></select></div></div>${enPC() ? '<div id="mCapas"></div></aside><div class="pmain">' : ""}
   <div class="card chartbox">
     <div class="chart-h">
       <div class="tabs" style="margin:0" role="group" aria-label="Vista">${tabsPanel()}</div>
-      <div class="pl-ctl"><label class="mini eje"><input type="file" id="mFile" accept=".xml" multiple hidden>Subir XML</label></div>
+      <div class="pl-ctl"><label class="mini eje"><input type="file" id="mFile" accept=".xml" multiple hidden>Subir XML</label><input type="file" id="mBaseFile" accept=".xml" hidden></div>
     </div>
     <div id="mBody"><div class="empty"><b>Cargando modelo…</b></div></div>
   </div>
+  ${enPC() ? "" : '<div id="mCapas"></div>'}
   <div id="mLista"></div>${enPC() ? "</div></div>" : ""}</div>`;
   $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.mGrupo = ""; P.mSel = ""; P.mSta = null; P.mZoom = 1; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); pintarPanel(); });
-  $("#mGrupo").addEventListener("change", e => { P.mGrupo = e.target.value; P.mSel = ""; irPrimera(); dibujarModelo(); centrarSta(); });
+  $("#mGrupo").addEventListener("change", e => { P.mGrupo = e.target.value; P.mSel = ""; P.mVB = null; irPrimera(); dibujarModelo(); centrarSta(); });
+  $("#mBaseFile").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) subirBase(f); });
   $(".chart-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-vista]"); if (b) { P.vista = b.dataset.vista; ls.set("lib.panelVista", P.vista); pintarPanel(); } });
   $("#mFile").addEventListener("change", e => { const f = [...e.target.files]; e.target.value = ""; if (f.length) subirXmlModelo(f); });
   $("#mRoot").addEventListener("click", e => {
     const t = e.target.closest("[data-sid]"); if (t && !e.target.closest("#mPlan")) { editarSuperficie(t.dataset.sid); return; }
+    const mo = e.target.closest("[data-modo]"); if (mo) { P.mModo = mo.dataset.modo; ls.set("lib.mModo", P.mModo); P.mVB = null; dibujarModelo(); return; }
+    if (e.target.closest("[data-base]")) { $("#mBaseFile").click(); return; }
+    if (e.target.closest("[data-quitabase]")) { quitarBase(); return; }
+    const zr = e.target.closest("[data-rz]"); if (zr) { zoomReal(zr.dataset.rz === "+" ? 1.8 : zr.dataset.rz === "-" ? 1 / 1.8 : 0); return; }
     const z = e.target.closest("[data-mz]"); if (z) { P.mZoom = z.dataset.mz === "+" ? Math.min(32, (P.mZoom || 1) * 2) : z.dataset.mz === "-" ? Math.max(1, (P.mZoom || 1) / 2) : 1; dibujarModelo(); centrarSta(); return; }
-    const m = e.target.closest("[data-mst]"); if (m) { const mod = MOD.secc[P.subId]; if (!mod) return; const k = idxCerca(mod, P.mSta) + (m.dataset.mst === "+" ? 1 : -1); if (k >= 0 && k < mod.est.length) { P.mSta = mod.est[k]; dibujarSeccion(); centrarSta(); } }
+    const m = e.target.closest("[data-mst]"); if (m) { const mod = MOD.secc[P.subId]; if (!mod) return; const k = idxCerca(mod, P.mSta) + (m.dataset.mst === "+" ? 1 : -1); if (k >= 0 && k < mod.est.length) { P.mSta = mod.est[k]; if ($("#mSta")) $("#mSta").value = k; dibujarSeccion(); if (P.mModo === "real") dibujarPlantaReal(); else centrarSta(); } }
   });
   cargarModelo(P.subId); suscribirModelo(P.subId);
   dibujarModelo();
 }
 const tabsPanel = () => `<button type="button" data-vista="lista" aria-pressed="${S.panel.vista === "lista"}">Qué falta</button><button type="button" data-vista="perfil" aria-pressed="${S.panel.vista === "perfil"}">Perfil</button><button type="button" data-vista="planta" aria-pressed="${S.panel.vista === "planta"}">Planta</button>${veModelo() ? `<button type="button" data-vista="modelo" aria-pressed="${S.panel.vista === "modelo"}">Modelo 2D</button>` : ""}`;
 function irPrimera() {
-  const mod = MOD.secc[S.panel.subId], { vis } = supsGrupo(); if (!mod || !vis.length) return;
+  const mod = MOD.secc[S.panel.subId], vis = supsGrupo().vis.filter(x => x.pk0 != null); if (!mod || !vis.length) return;
   const x = vis.slice().sort((a, b) => a.pk0 - b.pk0)[0], dentro = mod.est.filter(t => t >= x.pk0 - 0.05 && t <= x.pk1 + 0.05);
   S.panel.mSta = dentro.length ? dentro[0] : mod.est[idxCerca(mod, (x.pk0 + x.pk1) / 2)];
 }
@@ -2716,40 +3057,62 @@ function dibujarModelo() {
   const P = S.panel, body = $("#mBody"); if (!body) return;
   const subId = P.subId, sub = L.sub(subId), mod = MOD.secc[subId], res = MOD.res[subId];
   if (mod === undefined || res === null || res === undefined) { body.innerHTML = '<div class="empty"><b>Cargando modelo…</b></div>'; return; }
+  P.mModo ||= ls.get("lib.mModo", "real");
   const { todas, vis } = supsGrupo();
-  // Capas presentes (por tipo y capa), la más reciente arriba
-  const gr = new Map(); todas.forEach(x => gr.set(x.grupo, (gr.get(x.grupo) || 0) + 1));
-  if (P.mGrupo && !gr.has(P.mGrupo)) P.mGrupo = "";
-  $("#mGrupo").innerHTML = `<option value="">Todas (${todas.length})</option>` + [...gr.entries()].sort((a, b) => natural(nomGrupo(a[0]), nomGrupo(b[0]))).map(([g, n]) => `<option value="${esc(g)}" ${g === P.mGrupo ? "selected" : ""}>${esc(nomGrupo(g))} (${n})</option>`).join("");
-  $("#mGrupo").disabled = !todas.length;
-  const eje = puntosEje(subId);
-  if (!mod && !eje) {
-    body.innerHTML = `<div class="empty"><b>Falta el modelo de ${esc(sub?.nombre || "este frente")}</b>Sube el XML del eje exportado de Civil 3D (LandXML con el alineamiento y sus secciones). Después sube aquí el XML de la superficie de cada liberación y se dibuja el avance de la capa.</div>`;
-    $("#mLista").innerHTML = ""; return;
+  // Capas: con superficies, con base o configuradas en Ajustes → Capas (agrupadas por tipo)
+  const gs = gruposFrente(subId), cuenta = new Map(); todas.forEach(x => cuenta.set(x.grupo, (cuenta.get(x.grupo) || 0) + 1));
+  if (P.mGrupo && !gs.includes(P.mGrupo)) P.mGrupo = "";
+  const porTipo = new Map(); gs.forEach(g => { const t = g.split("|")[0]; (porTipo.get(t) || porTipo.set(t, []).get(t)).push(g); });
+  $("#mGrupo").innerHTML = `<option value="">Todas (${todas.length})</option>` + [...porTipo.entries()].sort((a, b) => natural(nom(L.tipo(a[0])) || "", nom(L.tipo(b[0])) || "")).map(([t, lst]) => `<optgroup label="${esc(t ? nom(L.tipo(t)) : "Sin tipo")}">${lst.sort((a, b) => natural(a, b)).map(g => `<option value="${esc(g)}" ${g === P.mGrupo ? "selected" : ""}>${esc(g.split("|")[1] || nom(L.tipo(t)) || "Sin capa")}${cuenta.get(g) ? ` (${cuenta.get(g)})` : ""}${MOD.bases[subId]?.has(g) ? " · base" : ""}</option>`).join("")}</optgroup>`).join("");
+  $("#mGrupo").disabled = !gs.length;
+  const eje = puntosEje(subId), hayBases = (MOD.bases[subId]?.size || 0) > 0;
+  if (!mod && !eje && !todas.length && !hayBases && !gs.length) {
+    body.innerHTML = `<div class="empty"><b>Aún no hay modelo de ${esc(sub?.nombre || "este frente")}</b>Puedes empezar por cualquiera de estos XML de Civil 3D: el eje con sus secciones (opcional), la base de una capa (su superficie o su contorno) o las superficies de las liberaciones. Primero elige o crea las capas en Ajustes → Capas.</div>`;
+    $("#mLista").innerHTML = ""; dibujarCapasLista(); return;
   }
-  const lim = mod ? [mod.pk0, mod.pk1] : [eje[0][0], eje[eje.length - 1][0]];
-  if (P.mSta == null && mod?.est.length) { P.mSta = mod.est[0]; irPrimera(); }
-  const largo = (sub?.pkMax ?? lim[1]) - (sub?.pkMin ?? lim[0]) || lim[1] - lim[0] || 1;
-  const cub = unionLen(vis.map(x => [Math.max(x.pk0, sub?.pkMin ?? -1e9), Math.min(x.pk1, sub?.pkMax ?? 1e9)]).filter(q => q[1] > q[0]));
-  const area = vis.reduce((t, x) => t + (x.area || 0), 0), zs = vis.map(x => x.zMed);
-  const conDz = vis.filter(x => x.dzMed != null);
+  if (!eje) P.mModo = "real";
+  const real = P.mModo === "real";
   const estados = {}; vis.forEach(x => { const r = registroDe(x.codigo); const k = r ? r.estado : "SR"; estados[k] = (estados[k] || 0) + 1; });
-  body.innerHTML = `
-    <h2 class="chart-t">${esc(sub?.nombre || "")} · ${esc(P.mGrupo ? nomGrupo(P.mGrupo) : "todas las capas")}</h2>
-    <div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"}</span><span><b>${mts(cub)}</b> de eje (${Math.round(cub / largo * 100)}%)</span><span><b>${Math.round(area).toLocaleString("es-PE")}</b> m²</span>${zs.length === 1 ? `<span>cota media <b>${zs[0].toFixed(2)}</b></span>` : zs.length ? `<span>cota <b>${Math.min(...zs).toFixed(2)}</b> a <b>${Math.max(...zs).toFixed(2)}</b></span>` : ""}${conDz.length ? `<span>Δz medio <b>${fmtDz(r3(conDz.reduce((t, x) => t + x.dzMed, 0) / conDz.length))}</b></span>` : ""}</div>
-    <div class="legend">${["PT", "EP", "EC", "OB"].filter(k => estados[k]).map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]} (${estados[k]})</span>`).join("")}${estados.SR ? `<span><i style="background:#5b7fa6"></i>Sin registro (${estados.SR})</span>` : ""}<span><i class="hatch"></i>Diseño</span><span><i style="background:var(--accent);height:3px"></i>Sección elegida</span></div>
-    <div class="mbar"><h3>Planta desarrollada <span class="muted small">· progresiva y desfase desde el eje</span></h3><button type="button" class="mini" data-mz="-" aria-label="Alejar" ${(P.mZoom || 1) <= 1 ? "disabled" : ""}>−</button><button type="button" class="mini" data-mz="+" aria-label="Acercar">+</button><button type="button" class="mini" data-mz="0">Todo</button></div>
-    <div class="mscroll" id="mPlanBox"><div id="mPlan"></div></div>
-    <p class="nota-g">Toca una liberación para ir a su sección y otra vez para ver sus datos; toca cualquier punto para ver esa sección. Izquierda del eje arriba, derecha abajo.</p>
-    ${mod ? `<div class="mbar"><h3 id="mSecT">Sección</h3><button type="button" class="mini" data-mst="-" aria-label="Sección anterior">‹</button><button type="button" class="mini" data-mst="+" aria-label="Sección siguiente">›</button></div>
+  const leyEst = ["PT", "EP", "EC", "OB"].filter(k => estados[k]).map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]} (${estados[k]})</span>`).join("") + (estados.SR ? `<span><i style="background:#5b7fa6"></i>Sin registro (${estados.SR})</span>` : "");
+  const seg = `<div class="seg" role="group" aria-label="Tipo de planta"><button type="button" data-modo="real" aria-pressed="${real}">Planta real</button><button type="button" data-modo="des" aria-pressed="${!real}" ${eje ? "" : 'disabled title="Necesita el XML del eje"'}>Desarrollada</button></div>`;
+  let cab;
+  if (real) {
+    const m = P.mGrupo ? medidaGrupo(subId, P.mGrupo) : null, base = m?.base, r = m?.r;
+    const zs = vis.map(x => x.zMed);
+    cab = `<h2 class="chart-t">${esc(sub?.nombre || "")} · ${esc(P.mGrupo ? nomGrupo(P.mGrupo) : "todas las capas")}</h2>
+      ${P.mGrupo ? (base && r ? `<div class="avc"><div class="avc-n"><b>${fmtPct(r.pct)}</b><span>liberado</span></div><div class="avc-d"><div class="avc-b"><i style="width:${(r.pct * 100).toFixed(2)}%"></i></div><p>${fmtM2(r.lib)} de ${fmtM2(base.area)} · faltan <b>${fmtM2(Math.max(0, base.area - r.lib))}</b> · ${m.n} ${m.n === 1 ? "tramo" : "tramos"}${zs.length ? ` · cota ${Math.min(...zs).toFixed(2)}${zs.length > 1 ? " a " + Math.max(...zs).toFixed(2) : ""}` : ""}</p></div></div>
+        ${r.cruce > 0.5 || r.fuera > 0.5 || m.sinContorno ? `<p class="pinfo avc-w">${r.cruce > 0.5 ? `Hay <b>${fmtM2(r.cruce)}</b> donde dos liberaciones se cruzan (contadas una sola vez). ` : ""}${r.fuera > 0.5 ? `<b>${fmtM2(r.fuera)}</b> quedan fuera del borde de la base y no cuentan. ` : ""}${m.sinContorno ? `${m.sinContorno} ${m.sinContorno === 1 ? "liberación no tiene" : "liberaciones no tienen"} contorno real (súbela de nuevo).` : ""}</p>` : ""}`
+        : `<div class="mres"><span><b>${m?.n || 0}</b> ${m?.n === 1 ? "liberación" : "liberaciones"}</span>${r ? `<span><b>${fmtM2(r.total)}</b> liberados</span>` : ""}<span class="muted">Sin base: sube el XML base para ver el porcentaje.</span></div>`)
+        : `<div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"} en el frente</span><span class="muted">Elige una capa para ver su avance.</span></div>`}
+      <div class="legend">${leyEst}${P.mGrupo && base ? '<span><i class="falta-i"></i>Falta liberar</span><span><i class="crz"></i>Cruce</span><span><i class="fue"></i>Fuera de la base</span>' : ""}${eje ? '<span><i style="background:#2b3a36;height:2px"></i>Eje</span>' : ""}</div>
+      <div class="mbar">${seg}<span class="mbar-sp"></span>${P.mGrupo ? `<button type="button" class="mini" data-base>${base ? "Reemplazar base" : "Subir base"}</button>${base ? '<button type="button" class="mini warn-mini" data-quitabase>Quitar base</button>' : ""}` : ""}</div>
+      <div class="mreal" id="mPlanBox"><div id="mPlan"></div><div class="rzoom" role="group" aria-label="Acercar o alejar"><button type="button" data-rz="+" aria-label="Acercar">+</button><button type="button" data-rz="-" aria-label="Alejar">−</button><button type="button" data-rz="0" aria-label="Ver todo">Todo</button></div></div>
+      <p class="nota-g">Planta real girada${eje ? " a lo largo del eje" : " según la forma de la capa"}. Arrastra para moverte; toca una liberación para elegirla y otra vez para ver sus datos${eje && mod ? "; toca cualquier punto para ver esa sección" : ""}.${base ? ` Base: ${esc(base.nombre || "")}.` : ""}</p>`;
+  } else {
+    const lim = mod ? [mod.pk0, mod.pk1] : [eje[0][0], eje[eje.length - 1][0]];
+    const vp = vis.filter(x => x.pk0 != null);
+    const largo = (sub?.pkMax ?? lim[1]) - (sub?.pkMin ?? lim[0]) || lim[1] - lim[0] || 1;
+    const cub = unionLen(vp.map(x => [Math.max(x.pk0, sub?.pkMin ?? -1e9), Math.min(x.pk1, sub?.pkMax ?? 1e9)]).filter(q => q[1] > q[0]));
+    const area = vis.reduce((t, x) => t + (x.area || 0), 0), zs = vis.map(x => x.zMed), conDz = vis.filter(x => x.dzMed != null);
+    cab = `<h2 class="chart-t">${esc(sub?.nombre || "")} · ${esc(P.mGrupo ? nomGrupo(P.mGrupo) : "todas las capas")}</h2>
+      <div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"}</span><span><b>${mts(cub)}</b> de eje (${Math.round(cub / largo * 100)}%)</span><span><b>${Math.round(area).toLocaleString("es-PE")}</b> m²</span>${zs.length === 1 ? `<span>cota media <b>${zs[0].toFixed(2)}</b></span>` : zs.length ? `<span>cota <b>${Math.min(...zs).toFixed(2)}</b> a <b>${Math.max(...zs).toFixed(2)}</b></span>` : ""}${conDz.length ? `<span>Δz medio <b>${fmtDz(r3(conDz.reduce((t, x) => t + x.dzMed, 0) / conDz.length))}</b></span>` : ""}</div>
+      <div class="legend">${leyEst}<span><i class="hatch"></i>Diseño</span><span><i style="background:var(--accent);height:3px"></i>Sección elegida</span></div>
+      <div class="mbar">${seg}<span class="mbar-sp"></span><button type="button" class="mini" data-mz="-" aria-label="Alejar" ${(P.mZoom || 1) <= 1 ? "disabled" : ""}>−</button><button type="button" class="mini" data-mz="+" aria-label="Acercar">+</button><button type="button" class="mini" data-mz="0">Todo</button></div>
+      <div class="mscroll" id="mPlanBox"><div id="mPlan"></div></div>
+      <p class="nota-g">Planta desarrollada: progresiva y desfase desde el eje (izquierda arriba, derecha abajo). Toca una liberación para ir a su sección y otra vez para ver sus datos.</p>`;
+  }
+  if (P.mSta == null && mod?.est.length) { P.mSta = mod.est[0]; irPrimera(); }
+  body.innerHTML = cab + (mod ? `<div class="mbar"><h3 id="mSecT">Sección</h3><button type="button" class="mini" data-mst="-" aria-label="Sección anterior">‹</button><button type="button" class="mini" data-mst="+" aria-label="Sección siguiente">›</button></div>
     <input type="range" class="msta" id="mSta" min="0" max="${mod.est.length - 1}" step="1" value="${idxCerca(mod, P.mSta)}" aria-label="Sección">
-    <div class="msec" id="mSec"></div><div class="mleg" id="mLeg"></div><div id="mSecTab"></div>` : `<p class="pinfo">Hay eje pero no secciones: sube el XML del eje con secciones para comparar con el diseño.</p>`}`;
-  dibujarPlanModelo(mod, eje, vis, todas, lim);
+    <div class="msec" id="mSec"></div><div class="mleg" id="mLeg"></div><div id="mSecTab"></div>` : eje ? `<p class="pinfo">Hay eje pero no secciones: sube el XML del eje con secciones para comparar con el diseño.</p>` : "");
+  if (real) dibujarPlantaReal();
+  else { const lim = mod ? [mod.pk0, mod.pk1] : [eje[0][0], eje[eje.length - 1][0]]; dibujarPlanModelo(mod, eje, vis.filter(x => x.pk0 != null), todas.filter(x => x.pk0 != null), lim); }
   if (mod) {
-    $("#mSta").addEventListener("input", e => { P.mSta = mod.est[+e.target.value]; dibujarSeccion(); marcarStaPlan(); });
-    $("#mSta").addEventListener("change", () => centrarSta());
+    $("#mSta").addEventListener("input", e => { P.mSta = mod.est[+e.target.value]; dibujarSeccion(); if (P.mModo === "real") dibujarPlantaReal(); else marcarStaPlan(); });
+    $("#mSta").addEventListener("change", () => { if (P.mModo !== "real") centrarSta(); });
     dibujarSeccion();
   }
+  dibujarCapasLista();
   dibujarListaModelo(vis);
 }
 function dibujarPlanModelo(mod, eje, vis, todas, lim) {
@@ -2842,7 +3205,7 @@ const celdaSup = (x, r) => `<b class="mono">${esc(x.codigo || "Sin código")}</b
 function dibujarListaModelo(vis) {
   const box = $("#mLista"); if (!box) return;
   if (!vis.length) { box.innerHTML = `<div class="card empty"><b>Aún no hay superficies de liberación</b>Sube con «Subir XML» la superficie que se exporta de Civil 3D por cada liberación. Si el nombre trae el código SKT-TOP, se enlaza solo con su registro.</div>`; return; }
-  const fil = vis.slice().sort((a, b) => a.pk0 - b.pk0 || natural(a.nombre, b.nombre)).map(x => { const r = registroDe(x.codigo); return `<tr data-sid="${esc(x.id)}" class="${S.panel.mSel === x.id ? "msel" : ""}"><td>${celdaSup(x, r)}</td><td class="num">${esc(rangoPk(x.pk0, x.pk1))}</td><td class="num hm">${x.zMed.toFixed(2)}</td><td class="num">${fmtDz(x.dzMed)}</td><td class="num hm">${Math.round(x.area || 0).toLocaleString("es-PE")}</td></tr>`; });
+  const fil = vis.slice().sort((a, b) => (a.pk0 ?? 1e12) - (b.pk0 ?? 1e12) || natural(a.nombre, b.nombre)).map(x => { const r = registroDe(x.codigo); return `<tr data-sid="${esc(x.id)}" class="${S.panel.mSel === x.id ? "msel" : ""}"><td>${celdaSup(x, r)}</td><td class="num">${esc(rangoPk(x.pk0, x.pk1)) || "—"}</td><td class="num hm">${x.zMed.toFixed(2)}</td><td class="num">${fmtDz(x.dzMed)}</td><td class="num hm">${Math.round(x.area || 0).toLocaleString("es-PE")}</td></tr>`; });
   box.innerHTML = `<div class="card section"><h2 style="margin-bottom:6px">Liberaciones en el modelo <span class="muted small">· ${vis.length}</span></h2><div class="mwrap"><table class="mtab"><thead><tr><th>Liberación</th><th class="num">Tramo</th><th class="num hm">Cota media</th><th class="num">Δz medio</th><th class="num hm">Área m²</th></tr></thead><tbody>${fil.join("")}</tbody></table></div></div>`;
 }
 
