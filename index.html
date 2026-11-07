@@ -2462,7 +2462,7 @@ function supDesdeTin(sEl, subId, mod) {
   let borde = F.length ? bordeTin(Q, F) : []; if (borde.length < 3) borde = casco(Q.map(q => [q[0], q[1]]));
   borde = simplificarBorde(borde);
   const cs = [];
-  if (mod && F.length) mod.est.forEach(st => { if (st >= pk0 - 0.05 && st <= pk1 + 0.05) { const pz = cortarTin(Q, F, Math.min(pk1, Math.max(pk0, st))); if (pz.length) cs.push(r2(st) + "|" + pz.map(codLinea).join("/")); } });
+  if (mod && F.length) mod.est.forEach(st => { if (st >= pk0 - 0.05 && st <= pk1 + 0.05) { const pz = cortarTin(Q, F, Math.min(pk1 - 0.01, Math.max(pk0 + 0.01, st))); /* en el borde se corta 1 cm adentro */ if (pz.length) cs.push(r2(st) + "|" + pz.map(codLinea).join("/")); } });
   const cmp = compararDiseno(mod, Q.map(q => [q[0], q[1], q[3]]));
   return { id: idSup(subId, nombre), subId, nombre, codigo: codigoDe(nombre), pk0: r2(pk0), pk1: r2(pk1), oMin: r2(oMin), oMax: r2(oMax),
     zMed: r3(zMed), zMin: r3(zMin), zMax: r3(zMax), area: Math.round(area * 10) / 10,
