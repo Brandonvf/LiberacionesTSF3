@@ -78,6 +78,23 @@ const avisoInstalable = p => p.evaluate(() => {
   ok(await p.evaluate(() => window.__insignias.at(-1) === 0), 'al salir se borra el número del ícono');
   await ctx.close();
 
+  // 3b. Entrada directa con Google en la app instalada en iPhone (sin ventana emergente)
+  const ctxI = await b.newContext({ ...devices['iPhone 13'] }); await preparar(ctxI);
+  const pi = await ctxI.newPage(); escuchar(pi, 'iphone');
+  await pi.goto(URL); await pi.evaluate(() => localStorage.clear());
+  const email = ADMIN.email, tok = Buffer.from(email).toString('base64');
+  // Como si volviera de Google con un estado guardado antes de ir
+  await pi.evaluate(([tok, h]) => { localStorage.setItem('lib.oauth', JSON.stringify({ st: 'abc123', hash: h, t: Date.now() })); location.hash = 'id_token=' + tok + '&state=abc123'; }, [tok, '#panel']);
+  await pi.reload(); await pi.waitForSelector('#nav button');
+  ok(await pi.evaluate(() => location.hash) === '#panel', 'al volver de Google entra, limpia el token de la dirección y vuelve a la pantalla que tenía (Panel)');
+  ok(await pi.$eval('[data-v="panel"]', b => b.getAttribute('aria-current') === 'page'), 'y la muestra');
+  ok(!(await pi.evaluate(() => localStorage.getItem('lib.oauth'))), 'el estado de la entrada se borra al usarse');
+  await pi.click('#btnSalir'); await pi.waitForSelector('#gEntrar');
+  await pi.evaluate(tok => { localStorage.setItem('lib.oauth', JSON.stringify({ st: 'otro', hash: '', t: Date.now() })); location.hash = 'id_token=' + tok + '&state=abc123'; }, tok);
+  await pi.reload(); await pi.waitForSelector('#gEntrar');
+  ok(/No se pudo completar/.test(await pi.textContent('#gate')) && await pi.evaluate(() => location.hash) === '', 'si el estado no coincide no entra y lo explica');
+  await ctxI.close();
+
   // 4. Service worker: guarda todo al instalarse y abre sin señal
   const ctx2 = await b.newContext({ viewport: { width: 1280, height: 800 } }); await preparar(ctx2);
   const q = await ctx2.newPage(); escuchar(q, 'sw');
@@ -85,9 +102,9 @@ const avisoInstalable = p => p.evaluate(() => {
   await q.evaluate(u => { localStorage.clear(); localStorage.setItem('__fakeUser', JSON.stringify(u)); }, ADMIN);
   await q.evaluate(() => navigator.serviceWorker.register('sw.js'));
   await q.evaluate(() => navigator.serviceWorker.ready);
-  await q.waitForFunction(async () => (await caches.keys()).includes('liberaciones-v7'));
+  await q.waitForFunction(async () => (await caches.keys()).includes('liberaciones-v8'));
   await q.waitForTimeout(800);
-  const guardado = await q.evaluate(async () => (await (await caches.open('liberaciones-v7')).keys()).map(r => r.url));
+  const guardado = await q.evaluate(async () => (await (await caches.open('liberaciones-v8')).keys()).map(r => r.url));
   const tiene = f => guardado.some(u => u.endsWith(f));
   ok(['/', 'manifest.webmanifest', 'logo.svg', 'icono-192.png', 'icono-512.png', 'apple-touch-icon.png'].every(tiene), 'al instalarse guarda la página, el manifiesto y el logo');
   ok(['firebase-app.js', 'firebase-auth.js', 'firebase-firestore.js'].every(tiene), 'y las librerías de Firebase (abre sin señal aunque nunca se usó sin internet)');

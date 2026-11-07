@@ -1,9 +1,9 @@
-/* Liberaciones TSF3: permite abrir la app sin señal. La página siempre se pide primero a internet
-   (así llegan las actualizaciones); si no hay señal o tarda más de 4 s, se usa la última copia guardada.
+/* Liberaciones TSF3: permite abrir la app sin señal. La página abre al instante con la última copia guardada
+   y a la vez se baja la nueva; si cambió, se avisa a la app para que muestre «Hay una versión nueva».
    Al instalarse se guardan de una vez la página, el logo y las librerías de Firebase, para que la app
    instalada abra al instante y sin señal aunque nunca se haya usado sin internet.
    Los datos no pasan por aquí: Firestore los guarda en el teléfono y los sube cuando vuelve la señal. */
-const CACHE = 'liberaciones-v7';
+const CACHE = 'liberaciones-v8';
 const SHELL = ['./', 'manifest.webmanifest', 'iconos/logo.svg', 'iconos/icono-192.png', 'iconos/icono-512.png',
   'iconos/icono-mascara-512.png', 'iconos/apple-touch-icon.png', 'iconos/favicon-32.png'];
 const FB = 'https://www.gstatic.com/firebasejs/13.2.0/';
@@ -46,17 +46,22 @@ self.addEventListener('fetch', e => {
       const key = nav ? './' : r;
       // En la apertura se aprovecha la descarga que el navegador ya empezó (más rápido al tocar el ícono)
       const pedir = nav && e.preloadResponse ? e.preloadResponse.then(p => p || fetch(r)) : fetch(r);
-      const net = pedir.then(res => {
-        if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(key, copy)); }
+      const cached = await caches.match(key, { ignoreSearch: true });
+      const net = pedir.then(async res => {
+        if (res && res.ok) {
+          const c = await caches.open(CACHE);
+          // Si la página cambió respecto de la copia que se mostró, se avisa a la app abierta
+          const etiq = x => x && (x.headers.get('etag') || x.headers.get('last-modified') || '');
+          const cambio = nav && cached && etiq(cached) && etiq(cached) !== etiq(res);
+          await c.put(key, res.clone());
+          if (cambio) for (const cl of await self.clients.matchAll({ type: 'window' })) cl.postMessage({ tipo: 'version-nueva' });
+        }
         return res;
       });
-      const cached = await caches.match(key, { ignoreSearch: true });
       if (!cached) return net;
-      net.catch(() => {});
-      return Promise.race([
-        net.catch(() => cached),
-        new Promise(ok => setTimeout(() => ok(cached), 4000))
-      ]);
+      // Abre al instante con la copia guardada; la descarga sigue en segundo plano
+      e.waitUntil(net.catch(() => {}));
+      return cached;
     })());
     return;
   }
