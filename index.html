@@ -518,6 +518,8 @@ kbd{font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var
   #view{margin-left:var(--side);margin-right:0;max-width:calc(1240px + var(--side));padding-left:36px;padding-right:36px;transition:margin-right .3s cubic-bezier(.2,.8,.2,1)}
   body.poder .sheet{left:auto;right:0;top:0;bottom:0;width:var(--ficha);max-height:none;height:100vh;border-radius:24px 0 0 24px;transform:translateX(105%);opacity:1;transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:-10px 0 40px rgba(16,40,34,.14);padding-top:18px}
   body.poder .sheet.on{transform:none}
+  body.poder .sheet .actions .btn.block{flex:1 1 100%}
+  body.poder .sheet .actions .btn{padding:12px 20px}
   body.poder .scrim{display:none!important}
   body.poder.ficha-on #view{margin-right:var(--ficha);padding-right:24px}
   .rtab tr.abierta{background:#e8f5f2;box-shadow:inset 3px 0 0 var(--accent)}
@@ -565,6 +567,20 @@ kbd{font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var
 #cmdkN{margin-left:auto}
 
 
+@media (min-width:1024px) and (max-width:1319px){
+  body.poder.ficha-on #view{margin-right:0;padding-right:36px}
+  body.poder .scrim:not([hidden]){display:block!important}
+  body.poder .scrim{left:var(--side)}
+  body.poder .sheet{width:min(var(--ficha),46vw)}
+}
+.solapa{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:#8a4b00;background:#fdecc8;border-radius:999px;padding:2px 9px}
+.solapa::before{content:"⇄"}
+.item.nota.solap{background:#fdf1d8;color:#7a4400}
+.lnk{border:0;background:transparent;color:var(--accent-strong);font-weight:800;text-decoration:underline;padding:0;font-family:var(--f-mono);font-size:13px}
+.solist{margin:0 0 4px;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.solist .st{font-size:11px}
+.arch.purg{opacity:.7}
+.arch.purg .an span{font-style:italic}
 /* Tabla «Qué falta liberar» */
 .ft-ctl{display:flex;align-items:flex-start;gap:10px 16px;flex-wrap:wrap;margin:0 0 8px}
 .ft-caps{display:flex;flex-wrap:wrap;gap:5px;flex:1;min-width:0;max-height:96px;overflow:auto}
@@ -1017,8 +1033,10 @@ $("#btnSalir").addEventListener("click", async () => {
 
 function ir(v, desdeHistorial) {
   if (S.view === "nueva" && v !== "nueva") { if (S.editando) S.form = null; else guardarBorrador(); }
+  const conFicha = !$("#sheet").hidden && history.state && history.state.ficha;
   S.view = v; ls.set("lib.vista", v); document.body.className = document.body.className.replace(/\bv-\S+/g, "").trim() + " v-" + v;
-  if (!desdeHistorial && location.hash.slice(1) !== v) history.pushState(null, "", "#" + v);
+  if (!desdeHistorial && conFicha) history.replaceState(null, "", "#" + v);
+  else if (!desdeHistorial && location.hash.slice(1) !== v) history.pushState(null, "", "#" + v);
   if (v !== "nueva") S.editando = null;
   if (!$("#sheet").hidden) cerrarFicha(true);
   cerrarMenu();
@@ -1091,6 +1109,7 @@ async function leerArchivos(files, tipo) {
   pintarForm();
 }
 function archRow(a, i) {
+  if (a.purgado) return `<div class="arch purg"><span class="ext">JPG</span><div class="an"><b>${esc(a.nombre)}</b><span>Foto depurada</span></div></div>`;
   const ico = a.tipo === "foto" && a.datos ? `<img src="${a.datos}" alt="">` : `<span class="ext">${a.tipo === "foto" ? "JPG" : "CSV"}</span>`;
   return `<div class="arch">${ico}<div class="an"><b>${esc(a.nombre)}</b><span>${a.tipo === "csv" && a.lineas ? a.lineas + " líneas · " : ""}${kb(a.tam || 0)}${a.nuevo ? " · por guardar" : ""}</span></div><button type="button" data-delarch="${i}" aria-label="Quitar archivo">×</button></div>`;
 }
@@ -1107,6 +1126,7 @@ function pintarForm() {
   if (!S.form) { S.form = S.editando ? formDesde(S.editando) : (ls.get(BORR(), null) || formVacio()); if (!S.editando && !S.form.topografoId) S.form.topografoId = S.perfil?.topografoId || ""; }
   const f = S.form, E = S.editando;
   f.archivos ||= []; f.borrarArchivos ||= []; f.linksCsv ||= []; f.linksFotos ||= [];
+  precargarFrente(f.subestructuraId);
   const est = L.est(f.estructuraId);
   const subs = est ? est.subs || [] : [];
   if (subs.length === 1 && !f.subestructuraId) f.subestructuraId = subs[0].id;
@@ -1260,6 +1280,21 @@ function guardar() {
   const { err, p1, p2, area } = validar(f);
   if (Object.keys(err).length) { marcarErrores(err); toast("Revisa los campos marcados.", "bad"); return; }
   const esLib = f.actividad === "LIB";
+  // Gabinete corrige un registro ya entregado a Calidad solo con motivo (queda en el historial)
+  if (E && E.estado === "EC" && !puedeAjustes() && S._motivoEC == null) {
+    dialogo("Editar un entregado", `<p class="dlg-p">${esc(E.numero || "Este registro")} ya se entregó a Calidad. Escribe por qué se corrige; queda en el historial.</p><div class="f"><label for="dMotEC">Motivo de la corrección</label><textarea id="dMotEC" name="m" style="min-height:70px" required></textarea></div>`,
+      o => { if ((o.m || "").length < 5) { toast("Escribe el motivo (al menos 5 letras).", "bad"); return false; } S._motivoEC = o.m; guardar(); }, "Guardar corrección");
+    return;
+  }
+  // Aviso si el tramo se cruza con otra liberación del mismo frente, tipo y capa
+  const capaN = normCapa(f.capa, f.subestructuraId, f.tipoId);
+  const solapes = esLib && !f.sinPk && p1 != null && !isNaN(p1) ? solapados(f.subestructuraId, f.tipoId, capaN, p1, p2 == null || isNaN(p2) ? p1 : p2, E?.id) : [];
+  if (solapes.length && !S._solapeOk) {
+    dialogo("Se superpone con otra liberación", `<p class="dlg-p">El tramo ${esc(rangoPk(p1, p2 ?? p1))}${capaN ? " de " + esc(capaN) : ""} se cruza con:</p><ul class="solist">${solapes.slice(0, 6).map(r => `<li><b class="mono">${esc(r.numero || "Sin número")}</b> <span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span> <span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span></li>`).join("")}${solapes.length > 6 ? `<li class="muted">y ${solapes.length - 6} más</li>` : ""}</ul><p class="muted small" style="margin:8px 0 0">Si es correcto (por ejemplo, un re-trabajo), guárdalo igual: gabinete lo verá marcado.</p>`,
+      () => { S._solapeOk = true; guardar(); }, "Guardar igual", { onCancel: () => { S._motivoEC = null; } });
+    return;
+  }
+  const motivoEC = S._motivoEC; S._motivoEC = null; S._solapeOk = false;
   const bg = $("#bGuardar"); if (bg) { bg.disabled = true; bg.textContent = "Guardando…"; }
   const datos = {
     actividad: f.actividad, fechaCampo: Timestamp.fromDate(new Date(f.fechaCampo)), topografoId: f.topografoId,
@@ -1268,9 +1303,11 @@ function guardar() {
     pkFin: f.sinPk || p1 == null || isNaN(p1) ? null : (p2 == null || isNaN(p2) ? p1 : p2),
     cota: f.cota.trim(), capa: normCapa(f.capa, f.subestructuraId, f.tipoId), area, descripcion: f.descripcion.trim(), observaciones: f.observaciones.trim(),
     linksCsv: f.linksCsv, linksFotos: f.linksFotos,
-    archivos: f.archivos.map(a => ({ id: a.id, tipo: a.tipo, nombre: a.nombre, tam: a.tam || 0, ...(a.lineas ? { lineas: a.lineas } : {}) })),
+    archivos: f.archivos.map(a => ({ id: a.id, tipo: a.tipo, nombre: a.nombre, tam: a.tam || 0, ...(a.lineas ? { lineas: a.lineas } : {}), ...(a.purgado ? { purgado: true, purgadoEn: a.purgadoEn || "" } : {}) })),
+    solapaCon: solapes.map(r => r.id),
     editadoEn: serverTimestamp(), editadoPor: S.email
   };
+  if (motivoEC) datos.motivoEdicion = motivoEC;
   const b = writeBatch(db);
   let ref, de = "", a;
   if (E) {
@@ -1293,7 +1330,7 @@ function guardar() {
     b.set(doc(db, "archivos", x.id), { liberacionId: ref.id, tipo: x.tipo, nombre: x.nombre, tam: x.tam || 0, datos: x.datos, creadoPor: S.email, creadoEn: serverTimestamp() });
   for (const id of f.borrarArchivos) b.delete(doc(db, "archivos", id));
   b.set(doc(collection(db, "historial")), { liberacionId: ref.id, accion: E ? "editado" : "creado", de, a,
-    usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "" });
+    usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: motivoEC ? "Edición de entregado: " + motivoEC : solapes.length ? "Guardado aunque se superpone con " + solapes.map(r => r.numero || "un registro sin número").join(", ") : "" });
   b.commit().catch(e => { console.error(e); toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso para este cambio." : e.message), "bad"); });
   ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId,
     capa: datos.capa, pkFin: datos.pkFin, largo: datos.pkFin != null ? Math.round((datos.pkFin - datos.pkInicio) * 100) / 100 : null });
@@ -1307,12 +1344,27 @@ function guardar() {
   const nb = $("#bGuardar"); if (nb) { nb.disabled = true; nb.textContent = "Guardado ✓"; setTimeout(() => { if (nb.isConnected) { nb.disabled = false; nb.textContent = "Guardar liberación"; } }, 700); }
 }
 
+/* ---------- Superposición de tramos ---------- */
+const RESF = {};
+function precargarFrente(subId) {
+  if (!subId || RESF[subId] || RESF[subId] === null) return;
+  RESF[subId] = null;
+  getDoc(doc(db, "resumen", subId)).then(d => { RESF[subId] = desempacar(subId, estDeSub(subId)?.id || "", d.exists() ? d.data().r : {}); }).catch(() => { delete RESF[subId]; });
+}
+function solapados(subId, tipoId, capa, a, b, propio) {
+  const datos = S.panelDatos.some(r => r.subestructuraId === subId) ? S.panelDatos.filter(r => r.subestructuraId === subId) : RESF[subId] || [];
+  const extra = [...S.mis, ...S.todos].filter(r => r.subestructuraId === subId && vivo(r) && !datos.some(x => x.id === r.id));
+  return [...datos, ...extra].filter(r => r.id !== propio && r.tipoId === tipoId && (r.capa || "").trim() === (capa || "") && r.actividad === "LIB" && !["RE", "X", "NA"].includes(r.estado) && r.pkInicio != null
+    && Math.min(b, r.pkFin ?? r.pkInicio) - Math.max(a, r.pkInicio) > 0.5);
+}
+
 /* ---------- Listas de registros ---------- */
 function textoBusqueda(r) {
-  return [r.numero, r.nombreLiberacion, r.descripcion, nom(L.sub(r.subestructuraId)), nom(L.tipo(r.tipoId)), nom(L.topo(r.topografoId), r.topografoId), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.observaciones].join(" ").toLowerCase();
+  return [r.numero, r.nombreLiberacion, r.descripcion, nom(L.sub(r.subestructuraId)), nom(L.tipo(r.tipoId)), nom(L.topo(r.topografoId), r.topografoId), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.observaciones, r.capa, r.cota, ESTADOS[r.estado], r.numeroCargo].join(" ").toLowerCase();
 }
 // Gabinete, jefe y administrador: accesos rápidos (Ctrl+K, clic derecho, casillas) y tablas en computadora
 const poder = () => esGab() || puedeAjustes();
+const veModelo = () => esGab() || puedeAjustes();
 const DESK = matchMedia("(min-width:1024px)");
 const enPC = () => DESK.matches;
 const tablaPC = () => enPC() && poder();
@@ -1377,7 +1429,7 @@ function resumenArch(r) {
 function tarjeta(r, i) {
   const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
   return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
-    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}</div>
+    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
     <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
     <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}${resumenArch(r)}</div>
     ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}${r.estado === "RE" && r.notaRechazo ? `<div class="nota re">Rechazo: ${esc(r.notaRechazo)}</div>` : ""}${r.borrado ? `<div class="nota re">En la papelera · ${esc(r.borradoNombre || r.borradoPor || "")}${r.borradoEn ? " · " + esc(fmtFecha(r.borradoEn)) : ""}</div>` : ""}
@@ -1402,6 +1454,8 @@ function abrirFicha(r) {
     ${r.nombreLiberacion ? `<p class="muted" style="margin:0">${esc(r.descripcion)}</p>` : ""}
     ${r.estado === "OB" && r.notaObservacion ? `<div class="item nota" style="animation:none">Observación: ${esc(r.notaObservacion)}</div>` : ""}
     ${r.estado === "RE" && r.notaRechazo ? `<div class="item nota re" style="animation:none">Rechazo: ${esc(r.notaRechazo)}</div>` : ""}
+    ${(r.solapaCon || []).length ? `<div class="item nota solap" style="animation:none">Se superpone con: ${r.solapaCon.map(id => `<button type="button" class="lnk" data-abrir="${esc(id)}">${esc((S.panelDatos.find(x => x.id === id) || regsDe([id])[0] || {}).numero || "ver registro")}</button>`).join(" · ")}</div>` : ""}
+    ${r.motivoEdicion ? `<div class="muted small" style="margin-top:6px">Corregido después de entregar: ${esc(r.motivoEdicion)}</div>` : ""}
     ${r.borrado ? `<div class="item nota re" style="animation:none">En la papelera · borrado por ${esc(r.borradoNombre || r.borradoPor || "")}${r.borradoEn ? " el " + esc(fmtFecha(r.borradoEn)) : ""}</div>` : ""}
     <dl class="kv">
       ${fila("Actividad", esc(nom(L.act(r.actividad), r.actividad)))}
@@ -1421,7 +1475,7 @@ function abrirFicha(r) {
     </dl>
     ${(r.linksCsv || []).length ? `<div class="sub">CSV</div><div class="links">${links(r.linksCsv)}</div>` : ""}
     ${(r.linksFotos || []).length ? `<div class="sub">Fotos</div><div class="links">${links(r.linksFotos)}</div>` : ""}
-    ${(r.archivos || []).length ? `<div class="sub">Archivos</div><div class="archs" id="fArch">${r.archivos.map(a => `<button type="button" class="arch" data-arch="${esc(a.id)}"><span class="ext">${a.tipo === "foto" ? "JPG" : "CSV"}</span><div class="an"><b>${esc(a.nombre)}</b><span>${a.tipo === "csv" && a.lineas ? a.lineas + " líneas · " : ""}${kb(a.tam || 0)}</span></div><span class="dl">${a.tipo === "foto" ? "Ver" : "Descargar"}</span></button>`).join("")}</div>` : ""}
+    ${(r.archivos || []).length ? `<div class="sub">Archivos</div><div class="archs" id="fArch">${r.archivos.map(a => a.purgado ? `<div class="arch purg"><span class="ext">JPG</span><div class="an"><b>${esc(a.nombre)}</b><span>Foto depurada${a.purgadoEn ? " el " + esc(fmtFecha(a.purgadoEn, false)) : ""} para liberar espacio</span></div></div>` : `<button type="button" class="arch" data-arch="${esc(a.id)}"><span class="ext">${a.tipo === "foto" ? "JPG" : "CSV"}</span><div class="an"><b>${esc(a.nombre)}</b><span>${a.tipo === "csv" && a.lineas ? a.lineas + " líneas · " : ""}${kb(a.tam || 0)}</span></div><span class="dl">${a.tipo === "foto" ? "Ver" : "Descargar"}</span></button>`).join("")}</div>` : ""}
     <div class="sub">Historial</div><div class="hist" id="hist"><span class="muted small">Cargando…</span></div>
     <div class="actions">
       ${r.borrado ? `${puedeRestaurar(r) ? '<button type="button" class="btn pri block" id="fRestaurar">Restaurar</button>' : ""}${puedeAjustes() ? '<button type="button" class="btn warn" id="fBorrarSiempre">Borrar para siempre</button>' : ""}<button type="button" class="btn sec" id="fCerrar">Cerrar</button>` : `
@@ -1444,6 +1498,7 @@ function abrirFicha(r) {
   $("#fObservar")?.addEventListener("click", () => observar(r));
   $("#fEntregar")?.addEventListener("click", () => entregar([r.id]));
   $("#fRechazar")?.addEventListener("click", () => rechazar(r));
+  sh.querySelectorAll("[data-abrir]").forEach(b => b.addEventListener("click", () => abrirFichaId(b.dataset.abrir)));
   $("#fReabrir")?.addEventListener("click", () => reabrir(r));
   $("#fBorrar")?.addEventListener("click", () => aPapelera([r]));
   $("#fRestaurar")?.addEventListener("click", () => restaurar([r]));
@@ -1457,7 +1512,7 @@ function abrirFicha(r) {
   }, () => { const box = $("#hist"); if (box) box.innerHTML = '<span class="muted small">No disponible.</span>'; });
   if (unsubArch) { unsubArch(); unsubArch = null; }
   const datosArch = {};
-  if ((r.archivos || []).length) {
+  if ((r.archivos || []).some(a => !a.purgado)) {
     unsubArch = onSnapshot(query(collection(db, "archivos"), where("liberacionId", "==", r.id)), snap => {
       snap.docs.forEach(d => { datosArch[d.id] = d.data(); });
       for (const btn of document.querySelectorAll("#fArch [data-arch]")) {
@@ -1597,7 +1652,7 @@ function abrirBuscador() {
     const cmds = [...vistas().map(v => ({ t: "Ir a " + v.t, s: "Pantalla", ir: () => ir(v.id) })), ...subsConDatos().map(({ s: sb }) => ({ t: "Panel · " + sb.nombre, s: "Frente", ir: () => { S.panel.subId = sb.id; ls.set("lib.panelSub", sb.id); ir("panel"); } }))];
     const vistos = new Set(), regs = [];
     for (const r of [...S.bandeja.todos(), ...S.todos, ...S.mis, ...(BUS.todos || [])]) if (!vistos.has(r.id) && vivo(r)) { vistos.add(r.id); regs.push(r); }
-    const txt = r => [r.numero, nom(L.tipo(r.tipoId)), r.capa, nom(L.sub(r.subestructuraId)), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.topografoId, nom(L.topo(r.topografoId)), ESTADOS[r.estado], r.descripcion, r.nombreLiberacion].join(" ").toLowerCase();
+    const txt = r => [r.numero, nom(L.tipo(r.tipoId)), r.capa, r.cota, nom(L.sub(r.subestructuraId)), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.topografoId, nom(L.topo(r.topografoId)), ESTADOS[r.estado], r.descripcion, r.nombreLiberacion, r.numeroCargo].join(" ").toLowerCase();
     const okC = cmds.filter(c => qs.every(q => c.t.toLowerCase().includes(q)));
     let okR = qs.length ? regs.filter(r => { const t = txt(r); return qs.every(q => t.includes(q)); }) : [];
     const exacto = qs.length === 1 && /\d{3,}/.test(qs[0]);
@@ -1838,7 +1893,7 @@ function pintarPanel() {
   if (!lista.length) { $("#view").innerHTML = '<h1 class="view-title">Panel</h1><div class="card empty"><b>Cargando listas…</b></div>'; return; }
   if (!P.subId || !lista.some(x => x.s.id === P.subId)) { const g = ls.get("lib.panelSub", ""); P.subId = lista.some(x => x.s.id === g) ? g : lista[0].s.id; }
   suscribirPanel(estDeSub(P.subId).id);
-  if (P.vista === "modelo" && !esGab()) P.vista = "perfil";
+  if (P.vista === "modelo" && !veModelo()) P.vista = "perfil";
   if (P.vista === "modelo") { pintarModelo(); return; }
   const planta = P.vista === "planta";
   const movilP = innerWidth < 760, hayFiltro = !!(P.desde || P.hasta || P.st || P.topo || P.hoy);
@@ -2217,7 +2272,7 @@ function dibujarPlanta(est, recs) {
   $("#pNota").textContent = `Norte arriba. Toca un tramo para ver su ficha.${faltan.length ? " Sin eje: " + faltan.join(", ") + "." : ""}`;
   conectarTramos(box.querySelector("svg"), "path.tramo");
 }
-DESK.addEventListener("change", () => { if (S.dentro) { pintarNav(); render(); } });
+DESK.addEventListener("change", () => { if (!S.dentro) return; if (S.view === "nueva") leerCampos(); pintarNav(); render(); });
 let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (S.view === "panel" && ($("#chart") || $("#mBody"))) actualizarPanel(); }, 150); });
 
 /* ---------- Modelo 2D (solo gabinete): eje y secciones de Civil 3D + la superficie de cada liberación ----------
@@ -2645,7 +2700,7 @@ function pintarModelo() {
   cargarModelo(P.subId); suscribirModelo(P.subId);
   dibujarModelo();
 }
-const tabsPanel = () => `<button type="button" data-vista="lista" aria-pressed="${S.panel.vista === "lista"}">Qué falta</button><button type="button" data-vista="perfil" aria-pressed="${S.panel.vista === "perfil"}">Perfil</button><button type="button" data-vista="planta" aria-pressed="${S.panel.vista === "planta"}">Planta</button>${esGab() ? `<button type="button" data-vista="modelo" aria-pressed="${S.panel.vista === "modelo"}">Modelo 2D</button>` : ""}`;
+const tabsPanel = () => `<button type="button" data-vista="lista" aria-pressed="${S.panel.vista === "lista"}">Qué falta</button><button type="button" data-vista="perfil" aria-pressed="${S.panel.vista === "perfil"}">Perfil</button><button type="button" data-vista="planta" aria-pressed="${S.panel.vista === "planta"}">Planta</button>${veModelo() ? `<button type="button" data-vista="modelo" aria-pressed="${S.panel.vista === "modelo"}">Modelo 2D</button>` : ""}`;
 function irPrimera() {
   const mod = MOD.secc[S.panel.subId], { vis } = supsGrupo(); if (!mod || !vis.length) return;
   const x = vis.slice().sort((a, b) => a.pk0 - b.pk0)[0], dentro = mod.est.filter(t => t >= x.pk0 - 0.05 && t <= x.pk1 + 0.05);
@@ -2869,6 +2924,7 @@ function cambiarEstado(ids, datos, a, nota) {
   return b.commit().then(() => regs.length).catch(e => { toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return 0; });
 }
 function aceptarUno(r) {
+  if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
   dialogo("Aceptar y generar código", `<p class="muted small" style="margin:0 0 10px">Se asigna el siguiente ${esc((S.config || {}).prefijo || "SKT-TOP-")}… libre. El nombre es el que va en el protocolo.</p>
     <div class="f"><label for="dNom">Nombre de la liberación</label><textarea id="dNom" name="nombre" style="min-height:70px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>`,
     async o => { const n = await generarCodigo(r, o.nombre); if (n) { toast(`Código ${n} generado`); if (!$("#sheet").hidden) cerrarFicha(); } }, "Generar código");
@@ -2906,6 +2962,11 @@ function rechazar(r) {
 const puedeBorrar = r => !!r && !r.borrado && !r._res && (puedeAjustes() || (!r.numero && (esGab() || (escribe() && r.creadoPor === S.email))));
 const puedeRestaurar = r => !!r && r.borrado && (puedeAjustes() || (esGab() && !r.numero));
 function regsDe(ids) { const pool = [...S.bandeja.todos(), ...S.todos, ...S.mis, ...(S.papelera || [])]; if (S._ficha) pool.push(S._ficha); return ids.map(id => pool.find(r => r.id === id)).filter(Boolean); }
+// Sin señal la escritura queda en el teléfono y se sube sola; con señal se espera la confirmación
+async function escribir(p, ok, mal) {
+  if (!navigator.onLine) { p.catch(e => toast(mal + (e.code === "permission-denied" ? "sin permiso (publica las reglas nuevas)." : e.message), "bad")); toast(ok + " · se subirá cuando haya señal", "pend"); return true; }
+  try { await p; toast(ok); return true; } catch (e) { toast(mal + (e.code === "permission-denied" ? "sin permiso (publica las reglas nuevas)." : e.message), "bad"); return false; }
+}
 function lotes(regs, fn, n = 150) { const ps = []; for (let i = 0; i < regs.length; i += n) { const b = writeBatch(db); regs.slice(i, i + n).forEach(r => fn(b, r)); ps.push(b.commit()); } return Promise.all(ps); }
 const hist = (b, r, accion, nota) => b.set(doc(collection(db, "historial")), { liberacionId: r.id, accion, usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: nota || "" });
 async function aPapelera(regs0) {
@@ -2913,28 +2974,27 @@ async function aPapelera(regs0) {
   const n = regs.length, gestion = esGab() || puedeAjustes();
   const que = n === 1 ? `<b>${esc(regs[0].numero || regs[0].descripcion || "El registro")}</b> sale` : `<b>${n} registros</b> salen`;
   if (!await confirmar(n === 1 ? "Mandar a la papelera" : `Mandar ${n} a la papelera`, `${que} de las listas y del panel. ${gestion ? "Se puede restaurar desde Registros → Papelera." : "Si fue un error, gabinete lo puede restaurar."}${regs.some(r => r.numero) ? " Los códigos SKT-TOP no se vuelven a usar." : ""}`, "Mandar a la papelera", true)) return 0;
-  lotes(regs, (b, r) => {
+  const p = lotes(regs, (b, r) => {
     b.update(doc(db, "liberaciones", r.id), { borrado: true, borradoPor: S.email, borradoNombre: S.perfil?.nombre || "", borradoEn: serverTimestamp() });
     if (r.subestructuraId) b.set(doc(db, "resumen", r.subestructuraId), { r: { [r.id]: deleteField() } }, { merge: true });
     hist(b, r, "borrado", "Enviado a la papelera");
-  }).catch(e => toast("No se pudo borrar: " + (e.code === "permission-denied" ? "sin permiso (publica las reglas nuevas)." : e.message), "bad"));
+  });
   const ids = new Set(regs.map(r => r.id));
   S.bandeja.sel.clear(); S.selReg?.clear?.();
   if (S._ficha && ids.has(S._ficha.id)) cerrarFicha();
-  toast(n === 1 ? "Enviado a la papelera" : `${n} enviados a la papelera`);
-  return n;
+  return await escribir(p, n === 1 ? "Enviado a la papelera" : `${n} enviados a la papelera`, "No se pudo borrar: ") ? n : 0;
 }
 async function restaurar(regs0) {
   const regs = regs0.filter(puedeRestaurar); if (!regs.length) return 0;
   const n = regs.length;
   if (!await confirmar(n === 1 ? "Restaurar" : `Restaurar ${n}`, `${n === 1 ? `<b>${esc(regs[0].numero || regs[0].descripcion || "El registro")}</b> vuelve` : `<b>${n} registros</b> vuelven`} a las listas y al panel con el estado que tenía${n === 1 ? "" : "n"}.`, "Restaurar")) return 0;
-  lotes(regs, (b, r) => {
+  const p = lotes(regs, (b, r) => {
     b.update(doc(db, "liberaciones", r.id), { borrado: deleteField(), borradoPor: deleteField(), borradoNombre: deleteField(), borradoEn: deleteField() });
     if (r.estado !== "X") resumenEn(b, r.id, r);
     hist(b, r, "restaurado", "Restaurado de la papelera");
-  }).catch(e => toast("No se pudo restaurar: " + e.message, "bad"));
+  });
   if (S._ficha && regs.some(r => r.id === S._ficha.id)) cerrarFicha();
-  toast(n === 1 ? "Restaurado" : `${n} restaurados`); return n;
+  return await escribir(p, n === 1 ? "Restaurado" : `${n} restaurados`, "No se pudo restaurar: ") ? n : 0;
 }
 async function borrarSiempre(regs0, titulo) {
   if (!puedeAjustes()) return 0;
@@ -2943,10 +3003,10 @@ async function borrarSiempre(regs0, titulo) {
   if (!await confirmar(titulo || (n === 1 ? "Borrar para siempre" : `Borrar ${n} para siempre`), `${n === 1 ? `<b>${esc(regs[0].numero || regs[0].descripcion || "El registro")}</b> y sus archivos se borran` : `<b>${n} registros</b> y sus archivos se borran`} para siempre. No se puede deshacer.${regs.some(r => r.numero) ? " Los códigos SKT-TOP no se vuelven a usar." : ""}`, "Borrar para siempre", true)) return 0;
   const ops = regs.flatMap(r => [doc(db, "liberaciones", r.id), ...(r.archivos || []).map(a => doc(db, "archivos", a.id))]);
   const ps = []; for (let i = 0; i < ops.length; i += 400) { const b = writeBatch(db); ops.slice(i, i + 400).forEach(d => b.delete(d)); ps.push(b.commit()); }
-  Promise.all(ps).catch(e => toast("No se pudo borrar: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"));
   if (S._ficha && regs.some(r => r.id === S._ficha.id)) cerrarFicha();
-  S.papelera = (S.papelera || []).filter(r => !regs.includes(r)); if (S.view === "todos") render();
-  toast(n === 1 ? "Borrado para siempre" : `${n} borrados para siempre`); return n;
+  const ok = await escribir(Promise.all(ps), n === 1 ? "Borrado para siempre" : `${n} borrados para siempre`, "No se pudo borrar: ");
+  if (ok) { S.papelera = (S.papelera || []).filter(r => !regs.includes(r)); if (S.view === "todos") render(); }
+  return ok ? n : 0;
 }
 let unsubPapelera = null;
 function suscribirPapelera() {
@@ -2965,7 +3025,7 @@ function suscribirBandeja() {
   }, e => console.warn("bandeja", e)));
   S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "==", "EP"), where("origen", "==", "app")), { includeMetadataChanges: true }, snap => {
     S.bandeja.ep = snap.docs.map(fila).filter(vivo); if (S.view === "bandeja") pintarBandeja();
-  }, e => console.warn("bandeja ep", e)));
+  }, e => { console.warn("bandeja ep", e); S.bandeja.errEP = e.code === "failed-precondition" ? "Firebase pide un índice para esta lista: abre la consola del navegador (F12) y sigue el enlace que aparece para crearlo. Tarda unos minutos." : "No se pudo leer esta lista: " + e.message; if (S.view === "bandeja") pintarBandeja(); }));
   getDoc(doc(db, "config", "general")).then(d => { if (d.exists()) S.config = d.data(); }).catch(() => {});
 }
 function pintarBandeja() {
@@ -2982,10 +3042,11 @@ function pintarBandeja() {
   <p class="lead">Lo que llega de campo. Al aceptar se genera el código único para el protocolo; luego se entrega a Calidad.</p>
   <div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="${t === "PT"}">Por aceptar <span class="cnt">${nPT}</span></button><button type="button" data-bt="OB" aria-pressed="${t === "OB"}">Observadas <span class="cnt">${nOB}</span></button><button type="button" data-bt="EP" aria-pressed="${t === "EP"}">Por entregar <span class="cnt">${nEP}</span></button></div>
   <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar N°, PK, tipo, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
+  ${t === "EP" && B.errEP ? `<p class="pinfo" style="margin:0 0 12px">${esc(B.errEP)}</p>` : ""}
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
     ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini warn-mini" data-bk="papelera">Mandar a la papelera</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
   ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
-  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
+  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}
   ${t === "EP" && !B.epHistOk ? `<button class="btn sec more" id="bHist" type="button">Cargar también las del histórico sin entregar</button>` : ""}`;
   $("#bHist")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Cargando…";
@@ -3059,14 +3120,15 @@ function ajExportar() {
       } else {
         const g = new Map();
         const k = (f, r) => `${f}|${r.subestructuraId}|${r.tipoId}|${(r.capa || "").trim()}`;
-        const get = (f, r) => { const key = k(f, r); if (!g.has(key)) g.set(key, { f, r, reg: 0, m: 0, gen: 0, ent: 0, pend: 0 }); return g.get(key); };
+        const get = (f, r) => { const key = k(f, r); if (!g.has(key)) g.set(key, { f, r, reg: 0, m: 0, gen: 0, ent: 0, pend: 0, rech: 0 }); return g.get(key); };
         regs.filter(r => r.actividad === "LIB").forEach(r => {
-          const fc = fISO(r.fechaCampo); if (fc) { const o = get(fc, r); o.reg++; if (r.pkInicio != null) o.m += Math.max(0, (r.pkFin ?? r.pkInicio) - r.pkInicio); if (["PT", "OB"].includes(r.estado)) o.pend++; }
+          const fc = fISO(r.fechaCampo); if (fc && r.estado === "RE") { get(fc, r).rech++; return; }
+          if (fc) { const o = get(fc, r); o.reg++; if (r.pkInicio != null) o.m += Math.max(0, (r.pkFin ?? r.pkInicio) - r.pkInicio); if (["PT", "OB"].includes(r.estado)) o.pend++; }
           const fl = fISO(r.fechaLiberacion); if (fl && r.numero) get(fl, r).gen++;
           const fe = fISO(r.fechaEntrega); if (fe && r.estado === "EC") get(fe, r).ent++;
         });
         const filas = [...g.values()].sort((a, b) => b.f.localeCompare(a.f) || natural(nom(L.sub(a.r.subestructuraId)), nom(L.sub(b.r.subestructuraId))) || natural(nom(L.tipo(a.r.tipoId)), nom(L.tipo(b.r.tipoId))) || natural(a.r.capa || "", b.r.capa || ""));
-        lineas = [["Fecha", "Estructura", "Sub-Estructura", "Tipo de Liberacion", "Capa", "Registradas en campo", "Metros registrados", "Codigos generados", "Entregadas a Calidad", "Pendientes de ese dia"], ...filas.map(o => [o.f, nom(L.est(o.r.estructuraId)), nom(L.sub(o.r.subestructuraId)), nom(L.tipo(o.r.tipoId)), (o.r.capa || "").trim(), o.reg, Math.round(o.m * 10) / 10, o.gen, o.ent, o.pend])];
+        lineas = [["Fecha", "Estructura", "Sub-Estructura", "Tipo de Liberacion", "Capa", "Registradas en campo", "Metros registrados", "Codigos generados", "Entregadas a Calidad", "Pendientes de ese dia", "Rechazadas"], ...filas.map(o => [o.f, nom(L.est(o.r.estructuraId)), nom(L.sub(o.r.subestructuraId)), nom(L.tipo(o.r.tipoId)), (o.r.capa || "").trim(), o.reg, Math.round(o.m * 10) / 10, o.gen, o.ent, o.pend, o.rech])];
         nombre = `avance_diario_${desde}_${hasta}.csv`;
       }
       descargar(nombre, "﻿" + lineas.map(csvLinea).join("\r\n"), "text/csv;charset=utf-8");
@@ -3077,7 +3139,7 @@ function ajExportar() {
 }
 
 /* ---------- Ajustes (solo administrador). Cada cambio se guarda al instante. ---------- */
-const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["historico", "Histórico"], ["exportar", "Exportar"]];
+const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["historico", "Histórico"], ["archivos", "Archivos"], ["exportar", "Exportar"]];
 const AJ_LISTA = { lugares: "estructuras", topografos: "topografos", tipos: "tipos" };
 const slug = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
 const nuevoId = (t, usados) => { let id = slug(t), i = 2; while (usados.has(id)) id = slug(t) + "-" + i++; return id; };
@@ -3106,7 +3168,65 @@ function pintarAjustes() {
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
-  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico, exportar: ajExportar })[A.tab]();
+  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico, archivos: ajArchivos, exportar: ajExportar })[A.tab]();
+}
+// Espacio de archivos: se calcula con los registros que tienen archivos (no se leen las fotos, que pesan)
+function ajArchivos() {
+  const body = cuerpoAj(), A = S.aj;
+  const hace6 = new Date(); hace6.setMonth(hace6.getMonth() - 6);
+  A.arch ||= { hasta: localInput(hace6).slice(0, 10), regs: null };
+  const pintar = () => {
+    const X = A.arch, regs = X.regs;
+    let html = `<p class="muted small" style="margin:0 0 12px">Los CSV y las fotos se guardan dentro de Firebase (plan gratuito: 1 GB en total). Aquí ves cuánto ocupan y puedes borrar las <b>fotos</b> de lo ya entregado a Calidad hace tiempo. Los CSV y los registros no se tocan; en la ficha queda «Foto depurada».</p>
+    <div class="card section"><div class="actions" style="margin:0 0 12px"><button type="button" class="btn sec" id="arCalc">${regs ? "Volver a calcular" : "Calcular espacio usado"}</button><span class="muted small">Lee los registros hechos en la app (el histórico del Excel no tiene archivos).</span></div>`;
+    if (regs) {
+      const todos = regs.flatMap(r => (r.archivos || []).map(a => ({ ...a, r })));
+      const fot = todos.filter(a => a.tipo === "foto" && !a.purgado), csv = todos.filter(a => a.tipo === "csv"), purg = todos.filter(a => a.purgado);
+      const tot = [...fot, ...csv].reduce((t, a) => t + (a.tam || 0), 0);
+      const limite = new Date(X.hasta + "T23:59:59").getTime();
+      const cand = fot.filter(a => a.r.estado === "EC" && toDate(a.r.fechaEntrega) && toDate(a.r.fechaEntrega).getTime() <= limite);
+      const pct = Math.min(100, tot / (1024 ** 3) * 100);
+      html += `<div class="kpis" style="margin-bottom:10px"><span><b>${kb(tot)}</b> en archivos (${pct < 1 ? pct.toFixed(2) : pct.toFixed(1)}% de 1 GB)</span><span><b>${fot.length}</b> fotos · ${kb(fot.reduce((t, a) => t + (a.tam || 0), 0))}</span><span><b>${csv.length}</b> CSV · ${kb(csv.reduce((t, a) => t + (a.tam || 0), 0))}</span>${purg.length ? `<span><b>${purg.length}</b> fotos ya depuradas</span>` : ""}</div>
+      <div class="prog" style="margin-bottom:16px"><i style="width:${Math.max(0.5, pct)}%"></i></div>
+      <h2 style="margin-top:4px">Depurar fotos de entregados</h2>
+      <div class="grid" style="grid-template-columns:220px 1fr;align-items:end"><div class="f"><label for="arHasta">Entregados hasta</label><input id="arHasta" type="date" value="${esc(X.hasta)}"></div>
+      <p class="small" style="margin:0 0 10px">${cand.length ? `<b>${cand.length}</b> ${cand.length === 1 ? "foto" : "fotos"} de <b>${new Set(cand.map(a => a.r.id)).size}</b> registros entregados hasta esa fecha · se liberan <b>${kb(cand.reduce((t, a) => t + (a.tam || 0), 0))}</b>` : "No hay fotos de entregados hasta esa fecha."}</p></div>
+      <div class="actions" style="margin:4px 0 14px"><button type="button" class="btn warn" id="arBorrar" ${cand.length ? "" : "disabled"}>Borrar ${cand.length} ${cand.length === 1 ? "foto" : "fotos"}</button></div><p class="small muted" id="arEst" style="margin:0 0 10px"></p>`;
+      X.cand = cand;
+    }
+    body.innerHTML = html + "</div>";
+  };
+  body.addEventListener("click", async e => {
+    const X = A.arch;
+    if (e.target.id === "arCalc") {
+      if (!navigator.onLine) { toast("Se necesita señal para calcular.", "bad"); return; }
+      e.target.disabled = true; e.target.textContent = "Calculando…";
+      try { const sn = await getDocs(query(collection(db, "liberaciones"), where("origen", "==", "app"))); X.regs = sn.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => (r.archivos || []).length); }
+      catch (er) { toast("No se pudo calcular: " + er.message, "bad"); }
+      pintar(); return;
+    }
+    if (e.target.id === "arBorrar") {
+      const cand = X.cand || []; if (!cand.length) return;
+      const porReg = new Map(); cand.forEach(a => { if (!porReg.has(a.r.id)) porReg.set(a.r.id, { r: a.r, ids: new Set() }); porReg.get(a.r.id).ids.add(a.id); });
+      if (!await confirmar("Borrar fotos para siempre", `Se borran <b>${cand.length} fotos</b> (${kb(cand.reduce((t, a) => t + (a.tam || 0), 0))}) de <b>${porReg.size} registros</b> entregados a Calidad hasta el ${esc(fmtFecha(new Date(X.hasta + "T12:00:00"), false))}. Los registros y sus CSV se quedan. No se puede deshacer.`, "Borrar fotos", true)) return;
+      const est = $("#arEst"); e.target.disabled = true;
+      const hoy = new Date().toISOString(), grupos = [...porReg.values()]; let hechos = 0;
+      try {
+        for (let i = 0; i < grupos.length; i += 40) {
+          const b = writeBatch(db);
+          grupos.slice(i, i + 40).forEach(({ r, ids }) => {
+            ids.forEach(id => b.delete(doc(db, "archivos", id)));
+            b.update(doc(db, "liberaciones", r.id), { archivos: r.archivos.map(a => ids.has(a.id) ? { ...a, purgado: true, purgadoEn: hoy } : a) });
+            hist(b, r, "editado", `${ids.size} ${ids.size === 1 ? "foto depurada" : "fotos depuradas"} para liberar espacio`);
+          });
+          await b.commit(); hechos += Math.min(40, grupos.length - i); if (est) est.textContent = `Borrando… ${hechos} de ${grupos.length} registros`;
+        }
+        toast(`${cand.length} fotos borradas`); X.regs = null; pintar();
+      } catch (er) { toast("Se detuvo: " + (er.code === "permission-denied" ? "sin permiso (publica las reglas nuevas)." : er.message), "bad"); e.target.disabled = false; }
+    }
+  });
+  body.addEventListener("change", e => { if (e.target.id === "arHasta") { A.arch.hasta = e.target.value; pintar(); } });
+  pintar();
 }
 // Cada vista de ajustes arranca con un contenedor nuevo para no acumular acciones repetidas
 function cuerpoAj() { const b = $("#ajBody"), n = b.cloneNode(false); b.replaceWith(n); return n; }

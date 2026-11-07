@@ -29,6 +29,8 @@ service cloud.firestore {
     function isConf()  { return isAdmin() || hasRol(['jefe']); }
     // Cambios que solo mandan a la papelera o restauran
     function soloPapelera() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['borrado', 'borradoPor', 'borradoNombre', 'borradoEn']); }
+    // Depuración de fotos: solo cambia la lista de archivos del registro
+    function soloArchivos() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archivos']); }
     function tocaPapelera() { return request.resource.data.diff(resource.data).affectedKeys().hasAny(['borrado']); }
     function member()  { return isOwner() || hasRol(['topografo', 'operario', 'gabinete', 'jefe', 'admin']); }
 
@@ -76,9 +78,9 @@ service cloud.firestore {
       // Gabinete y administrador editan todo, pero a la papelera gabinete solo manda lo que aún no
       // tiene código. Jefe: el histórico importado y la papelera. El topógrafo solo lo suyo mientras
       // está pendiente u observado (sin tocar número, entrega ni autoría) y puede mandarlo a la
-      // papelera si aún no tiene código.
+      // papelera si aún no tiene código. Jefe también puede depurar fotos (solo la lista de archivos).
       allow update: if (isGab() && (!tocaPapelera() || isConf() || resource.data.get('numero', '') == ''))
-        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera()))
+        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera() || soloArchivos()))
         || (writer()
           && resource.data.creadoPor == email()
           && resource.data.get('numero', '') == ''
@@ -90,7 +92,7 @@ service cloud.firestore {
           && request.resource.data.estado in ['PT', 'NA']
           && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
                'numero', 'nombreLiberacion', 'generadoPor', 'fechaLiberacion', 'fechaEntrega',
-               'numeroCargo', 'notaObservacion', 'notaRechazo', 'creadoPor', 'creadoEn', 'origen',
+               'numeroCargo', 'notaObservacion', 'notaRechazo', 'motivoEdicion', 'creadoPor', 'creadoEn', 'origen',
                'borrado', 'borradoPor', 'borradoNombre', 'borradoEn']));
 
       // Borrar para siempre (vaciar la papelera): administrador y jefe

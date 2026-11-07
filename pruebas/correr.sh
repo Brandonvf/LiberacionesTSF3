@@ -7,7 +7,7 @@ python3 -m http.server 8765 --bind 127.0.0.1 >/dev/null 2>&1 & SRV=$!
 trap 'kill $SRV 2>/dev/null' EXIT
 sleep 1
 FALLAS=0
-for t in ${@:-prueba prueba2 prueba3 prueba4 prueba5 prueba6 prueba7 prueba8 prueba9}; do
+for t in ${@:-prueba prueba2 prueba3 prueba4 prueba5 prueba6 prueba7 prueba8 prueba9 prueba10}; do
   echo "=== $t"
   salida=$(node "pruebas/$t.js" 2>&1); code=$?
   echo "$salida" | grep -E "^FALLA|Errores|Error|PAGEERROR" ; echo "$salida" | grep -c "^ok" | xargs -I{} echo "{} revisiones correctas"
