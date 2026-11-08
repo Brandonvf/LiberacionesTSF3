@@ -1013,7 +1013,7 @@ const S = {
   view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "", pap: false } }, selReg: new Set(),
   editando: null, form: null, limiteTodos: 100, verTodos: 60,
   subs: [], dentro: false,
-  aj: { tab: "usuarios", b: null, capSub: "", capTipo: "" }, ejes: {}, capasCfg: {}, config: null,
+  aj: { tab: "usuarios", b: null, capSub: "", capTipo: "", solSel: {} }, ejes: {}, capasCfg: {}, config: null,
   bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, aspas: [], aspVer: "por", todos() { return [...this.pend, ...this.ep, ...this.epHist, ...this.aspas]; } },
   panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "", mGrupo: "", mSel: "", mSta: null, mZoom: 1 }, panelDatos: [], panelSub: ""
 };
@@ -1289,7 +1289,15 @@ onAuthStateChanged(auth, async u => {
   if (S.email === ADMIN) prepararAdmin(u).catch(e => { console.warn("prepararAdmin", e); if (e.code === "permission-denied") setTimeout(() => toast("No se pudieron preparar las listas: revisa que las reglas de Firestore estén publicadas.", "bad"), 800); });
   S.subs.push(onSnapshot(doc(db, "usuarios", S.email), snap => {
     if (snap.exists() && snap.data().activo !== false) {
-      S.perfil = snap.data();
+      const d = snap.data();
+      // Si le cambian el rol (o el topógrafo asignado) con la app abierta, se vuelve a entrar con lo nuevo:
+      // el menú, la bandeja y lo que se escucha dependen del rol
+      if (S.dentro && S.perfil && (d.rol !== S.perfil.rol || (d.topografoId || "") !== (S.perfil.topografoId || ""))) {
+        if (S.view === "nueva" && !S.editando) { leerCampos(); guardarBorrador(); }
+        ls.set("lib.avisoRol", d.rol !== S.perfil.rol ? `Tu acceso cambió: ahora entras como ${ROLES[d.rol] || d.rol}.` : "Se actualizó tu topógrafo asignado.");
+        location.reload(); return;
+      }
+      S.perfil = d;
       if (!S.dentro) entrarApp(); else pintarCabecera();
     } else if (snap.exists()) { S.perfil = null; gate("inactivo"); }
     else if (S.email === ADMIN) { gate("cargando"); }  // el perfil del administrador lo crea prepararAdmin
@@ -1328,6 +1336,7 @@ const veTodo = () => ["gabinete", "jefe", "admin"].includes(rol());
 
 function entrarApp() {
   S.dentro = true;
+  const aviso = ls.get("lib.avisoRol", ""); if (aviso) { ls.set("lib.avisoRol", ""); setTimeout(() => toast(aviso), 600); }
   $("#gate").hidden = true; $("#app").hidden = false;
   guardadoPersistente(); pintarInstalar();
   if (enDirVieja()) { avisoMudanza(); setTimeout(() => mudarse(false), 1500); }
@@ -4746,7 +4755,7 @@ function pintarUsuarios() {
   $("#ajBody").innerHTML = `
   <p class="muted small" style="margin:0 0 12px">Quien entra por primera vez con Google aparece en «Solicitudes». Asígnale un rol y apruébalo.</p>
   <div class="card section"><h2>Solicitudes${S.solicitudes.length ? ` <span class="badge" style="background:var(--ob);color:#fff;border-radius:999px;padding:0 8px;font-size:12px">${S.solicitudes.length}</span>` : ""}</h2>
-    <div id="sol">${S.solicitudes.length ? S.solicitudes.map(s => `<div class="urow" data-uid="${esc(s.id)}"><div class="who"><b>${esc(s.nombre || s.email)}</b><span class="muted small">${esc(s.email)}</span></div>${selRol("topografo", 'data-k="rol"')}${selTopo("", 'data-k="topo"')}<button type="button" class="mini ok-btn" data-ap>Aprobar</button><button type="button" class="mini" data-rc>Rechazar</button></div>`).join("") : '<p class="muted" style="margin:0 0 12px">No hay solicitudes pendientes.</p>'}</div>
+    <div id="sol">${S.solicitudes.length ? S.solicitudes.map(s => `<div class="urow" data-uid="${esc(s.id)}"><div class="who"><b>${esc(s.nombre || s.email)}</b><span class="muted small">${esc(s.email)}</span></div>${selRol((S.aj.solSel[s.id] || {}).rol || "topografo", 'data-k="rol"')}${selTopo((S.aj.solSel[s.id] || {}).topo || "", 'data-k="topo"')}<button type="button" class="mini ok-btn" data-ap>Aprobar</button><button type="button" class="mini" data-rc>Rechazar</button></div>`).join("") : '<p class="muted" style="margin:0 0 12px">No hay solicitudes pendientes.</p>'}</div>
   </div>
   <div class="card section"><h2>Agregar por correo</h2>
     <div class="grid">
@@ -4760,6 +4769,7 @@ function pintarUsuarios() {
   <div class="card section"><h2>Con acceso (${S.usuarios.length})</h2>
     <div id="usr">${S.usuarios.map(u => `<div class="urow" data-mail="${esc(u.id)}"><div class="who"><b>${esc(u.nombre || u.id)}</b><span class="muted small">${esc(u.id)}${u.activo === false ? " · desactivado" : ""}</span></div>${u.id === ADMIN ? '<span class="st EC">Administrador principal</span>' : `${selRol(u.rol, 'data-k="rol"')}${selTopo(u.topografoId, 'data-k="topo"')}<button type="button" class="mini" data-act>${u.activo === false ? "Activar" : "Desactivar"}</button>`}</div>`).join("")}</div>
   </div>`;
+  $("#sol").addEventListener("change", e => { const row = e.target.closest("[data-uid]"), k = e.target.dataset.k; if (row && (k === "rol" || k === "topo")) (S.aj.solSel[row.dataset.uid] ||= {})[k] = e.target.value; });
   $("#sol").addEventListener("click", async e => {
     const row = e.target.closest("[data-uid]"); if (!row) return;
     const s = S.solicitudes.find(x => x.id === row.dataset.uid); if (!s) return;
