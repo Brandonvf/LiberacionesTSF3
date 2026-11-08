@@ -34,7 +34,23 @@ Registros y Mis registros filtran por **fecha en campo** (hoy, ayer, últimos 7 
 
 ## Aspas para vuelo de dron
 
-Los levantamientos de aspas registrados en campo llegan a la **Bandeja → Aspas** del administrador y del jefe de área (el jefe ve la Bandeja solo con esa pestaña; gabinete no la ve). Desde la ficha se descargan el CSV y las fotos, y se marcan como procesados uno por uno o varios juntos; también se pueden devolver a «Por procesar». El número del menú cuenta los que faltan procesar.
+Los levantamientos de aspas registrados en campo llegan a la **Bandeja → Aspas** del administrador y del jefe de área (el jefe ve la Bandeja con Aspas y Levantamientos; gabinete no ve Aspas). Desde la ficha se descargan el CSV y las fotos, y se marcan como procesados uno por uno o varios juntos; también se pueden devolver a «Por procesar». El número del menú cuenta los que faltan procesar.
+
+## Gabinete: capa, traslape y sin editar lo de campo
+
+Gabinete no edita lo que registra campo: acepta (y genera el código), observa, rechaza, entrega a Calidad y pone o corrige la capa. Al aceptar (uno o en grupo) o al cambiar la capa, la app avisa al instante si el tramo se superpone con otra liberación del mismo frente, tipo y capa. En campo la capa sigue siendo opcional. El administrador edita todo.
+
+## Levantamientos en la Bandeja
+
+Los levantamientos de campo (sin código) llegan a la pestaña «Levantamientos» de gabinete, jefe de área y administrador. Se marcan «Enterado» (uno o varios); quien lo registró ve «Visto» en Mis registros. Se muestran como «Levantamiento» (antes «Sin liberación»).
+
+## Resumen para WhatsApp
+
+En Mis registros, «Resumen WhatsApp» arma el texto de hoy, ayer, ayer y hoy o de lo filtrado: por día y frente, con tipo, capa, PK, metros y código, y el total. Se puede corregir, copiar o abrir directo en WhatsApp.
+
+## Modelo 2D: base de una capa
+
+En un frente vacío se puede empezar subiendo la base (borde o superficie) de una capa: la capa se elige o se escribe al subirla, sin pasar por Ajustes. «Subir XML» reconoce un borde como base y, si es una superficie suelta, pregunta si es base o liberación. Después se suben las liberaciones poco a poco y el porcentaje se completa.
 
 ## Panel: filtros
 

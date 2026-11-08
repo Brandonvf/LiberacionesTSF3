@@ -53,7 +53,7 @@ const ext = (u, n) => ({ actividad: 'ASP', estado: 'NA', numero: '', creadoPor: 
   await p.waitForTimeout(500);
   ok(await badge(p) === '4', `el número de la bandeja suma 1 por aceptar + 3 aspas por procesar (${await badge(p)})`);
   await p.click('#nav [data-v="bandeja"]'); await p.waitForTimeout(300);
-  ok((await tabs(p)).join() === 'PT,OB,EP,ASP', 'el administrador ve las pestañas de gabinete y «Aspas»');
+  ok((await tabs(p)).join() === 'PT,OB,EP,ASP,LEV', 'el administrador ve las pestañas de gabinete, «Aspas» y «Levantamientos»');
   ok(/Aspas\s*3/.test(await p.textContent('[data-bt="ASP"]')), 'la pestaña Aspas cuenta 3 por procesar');
   await p.click('[data-bt="ASP"]'); await p.waitForTimeout(300);
   const filas = await p.$$eval('#blist tr[data-rid]', r => r.map(x => x.querySelector('.tdesc b').textContent));
@@ -75,7 +75,7 @@ const ext = (u, n) => ({ actividad: 'ASP', estado: 'NA', numero: '', creadoPor: 
   await entrarComo(p, JEFE);
   ok(await p.$('#nav [data-v="bandeja"]') && await badge(p) === '2', 'el jefe tiene bandeja con 2 por procesar');
   await p.click('#nav [data-v="bandeja"]'); await p.waitForTimeout(300);
-  ok((await tabs(p)).length === 0 && /Por procesar\s*2/.test(await p.textContent('[data-asp="por"]')), 'el jefe ve solo las aspas (sin aceptar ni entregar liberaciones)');
+  ok((await tabs(p)).join() === 'ASP,LEV' && /Por procesar\s*2/.test(await p.textContent('[data-asp="por"]')), 'el jefe ve aspas y levantamientos (sin aceptar ni entregar liberaciones)');
   ok(!(await p.textContent('#view')).includes('Liberación normal'), 'las liberaciones normales no aparecen');
   await p.click('#bAll2'); await p.waitForTimeout(150); await p.click('[data-bk="procesar"]'); await p.waitForTimeout(500);
   ok(/Por procesar\s*0/.test(await p.textContent('[data-asp="por"]')) && /Procesadas\s*3/.test(await p.textContent('[data-asp="hechas"]')), 'marca varios a la vez');
@@ -91,7 +91,7 @@ const ext = (u, n) => ({ actividad: 'ASP', estado: 'NA', numero: '', creadoPor: 
   // 4. Gabinete: no ve la pestaña Aspas
   await entrarComo(p, GAB);
   await p.click('#nav [data-v="bandeja"]'); await p.waitForTimeout(300);
-  ok((await tabs(p)).join() === 'PT,OB,EP', 'gabinete no ve la pestaña Aspas');
+  ok((await tabs(p)).join() === 'PT,OB,EP,LEV', 'gabinete no ve la pestaña Aspas (sí Levantamientos)');
   ok(await badge(p) === '1', 'y su número solo cuenta lo que tiene por aceptar');
 
   // 5. Celular (jefe)

@@ -5,7 +5,7 @@ rules_version = '2';
 // - El administrador principal entra directo y aprueba a los demás.
 // - Quien entra por primera vez deja una "solicitud" y espera aprobación.
 // - Roles: topografo y operario (registran y pueden agregar tipos y elementos nuevos), gabinete (genera protocolos, cambia estados y rechaza),
-//   jefe (ve todo, tiene los mismos ajustes que el administrador y procesa las aspas), admin (todo).
+//   jefe (ve todo, tiene los mismos ajustes que el administrador, procesa las aspas y se da por enterado de los levantamientos), admin (todo).
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -33,6 +33,8 @@ service cloud.firestore {
     function soloArchivos() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['archivos']); }
     // Aspas para vuelo de dron: marcar como procesado o devolver (administrador y jefe de área)
     function soloProcesado() { return resource.data.actividad == 'ASP' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['procesado', 'procesadoPor', 'procesadoNombre', 'procesadoEn']); }
+    // Levantamientos (sin código): gabinete, jefe de área y administrador marcan «Enterado» o lo quitan
+    function soloVisto() { return resource.data.estado == 'NA' && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visto', 'vistoPor', 'vistoNombre', 'vistoEn']); }
     // Unir un tipo o elemento repetido: solo cambia a qué tipo y elemento pertenece el registro
     function soloTipo() { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['tipoId', 'elementoId', 'editadoEn', 'editadoPor']); }
     // Desde campo solo se puede AGREGAR un nombre al final de la lista de tipos o elementos (no cambiar ni borrar los que hay)
@@ -43,6 +45,11 @@ service cloud.firestore {
         && request.resource.data.items.hasAll(resource.data.items)
         && request.resource.data.items[n].creadoPor == email();
     }
+    // Gabinete no edita lo que viene de campo: acepta, observa, rechaza, entrega y pone o corrige la capa
+    function sinTocarCampo() { return !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+      'actividad', 'fechaCampo', 'topografoId', 'equipo', 'estructuraId', 'subestructuraId', 'elementoId', 'tipoId',
+      'pkInicio', 'pkFin', 'cota', 'area', 'descripcion', 'observaciones', 'linksCsv', 'linksFotos', 'archivos',
+      'creadoPor', 'creadoEn', 'origen']); }
     function tocaPapelera() { return request.resource.data.diff(resource.data).affectedKeys().hasAny(['borrado']); }
     function member()  { return isOwner() || hasRol(['topografo', 'operario', 'gabinete', 'jefe', 'admin']); }
 
@@ -92,13 +99,14 @@ service cloud.firestore {
         && request.resource.data.numero == ''
         && request.resource.data.origen == 'app');
 
-      // Gabinete y administrador editan todo, pero a la papelera gabinete solo manda lo que aún no
-      // tiene código. Jefe: el histórico importado y la papelera. El topógrafo solo lo suyo mientras
+      // El administrador edita todo. Gabinete cambia estados, códigos y la capa, sin tocar lo registrado
+      // en campo, y a la papelera solo manda lo que aún no tiene código. Jefe: el histórico importado y la papelera. El topógrafo solo lo suyo mientras
       // está pendiente u observado (sin tocar número, entrega ni autoría) y puede mandarlo a la
       // papelera si aún no tiene código. Jefe también puede depurar fotos (solo la lista de archivos)
-      // marcar como procesados los levantamientos de aspas y unir tipos o elementos repetidos.
-      allow update: if (isGab() && (!tocaPapelera() || isConf() || resource.data.get('numero', '') == ''))
-        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera() || soloArchivos() || soloProcesado() || soloTipo()))
+      // marcar como procesados los levantamientos de aspas, marcar «Enterado» en los levantamientos y unir tipos o elementos repetidos.
+      allow update: if isAdmin()
+        || (hasRol(['gabinete']) && sinTocarCampo() && (!tocaPapelera() || resource.data.get('numero', '') == ''))
+        || (isConf() && (request.resource.data.origen == 'excel' || soloPapelera() || soloArchivos() || soloProcesado() || soloVisto() || soloTipo()))
         || (writer()
           && resource.data.creadoPor == email()
           && resource.data.get('numero', '') == ''
@@ -112,7 +120,8 @@ service cloud.firestore {
                'numero', 'nombreLiberacion', 'generadoPor', 'fechaLiberacion', 'fechaEntrega',
                'numeroCargo', 'notaObservacion', 'notaRechazo', 'motivoEdicion', 'creadoPor', 'creadoEn', 'origen',
                'borrado', 'borradoPor', 'borradoNombre', 'borradoEn',
-               'procesado', 'procesadoPor', 'procesadoNombre', 'procesadoEn']));
+               'procesado', 'procesadoPor', 'procesadoNombre', 'procesadoEn',
+               'visto', 'vistoPor', 'vistoNombre', 'vistoEn']));
 
       // Borrar para siempre (vaciar la papelera): administrador y jefe
       allow delete: if isConf();

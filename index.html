@@ -489,6 +489,8 @@ h1,h2,h3{text-wrap:balance}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
 .search{flex:1;min-width:200px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:0 12px;min-height:44px;font-size:16px}
 .search:hover{border-color:var(--line-strong)}
+.wsp-btn{min-height:44px;color:var(--ec);border-color:color-mix(in srgb,var(--ec) 40%,var(--line))}.wsp-btn svg{flex:none}
+.wsp-per{margin:0 0 10px}.wsp-txt{min-height:220px;font-size:14px;line-height:1.45;white-space:pre-wrap}
 .search:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;margin-bottom:12px}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 12px;min-height:32px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;white-space:nowrap}
@@ -520,6 +522,11 @@ h1,h2,h3{text-wrap:balance}
 .act{font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
 .empty{text-align:center;padding:42px 20px;color:var(--muted)}
 .empty b{display:block;color:var(--ink);font-size:16px;font-weight:700;margin-bottom:4px}
+.m-inicio{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:18px auto 0;max-width:760px;text-align:left}
+.m-op{border:1px solid var(--line-strong);background:var(--surface);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:13px;line-height:1.4;cursor:pointer;text-align:left}
+.m-op:hover{border-color:var(--accent)}.empty .m-op b{font-size:14.5px;margin:0}
+.m-op:first-child{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.check.opc{align-items:flex-start;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.check.opc span{display:flex;flex-direction:column;gap:2px}.check.opc small{color:var(--muted);font-size:12.5px}
 .more{margin:14px auto 0;display:block}
 
 
@@ -634,6 +641,7 @@ kbd{font:600 11px var(--f-mono);background:var(--surface-2);border:1px solid var
 .lnk{border:0;background:transparent;color:var(--accent-strong);font-weight:700;text-decoration:underline;padding:0;font-family:var(--f-mono);font-size:13px}
 .solist{margin:0 0 4px;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px}
 .solist .st{font-size:11px}
+.dsolape{margin:10px 0 0;font-weight:400;display:flex;flex-direction:column;gap:6px}.dsolape>b{font-weight:700}.dsolape .solist{margin:2px 0}
 .arch.purg{opacity:.7}
 .arch.purg .an span{font-style:italic}
 
@@ -1040,7 +1048,7 @@ const LISTAS_INICIALES = {
 };
 
 const ROLES = { topografo: "Topógrafo", operario: "Operario", gabinete: "Gabinete", jefe: "Jefe de área", admin: "Administrador" };
-const ESTADOS = { PT: "Pendiente topografía", EP: "En proceso", EC: "Entregado a Calidad", OB: "Observado", RE: "Rechazado", X: "Eliminado", NA: "Sin liberación" };
+const ESTADOS = { PT: "Pendiente topografía", EP: "En proceso", EC: "Entregado a Calidad", OB: "Observado", RE: "Rechazado", X: "Eliminado", NA: "Levantamiento" };
 
 /* ---------- Estado ---------- */
 const S = {
@@ -1051,7 +1059,7 @@ const S = {
   editando: null, form: null, limiteTodos: 100, verTodos: 60,
   subs: [], dentro: false,
   aj: { tab: "usuarios", b: null, capSub: "", capTipo: "", solSel: {} }, ejes: {}, capasCfg: {}, config: null,
-  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, aspas: [], aspVer: "por", todos() { return [...this.pend, ...this.ep, ...this.epHist, ...this.aspas]; } },
+  bandeja: { tab: "PT", q: "", sel: new Set(), pend: [], ep: [], epHist: [], epHistOk: false, ver: 60, aspas: [], aspVer: "por", levs: [], levVer: "por", todos() { return [...this.pend, ...this.ep, ...this.epHist, ...this.aspas, ...this.levs]; } },
   panel: { subId: "", desde: "", hasta: "", st: "", topo: "", capa: "", todas: false, hoy: false, zoom: false, vista: "perfil", tipoPl: "", pkDesde: "", pkHasta: "", mGrupo: "", mSel: "", mSta: null, mZoom: 1 }, panelDatos: [], panelSub: ""
 };
 const $ = (s, r = document) => r.querySelector(s);
@@ -1187,7 +1195,7 @@ document.addEventListener("instalable", pintarInstalar);
 addEventListener("online", () => { if (S.dentro && enDirVieja()) mudarse(false); });
 addEventListener("appinstalled", () => { window.__inst = null; pintarInstalar(); });
 // Número de versión de la app (sube con cada publicación; es el mismo de la copia guardada en sw.js)
-const VERSION_APP = 15;
+const VERSION_APP = 16;
 // Versión nueva: si se acaba de abrir la app y aún no se escribió nada, se recarga sola;
 // si ya se está trabajando, se avisa y se actualiza cuando la persona quiera
 function hayAlgoEscrito() {
@@ -1420,6 +1428,7 @@ function entrarApp() {
   if (veTodo()) suscribirTodos();
   if (esGab()) suscribirBandeja();
   if (puedeAjustes()) suscribirAspas();
+  if (esGab() || puedeAjustes()) suscribirLevantamientos();
   S.subs.push(onSnapshot(collection(db, "capas"), snap => {
     S.capasCfg = {}; snap.docs.forEach(d => { S.capasCfg[d.id] = d.data(); });
     if (S.view === "panel") actualizarPanel();
@@ -1495,7 +1504,7 @@ function pintarCabecera() {
 }
 function pintarNav() {
   const obs = S.mis.filter(r => r.estado === "OB").length, nNuevos = puedeAjustes() ? [...S.listas.tipos, ...S.listas.elementos].filter(x => x.nuevo && x.activo !== false).length : 0;
-  const sol = S.solicitudes.length, pt = (esGab() ? S.bandeja.pend.filter(r => r.estado === "PT").length : 0) + (puedeAjustes() ? aspasPorProcesar().length : 0);
+  const sol = S.solicitudes.length, pt = (esGab() ? S.bandeja.pend.filter(r => r.estado === "PT").length : 0) + (puedeAjustes() ? porHacer("ASP").length : 0) + (esGab() || puedeAjustes() ? porHacer("LEV").length : 0);
   document.body.classList.toggle("poder", poder());
   $("#nav").innerHTML = (poder() && enPC() ? `<button type="button" class="nbuscar" data-buscar aria-label="Buscar en todo (Ctrl+K)">${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></button>` : "") + vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol + nNuevos ? `<span class="badge">${sol + nNuevos}</span>` : ""}</span></button>`).join("");
   insigniaApp(obs + pt + (puedeAjustes() ? sol : 0));
@@ -2013,6 +2022,56 @@ function solapados(subId, tipoId, capa, a, b, propio) {
     && Math.min(b, r.pkFin ?? r.pkInicio) - Math.max(a, r.pkInicio) > 0.5);
 }
 
+/* ---------- Resumen del día para WhatsApp (Mis registros) ---------- */
+const ICON_WSP = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 20.5l1.3-4.1A8.5 8.5 0 1 1 8 19.6z"/><path d="M9 9.5c.4 2 1.9 3.6 4 4.3l1.2-1.1 2 .9-.4 1.7c-3.9.2-7.6-3.4-7.6-7.4l1.7-.4.9 2z"/></svg>';
+const diaDe = v => { const d = toDate(v); return d ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : ""; };
+const diaCorto = iso => { const [y, m, d] = iso.split("-").map(Number); const t = new Date(y, m - 1, d).toLocaleDateString("es-PE", { weekday: "short" }).replace(".", ""); return `${t.charAt(0).toUpperCase() + t.slice(1)} ${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}`; };
+function textoResumen(regs) {
+  const rs = regs.filter(r => r.estado !== "X" && !r.borrado).sort((a, b) => (toDate(a.fechaCampo)?.getTime() || 0) - (toDate(b.fechaCampo)?.getTime() || 0));
+  const dias = [...new Set(rs.map(r => diaDe(r.fechaCampo)).filter(Boolean))].sort();
+  const quien = S.perfil?.nombre || S.user?.displayName || "";
+  const anio = dias.length ? dias.at(-1).slice(0, 4) : String(new Date().getFullYear());
+  const cab = `*Liberaciones TSF3*\n${quien ? quien + " · " : ""}${dias.length ? dias.map(diaCorto).join(", ") + "/" + anio : "Sin registros"}`;
+  if (!rs.length) return cab + "\n\nSin registros en ese periodo.";
+  const frente = r => { const e = nom(L.est(r.estructuraId)), f = nom(L.sub(r.subestructuraId)); return e && f && !f.toLowerCase().startsWith(e.toLowerCase()) ? `${e} – ${f}` : f || e || "Sin frente"; };
+  const linea = r => {
+    const largo = r.pkInicio != null && r.pkFin != null ? r.pkFin - r.pkInicio : 0;
+    const est = r.numero ? r.numero + masCodigos(r).replace(/<[^>]+>/g, "") + (r.estado === "EC" ? " entregado" : r.estado === "OB" ? " observado" : "") : ESTADOS[r.estado] || r.estado;
+    if (r.actividad === "LIB") return `• ${[nom(L.tipo(r.tipoId)) || "Liberación", r.capa, r.pkInicio != null ? rangoPk(r.pkInicio, r.pkFin) + (largo > 0 ? ` (${mts(largo)})` : "") : "", est].filter(Boolean).join(" · ")}`;
+    const d = (r.descripcion || "").replace(/\s+/g, " ").trim();
+    return `• ${[nom(L.act(r.actividad), r.actividad), d.length > 70 ? d.slice(0, 68) + "…" : d, r.pkInicio != null ? rangoPk(r.pkInicio, r.pkFin) : "", r.numero ? est : ""].filter(Boolean).join(" · ")}`;
+  };
+  const partes = [cab];
+  for (const dia of dias) {
+    const del = rs.filter(r => diaDe(r.fechaCampo) === dia), bloques = [];
+    if (dias.length > 1) bloques.push(`*${diaCorto(dia)}*`);
+    const frentes = [...new Set(del.map(frente))];
+    frentes.forEach(f => bloques.push(`_${f}_\n` + del.filter(r => frente(r) === f).map(linea).join("\n")));
+    partes.push(bloques.join("\n"));
+  }
+  const libs = rs.filter(r => r.actividad === "LIB"), m = libs.reduce((t, r) => t + (r.pkInicio != null && r.pkFin != null ? Math.max(0, r.pkFin - r.pkInicio) : 0), 0);
+  const cuenta = {}; rs.filter(r => r.actividad !== "LIB").forEach(r => { const n = nom(L.act(r.actividad), r.actividad); cuenta[n] = (cuenta[n] || 0) + 1; });
+  const tot = [libs.length ? `${libs.length} ${libs.length === 1 ? "liberación" : "liberaciones"}${m > 0 ? ` (${mts(m)})` : ""}` : "", ...Object.entries(cuenta).map(([n, c]) => `${n}: ${c}`)].filter(Boolean).join(" · ");
+  partes.push(`Total: ${tot}`);
+  return partes.join("\n\n");
+}
+function abrirResumenWsp(filtrados, hayFiltro) {
+  const hoy = hoyISO(), ay = (() => { const d = new Date(); d.setDate(d.getDate() - 1); return diaDe(d); })();
+  const PER = { hoy: ["Hoy", r => diaDe(r.fechaCampo) === hoy], ayer: ["Ayer", r => diaDe(r.fechaCampo) === ay], dos: ["Ayer y hoy", r => [hoy, ay].includes(diaDe(r.fechaCampo))] };
+  let per = hayFiltro ? "fil" : "hoy";
+  const regsDe = () => per === "fil" ? filtrados : S.mis.filter(PER[per][1]);
+  const chips = () => [...(hayFiltro ? [["fil", "Lo filtrado"]] : []), ...Object.entries(PER).map(([k, v]) => [k, v[0]])].map(([k, t]) => `<button type="button" class="chip" data-per="${k}" aria-pressed="${per === k}">${t}</button>`).join("");
+  const d = dialogo("Resumen para WhatsApp", `<div class="chips wsp-per" role="group" aria-label="Periodo">${chips()}</div>
+    <div class="f"><label for="dWsp">Texto <span class="opt">(puedes corregirlo antes de mandarlo)</span></label><textarea id="dWsp" name="texto" class="wsp-txt" spellcheck="false"></textarea></div>
+    <div class="actions" style="margin:10px 0 0"><button type="button" class="btn sec" id="dWspCopiar">Copiar</button></div>`,
+    o => { const t = o.texto || ""; if (!t.trim()) return false; window.open("https://wa.me/?text=" + encodeURIComponent(t), "_blank", "noopener"); }, "Abrir WhatsApp", { ancho: "medio", sinFoco: true });
+  const ta = d.querySelector("#dWsp");
+  const llenar = () => { ta.value = textoResumen(regsDe()); ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight + 4, innerHeight * 0.5) + "px"; };
+  d.querySelector(".wsp-per").addEventListener("click", e => { const c = e.target.closest("[data-per]"); if (!c) return; per = c.dataset.per; d.querySelector(".wsp-per").innerHTML = chips(); llenar(); });
+  d.querySelector("#dWspCopiar").addEventListener("click", async () => { try { await navigator.clipboard.writeText(ta.value); toast("Resumen copiado"); } catch (_) { ta.select(); document.execCommand?.("copy"); toast("Resumen copiado"); } });
+  llenar();
+}
+
 /* ---------- Listas de registros ---------- */
 function textoBusqueda(r) {
   return [r.numero, r.nombreLiberacion, r.descripcion, nom(L.sub(r.subestructuraId)), nom(L.tipo(r.tipoId)), nom(L.topo(r.topografoId), r.topografoId), nom(L.equipo(r.equipo)), nom(L.act(r.actividad)), ...(r.protocolos || []).flatMap(x => [x.numero, x.nombre]), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.observaciones, r.capa, r.cota, ESTADOS[r.estado], r.numeroCargo].join(" ").toLowerCase();
@@ -2138,7 +2197,7 @@ function pintarLista(cual) {
   <h1 class="view-title">${cual === "mis" ? "Mis registros" : pap ? "Papelera" : "Registros"}</h1>
   <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado, y mandar a la papelera lo que aún no tiene código." : pap ? `Lo borrado no sale en las listas ni en el panel. ${puedeAjustes() ? "Restaura o borra para siempre." : "Puedes restaurar lo que no tiene código."}` : porFecha ? `${datos.length} ${datos.length === 1 ? "registro" : "registros"} · ${esc(textoFecha(fl))}.` : `${activos.length ? datos.length + " de los" : "Los"} últimos ${base.length} registros de todos. Para ver más antiguos filtra por fechas.${poder() ? " Busca en todo el histórico con Ctrl+K." : ""}`}</p>
   ${cual === "todos" && poder() ? `<div class="tabs" role="group" aria-label="Registros o papelera"><button type="button" data-pap="0" aria-pressed="${!pap}">Registros</button><button type="button" data-pap="1" aria-pressed="${pap}">Papelera${S.papelera ? ` <span class="cnt">${S.papelera.length}</span>` : ""}</button></div>` : ""}
-  <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar N°, PK, tipo, frente…" value="${esc(fl.q)}" aria-label="Buscar">${pap && puedeAjustes() && datos.length ? '<button type="button" class="mini warn-mini" id="rVaciar">Vaciar papelera</button>' : ""}</div>
+  <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar N°, PK, tipo, frente…" value="${esc(fl.q)}" aria-label="Buscar">${cual === "mis" ? `<button type="button" class="mini wsp-btn" id="rWsp">${ICON_WSP}Resumen WhatsApp</button>` : ""}${pap && puedeAjustes() && datos.length ? '<button type="button" class="mini warn-mini" id="rVaciar">Vaciar papelera</button>' : ""}</div>
   ${pap ? "" : pcFil ? `<div class="rfil" id="rFil">${controlesReg(fl, cual, false)}${activos.length ? '<button type="button" class="btn-txt" id="rfX">Limpiar filtros</button>' : ""}</div>`
     : `<button type="button" class="fil-btn" id="rFilBtn" style="margin:0 0 8px;border-top:0;padding-top:0"><span class="fil-i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><b>${activos.length ? `${activos.length} ${activos.length === 1 ? "filtro" : "filtros"}` : "Filtrar por fecha, tipo, frente…"}</b>${CHEV}</button>${activos.length ? `<div class="fchips" id="rChips" style="margin-top:0">${activos.map(([k, t]) => `<button type="button" class="chip on" data-quitar="${k}" aria-label="Quitar filtro ${esc(t)}">${esc(t)}<span class="x" aria-hidden="true">✕</span></button>`).join("")}</div>` : ""}`}
   ${cargandoFecha ? '<p class="rf-nota">Buscando los registros de esas fechas…</p>' : porFecha && S.todosFechaLleno ? '<p class="rf-nota">Hay muchos registros en esas fechas; se muestran los 3000 más recientes. Acorta el rango para verlos todos.</p>' : ""}
@@ -2150,6 +2209,7 @@ function pintarLista(cual) {
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && !pap && !porFecha && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
   const q = $("#q");
   // Se redibuja cuando se deja de escribir (150 ms), no con cada letra
+  $("#rWsp")?.addEventListener("click", () => abrirResumenWsp(vis, activos.length > 0 || !!fl.st || qs.length > 0));
   q.addEventListener("input", () => { fl.q = q.value; clearTimeout(S._qt); S._qt = setTimeout(() => { if (S.view !== cual || !$("#q")) return; const v = $("#q"), pos = v.selectionStart, foco = document.activeElement === v; pintarLista(cual); const n = $("#q"); if (foco) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } }, 150); });
   $(".chips")?.addEventListener("click", e => { const c = e.target.closest("[data-st]"); if (c) { fl.st = c.dataset.st; pintarLista(cual); } });
   $("#view .tabs")?.addEventListener("click", e => { const b = e.target.closest("[data-pap]"); if (b) { fl.pap = b.dataset.pap === "1"; sel.clear(); pintarLista(cual); } });
@@ -2185,7 +2245,7 @@ function resumenArch(r) {
 function tarjeta(r, i) {
   const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
   return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
-    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}${masCodigos(r)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
+    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}${masCodigos(r)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r.visto && r.actividad !== "ASP" ? '<span class="st EC">Visto</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
     <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
     <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}${resumenArch(r)}</div>
     ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}${r.estado === "RE" && r.notaRechazo ? `<div class="nota re">Rechazo: ${esc(r.notaRechazo)}</div>` : ""}${r.borrado ? `<div class="nota re">En la papelera · ${esc(r.borradoNombre || r.borradoPor || "")}${r.borradoEn ? " · " + esc(fmtFecha(r.borradoEn)) : ""}</div>` : ""}
@@ -2194,7 +2254,8 @@ function tarjeta(r, i) {
 
 /* ---------- Ficha ---------- */
 function puedeEditar(r) {
-  if (esGab()) return true;
+  // El administrador edita todo; gabinete solo lo que registró él mismo (lo de campo lo acepta, observa, rechaza o le pone capa)
+  if (esAdmin()) return true;
   return escribe() && r.creadoPor === S.email && ["PT", "OB", "NA"].includes(r.estado);
 }
 let unsubHist = null;
@@ -2231,6 +2292,7 @@ function abrirFicha(r) {
       ${fila("Entrega a Calidad", esc(fmtFecha(r.fechaEntrega, false)))}
       ${fila("Observaciones", esc(r.observaciones))}
       ${r.actividad === "ASP" && r.procesado ? fila("Procesado", esc(`${r.procesadoNombre || r.procesadoPor || ""} · ${fmtFecha(r.procesadoEn)}`)) : ""}
+      ${r.visto ? fila("Visto por", esc(`${r.vistoNombre || r.vistoPor || ""} · ${fmtFecha(r.vistoEn)}`)) : ""}
     </dl>
     ${(r.linksCsv || []).length ? `<div class="sub">CSV</div><div class="links">${links(r.linksCsv)}</div>` : ""}
     ${(r.linksFotos || []).length ? `<div class="sub">Fotos</div><div class="links">${links(r.linksFotos)}</div>` : ""}
@@ -2241,8 +2303,10 @@ function abrirFicha(r) {
       ${esGab() && conCodigo(r.actividad) && ["PT", "OB"].includes(r.estado) ? '<button type="button" class="btn pri block" id="fAceptar">' + (r.actividad === "DRN" ? "Aceptar y generar protocolos" : "Aceptar y generar código") + '</button><button type="button" class="btn sec" id="fObservar">Observar</button><button type="button" class="btn warn" id="fRechazar">Rechazar</button>' : ""}
       ${esGab() && r.estado === "EP" ? '<button type="button" class="btn pri block" id="fEntregar">Entregar a Calidad</button>' : ""}
       ${esGab() && r.estado === "RE" ? '<button type="button" class="btn pri block" id="fReabrir">Devolver a pendientes</button>' : ""}
+      ${(esGab() || puedeAjustes()) && r.estado === "NA" && r.actividad !== "ASP" && !r.borrado ? (r.visto ? '<button type="button" class="btn sec" id="fNoVisto">Quitar «Enterado»</button>' : '<button type="button" class="btn pri block" id="fVisto">Enterado</button>') : ""}
       ${puedeAjustes() && r.actividad === "ASP" ? (r.procesado ? '<button type="button" class="btn sec" id="fDesprocesar">Devolver a por procesar</button>' : '<button type="button" class="btn pri block" id="fProcesar">Marcar procesado</button>') : ""}
       ${puedeEditar(r) && r.estado !== "RE" ? `<button type="button" class="btn ${esGab() && ["PT", "OB", "EP"].includes(r.estado) && r.actividad === "LIB" ? "sec" : "pri block"}" id="fEditar">Editar</button>` : ""}
+      ${puedeCapa(r) ? `<button type="button" class="btn sec" id="fCapa">${r.capa ? "Cambiar capa" : "Poner capa"}</button>` : ""}
       <button type="button" class="btn sec ${puedeEditar(r) ? "" : "block"}" id="fCerrar">Cerrar</button>`}
     </div>
     ${puedeBorrar(r) ? `<button type="button" class="linkdel" id="fBorrar">Mandar a la papelera</button>` : ""}
@@ -2262,16 +2326,19 @@ function abrirFicha(r) {
   sh.querySelectorAll("[data-abrir]").forEach(b => b.addEventListener("click", () => abrirFichaId(b.dataset.abrir)));
   $("#fReabrir")?.addEventListener("click", () => reabrir(r));
   $("#fProcesar")?.addEventListener("click", () => marcarProcesado([r], true));
+  $("#fVisto")?.addEventListener("click", () => marcarVisto([r], true));
+  $("#fNoVisto")?.addEventListener("click", () => marcarVisto([r], false));
   $("#fDesprocesar")?.addEventListener("click", () => marcarProcesado([r], false));
   $("#fBorrar")?.addEventListener("click", () => aPapelera([r]));
   $("#fRestaurar")?.addEventListener("click", () => restaurar([r]));
   $("#fBorrarSiempre")?.addEventListener("click", () => borrarSiempre([r]));
+  $("#fCapa")?.addEventListener("click", () => ponerCapa(r));
   $("#fEditar")?.addEventListener("click", () => { cerrarFicha(); S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); });
   if (unsubHist) unsubHist();
   unsubHist = onSnapshot(query(collection(db, "historial"), where("liberacionId", "==", r.id)), snap => {
     const h = snap.docs.map(d => d.data({ serverTimestamps: "estimate" })).sort((a, b) => (toDate(a.fecha)?.getTime() || 0) - (toDate(b.fecha)?.getTime() || 0));
     const box = $("#hist"); if (!box) return;
-    box.innerHTML = h.length ? h.map(x => `<div><b>${esc({ creado: "Registrado", editado: "Editado", estado: "Cambio de estado", borrado: "Enviado a la papelera", restaurado: "Restaurado", procesado: "Aspas procesadas", sinprocesar: "Devuelto a por procesar" }[x.accion] || x.accion)}</b>${x.a && x.de !== x.a ? ` · <span class="st ${esc(x.a)}">${esc(ESTADOS[x.a] || x.a)}</span>` : ""}<br><span class="muted small">${esc(fmtFecha(x.fecha))} · ${esc(x.nombre || x.usuario)}</span>${x.nota ? `<br>${esc(x.nota)}` : ""}</div>`).join("") : '<span class="muted small">Sin movimientos.</span>';
+    box.innerHTML = h.length ? h.map(x => `<div><b>${esc({ creado: "Registrado", editado: "Editado", estado: "Cambio de estado", borrado: "Enviado a la papelera", restaurado: "Restaurado", procesado: "Aspas procesadas", sinprocesar: "Devuelto a por procesar", visto: "Enterado", novisto: "Vuelve a por ver" }[x.accion] || x.accion)}</b>${x.a && x.de !== x.a ? ` · <span class="st ${esc(x.a)}">${esc(ESTADOS[x.a] || x.a)}</span>` : ""}<br><span class="muted small">${esc(fmtFecha(x.fecha))} · ${esc(x.nombre || x.usuario)}</span>${x.nota ? `<br>${esc(x.nota)}` : ""}</div>`).join("") : '<span class="muted small">Sin movimientos.</span>';
   }, () => { const box = $("#hist"); if (box) box.innerHTML = '<span class="muted small">No disponible.</span>'; });
   if (unsubArch) { unsubArch(); unsubArch = null; }
   const datosArch = {};
@@ -2365,6 +2432,7 @@ function accionesReg(r) {
   if (esGab() && ["OB", "EP", "RE"].includes(r.estado)) it.push({ t: "Devolver a pendientes", fn: () => reabrir(r) });
   if (puedeAjustes() && r.actividad === "ASP") it.push({ sep: 1 }, r.procesado ? { t: "Devolver a por procesar", fn: () => marcarProcesado([r], false) } : { t: "Marcar procesado", fn: () => marcarProcesado([r], true) });
   if (puedeEditar(r) && r.estado !== "RE") it.push({ t: "Editar", fn: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } });
+  if (puedeCapa(r)) it.push({ t: r.capa ? "Cambiar capa" : "Poner capa", fn: () => ponerCapa(r) });
   if (puedeBorrar(r)) it.push({ sep: 1 }, { t: "Mandar a la papelera", fn: () => aPapelera([r]), peligro: true });
   return it;
 }
@@ -3455,8 +3523,19 @@ async function subirXmlModelo(files) {
     if (!xUno(s, "Definition")) continue;
     try { nuevas.push({ ...supDesdeTin(s, subId, mod), archivo: f.name }); } catch (e) { errores.push(e.message); }
   }
+  // Un solo archivo sin superficies pero con un contorno cerrado (borde, parcela, línea característica): es la base de una capa
+  if (!nuevas.length && leidos.length === 1) { let an = []; try { an = baseDeXml(leidos[0].d); } catch (_) {} if (an.length) { subirBase(leidos[0].f, leidos[0].d); return; } }
   if (errores.length) toast(errores[0], "bad");
-  if (!nuevas.length) { if (!errores.length) toast("El archivo no tiene superficies (TIN) ni un eje.", "bad"); return; }
+  if (!nuevas.length) { if (!errores.length) toast("El archivo no tiene superficies (TIN), un borde cerrado ni un eje.", "bad"); return; }
+  // Una superficie suelta puede ser el 100 % de una capa o una liberación: se pregunta
+  if (leidos.length === 1 && nuevas.length === 1 && !nuevas[0].codigo) {
+    const pareceBase = /base|borde|l[ií]mite|contorno|total|dise[nñ]o/i.test(nuevas[0].nombre + " " + leidos[0].f.name);
+    dialogo("¿Qué es este XML?", `<p class="dlg-p">${esc(leidos[0].f.name)} trae la superficie <b>${esc(nuevas[0].nombre)}</b>.</p>
+      <label class="check opc"><input type="radio" name="es" value="base" ${pareceBase ? "checked" : ""}><span><b>Base de una capa</b><small>El 100 % de la capa. Después se suben las liberaciones y se ve el avance.</small></span></label>
+      <label class="check opc"><input type="radio" name="es" value="lib" ${pareceBase ? "" : "checked"}><span><b>Una liberación</b><small>Se suma al avance de su capa.</small></span></label>`,
+      o => { if (o.es === "base") subirBase(leidos[0].f, leidos[0].d); else prevSuperficies(nuevas, subId); }, "Continuar", { ancho: "corto", sinFoco: true });
+    return;
+  }
   prevSuperficies(nuevas, subId);
 }
 function prevModelo(file, d, subId, sub) {
@@ -3611,24 +3690,46 @@ function baseDeXml(d) {
   const limpios = rings.map(r => { const q = r.filter((p, i) => !i || Math.hypot(p[0] - r[i - 1][0], p[1] - r[i - 1][1]) > 1e-3); if (q.length > 3 && Math.hypot(q[0][0] - q[q.length - 1][0], q[0][1] - q[q.length - 1][1]) < 1e-3) q.pop(); return q; });
   return ordenarAnillos(limpios).map(r => { let tol = 0.05, x = simplificarBorde(r); while (x.length > 1500 && tol < 5) { tol *= 2; x = dp(r.concat([r[0]]), tol).slice(0, -1); } return x; });
 }
-async function subirBase(file) {
-  const P = S.panel, subId = P.subId, g = P.mGrupo; if (!g) { toast("Elige primero la capa.", "bad"); return; }
+async function subirBase(file, xml) {
+  const P = S.panel, subId = P.subId;
   let an;
-  try { an = baseDeXml(leerXml(await file.text())); } catch (e) { toast(`${file.name}: ${e.message}`, "bad"); return; }
+  try { an = baseDeXml(xml || leerXml(await file.text())); } catch (e) { toast(`${file.name}: ${e.message}`, "bad"); return; }
   if (!an.length) { toast("El XML no tiene una superficie ni un contorno cerrado.", "bad"); return; }
-  const area = areaBase(an), previa = MOD.bases[subId]?.get(g);
+  const area = areaBase(an);
   const eje = puntosEje(subId); let lejos = false;
   if (eje) { const pr = proyector(eje); lejos = an[0].filter((_, i) => i % 10 === 0).every(p => pr(p[0], p[1])[2] > 300); }
-  dialogo("Subir base de la capa", `<p class="dlg-p">Base de <b>${esc(nomGrupo(g))}</b> en <b>${esc(L.sub(subId)?.nombre || "")}</b>: ${esc(file.name)}.</p>
+  // Capa: la elegida en el panel, o se elige/escribe aquí (si es nueva, aparece en la lista de capas del frente)
+  const gs = gruposFrente(subId), tiposG = S.listas.tipos.filter(t => t.enGrafico && t.activo !== false);
+  const [t0, c0] = (P.mGrupo || "|").split("|");
+  const tipoIni = t0 || (gs.map(g => g.split("|")[0]).filter(Boolean).sort((x, y) => gs.filter(g => g.startsWith(y + "|")).length - gs.filter(g => g.startsWith(x + "|")).length)[0]) || tiposG[0]?.id || "";
+  const capasDeTipo = t => [...new Set([...gs.filter(g => g.split("|")[0] === t).map(g => g.split("|")[1]), ...cfgTipo(subId, t).capas.map(c => c.nombre)].filter(Boolean))].sort(natural);
+  const d = dialogo("Subir base de la capa", `<p class="dlg-p">${esc(file.name)} en <b>${esc(L.sub(subId)?.nombre || "")}</b>.</p>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px">
+      <div class="f"><label for="dBTipo">Tipo</label><select id="dBTipo" name="tipo">${tiposG.map(t => `<option value="${esc(t.id)}" ${t.id === tipoIni ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
+      <div class="f"><label for="dBCapa">Capa</label><input id="dBCapa" name="capa" placeholder="Capa 15" value="${esc(c0 || "")}" list="dlBCapa" autocomplete="off" maxlength="40" required><datalist id="dlBCapa"></datalist></div>
+    </div>
     <dl class="kv" style="margin:0 0 8px"><dt>Área (100 %)</dt><dd class="mono">${Math.round(area).toLocaleString("es-PE")} m²</dd><dt>Borde</dt><dd>${an[0].length} vértices${an.length > 1 ? ` · ${an.length - 1} ${an.length === 2 ? "hueco" : "huecos"}` : ""}</dd></dl>
     ${lejos ? `<p class="dlg-p aviso">Está a más de 300 m del eje del frente: revisa que sea el frente correcto.</p>` : ""}
-    ${previa ? `<p class="dlg-p aviso">Reemplaza la base actual (${esc(previa.nombre || "")}, ${Math.round(previa.area || 0).toLocaleString("es-PE")} m²).</p>` : ""}`, () => {
-    const [tipoId, capa] = g.split("|"), id = idSup(subId, "base-" + g);
-    const d = { subId, grupo: g, tipoId, capa, nombre: file.name, area: Math.round(area * 10) / 10, anillos: an.map(r => r.map(p => r2(p[0]) + "," + r2(p[1])).join(" ")), v: (previa?.v || 0) + 1, editadoEn: serverTimestamp(), editadoPor: S.email };
-    (MOD.bases[subId] ||= new Map()).set(g, { id, ...d, anillos: an });
-    P.mVB = null; dibujarModelo();
-    escribir(setDoc(doc(db, "bases", id), d), "Base guardada", "No se guardó la base: ");
-  }, previa ? "Reemplazar base" : "Guardar base", { sinFoco: true });
+    <p class="dlg-p aviso" id="dBPrev" hidden></p>
+    <p class="muted small" style="margin:6px 0 0">Después sube los XML de cada liberación de esta capa (cuando quieras, poco a poco) y el porcentaje se va completando.</p>`, o => {
+    const tipoId = o.tipo, capa = normCapa(o.capa, subId, tipoId);
+    if (!tipoId || !capa) { toast("Elige el tipo y escribe la capa.", "bad"); return false; }
+    const g = grupoDe(tipoId, capa), previa = MOD.bases[subId]?.get(g), id = idSup(subId, "base-" + g);
+    const dd = { subId, grupo: g, tipoId, capa, nombre: file.name, area: Math.round(area * 10) / 10, anillos: an.map(r => r.map(p => r2(p[0]) + "," + r2(p[1])).join(" ")), v: (previa?.v || 0) + 1, editadoEn: serverTimestamp(), editadoPor: S.email };
+    (MOD.bases[subId] ||= new Map()).set(g, { id, ...dd, anillos: an });
+    P.mGrupo = g; P.mModo = "real"; P.mSel = ""; P.mVB = null; dibujarModelo();
+    escribir(setDoc(doc(db, "bases", id), dd), `Base de ${nomGrupo(g)} guardada`, "No se guardó la base: ");
+  }, "Guardar base", { sinFoco: !!c0 });
+  const selT = d.querySelector("#dBTipo"), inp = d.querySelector("#dBCapa"), prev = d.querySelector("#dBPrev"), ok = d.querySelector("[type=submit]");
+  const revisar = () => {
+    d.querySelector("#dlBCapa").innerHTML = capasDeTipo(selT.value).map(c => `<option value="${esc(c)}">`).join("");
+    const g = grupoDe(selT.value, normCapa(inp.value, subId, selT.value)), previa = inp.value.trim() ? MOD.bases[subId]?.get(g) : null;
+    prev.hidden = !previa; prev.innerHTML = previa ? `Reemplaza la base actual de ${esc(nomGrupo(g))} (${esc(previa.nombre || "")}, ${Math.round(previa.area || 0).toLocaleString("es-PE")} m²).` : "";
+    ok.textContent = previa ? "Reemplazar base" : "Guardar base";
+  };
+  selT.addEventListener("change", revisar); inp.addEventListener("input", revisar);
+  inp.addEventListener("blur", () => { const v = normCapa(inp.value, subId, selT.value); if (v !== inp.value.trim()) inp.value = v; revisar(); });
+  revisar();
 }
 async function quitarBase() {
   const P = S.panel, b = MOD.bases[P.subId]?.get(P.mGrupo); if (!b) return;
@@ -3850,6 +3951,7 @@ function pintarModelo() {
     const t = e.target.closest("[data-sid]"); if (t && !e.target.closest("#mPlan")) { editarSuperficie(t.dataset.sid); return; }
     const mo = e.target.closest("[data-modo]"); if (mo) { P.mModo = mo.dataset.modo; ls.set("lib.mModo", P.mModo); P.mVB = null; dibujarModelo(); return; }
     if (e.target.closest("[data-base]")) { $("#mBaseFile").click(); return; }
+    if (e.target.closest("[data-subir]")) { $("#mFile").click(); return; }
     if (e.target.closest("[data-quitabase]")) { quitarBase(); return; }
     const zr = e.target.closest("[data-rz]"); if (zr) { zoomReal(zr.dataset.rz === "+" ? 1.8 : zr.dataset.rz === "-" ? 1 / 1.8 : 0); return; }
     const z = e.target.closest("[data-mz]"); if (z) { P.mZoom = z.dataset.mz === "+" ? Math.min(32, (P.mZoom || 1) * 2) : z.dataset.mz === "-" ? Math.max(1, (P.mZoom || 1) / 2) : 1; dibujarModelo(); centrarSta(); return; }
@@ -3884,7 +3986,12 @@ function dibujarModelo() {
   $("#mGrupo").disabled = !gs.length;
   const eje = puntosEje(subId), hayBases = (MOD.bases[subId]?.size || 0) > 0;
   if (!mod && !eje && !todas.length && !hayBases && !gs.length) {
-    body.innerHTML = `<div class="empty"><b>Aún no hay modelo de ${esc(sub?.nombre || "este frente")}</b>Puedes empezar por cualquiera de estos XML de Civil 3D: el eje con sus secciones (opcional), la base de una capa (su superficie o su contorno) o las superficies de las liberaciones. Primero elige o crea las capas en Ajustes → Capas.</div>`;
+    body.innerHTML = `<div class="empty"><b>Aún no hay modelo de ${esc(sub?.nombre || "este frente")}</b>Empieza por lo que tengas de Civil 3D; lo demás se agrega después, poco a poco.
+      <div class="m-inicio">
+        <button type="button" class="m-op" data-base><b>Subir base de una capa</b><span>El borde o la superficie del 100 % de la capa. Eliges o escribes la capa al subirla.</span></button>
+        <button type="button" class="m-op" data-subir><b>Subir liberaciones</b><span>Las superficies de cada liberación; se suman al avance de su capa.</span></button>
+        <button type="button" class="m-op" data-subir><b>Subir eje con secciones</b><span>Opcional: para ver la planta desarrollada y las secciones.</span></button>
+      </div></div>`;
     $("#mLista").innerHTML = ""; dibujarCapasLista(); return;
   }
   if (!eje) P.mModo = "real";
@@ -3902,7 +4009,7 @@ function dibujarModelo() {
         : `<div class="mres"><span><b>${m?.n || 0}</b> ${m?.n === 1 ? "liberación" : "liberaciones"}</span>${r ? `<span><b>${fmtM2(r.total)}</b> liberados</span>` : ""}<span class="muted">Sin base: sube el XML base para ver el porcentaje.</span></div>`)
         : `<div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"} en el frente</span><span class="muted">Elige una capa para ver su avance.</span></div>`}
       <div class="legend">${leyEst}${P.mGrupo && base ? '<span><i class="falta-i"></i>Falta liberar</span><span><i class="crz"></i>Cruce</span><span><i class="fue"></i>Fuera de la base</span>' : ""}${eje ? '<span><i style="background:${TOK.ink};height:2px"></i>Eje</span>' : ""}</div>
-      <div class="mbar">${seg}<span class="mbar-sp"></span>${P.mGrupo ? `<button type="button" class="mini" data-base>${base ? "Reemplazar base" : "Subir base"}</button>${base ? '<button type="button" class="mini warn-mini" data-quitabase>Quitar base</button>' : ""}` : ""}</div>
+      <div class="mbar">${seg}<span class="mbar-sp"></span>${P.mGrupo ? `<button type="button" class="mini" data-base>${base ? "Reemplazar base" : "Subir base"}</button>${base ? '<button type="button" class="mini warn-mini" data-quitabase>Quitar base</button>' : ""}` : '<button type="button" class="mini" data-base>Subir base de una capa</button>'}</div>
       <div class="mreal" id="mPlanBox"><div id="mPlan"></div><div class="rzoom" role="group" aria-label="Acercar o alejar"><button type="button" data-rz="+" aria-label="Acercar">+</button><button type="button" data-rz="-" aria-label="Alejar">−</button><button type="button" data-rz="0" aria-label="Ver todo">Todo</button></div></div>
       <p class="nota-g">Planta real girada${eje ? " a lo largo del eje" : " según la forma de la capa"}. Arrastra para moverte; toca una liberación para elegirla y otra vez para ver sus datos${eje && mod ? "; toca cualquier punto para ver esa sección" : ""}.${base ? ` Base: ${esc(base.nombre || "")}.` : ""}</p>`;
   } else {
@@ -4098,8 +4205,9 @@ const hoyISO = () => { const t = new Date(); return `${t.getFullYear()}-${String
 function fmtNumero(n) { const c = S.config || {}; return (c.prefijo || "SKT-TOP-") + String(n).padStart(c.digitos || 5, "0"); }
 
 // Código único: una transacción lee el contador y escribe el registro; si dos personas aceptan a la vez, una espera a la otra.
-async function generarCodigo(r, nombre) {
+async function generarCodigo(r, nombre, capa) {
   if (!navigator.onLine) { toast("Se necesita señal para generar el código.", "bad"); return null; }
+  const sol = capa != null && r.pkInicio != null ? solapados(r.subestructuraId, r.tipoId, capa, r.pkInicio, r.pkFin ?? r.pkInicio, r.id).map(x => x.id) : [];
   try {
     return await runTransaction(db, async tx => {
       const cRef = doc(db, "contadores", "skt"), lRef = doc(db, "liberaciones", r.id);
@@ -4109,9 +4217,10 @@ async function generarCodigo(r, nombre) {
       if (d.numero) return d.numero;
       const n = (c.exists() ? c.data().ultimo || 0 : 0) + 1, numero = fmtNumero(n);
       tx.set(cRef, { ultimo: n }, { merge: true });
-      tx.update(lRef, { numero, estado: "EP", nombreLiberacion: nombre || d.nombreLiberacion || "", generadoPor: S.perfil?.nombre || S.email, fechaLiberacion: serverTimestamp(), notaObservacion: "", editadoEn: serverTimestamp(), editadoPor: S.email });
-      resumenEn(tx, r.id, { ...d, numero, estado: "EP" });
-      tx.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: d.estado, a: "EP", usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "Código " + numero + " generado" });
+      const conCapa = capa != null && capa !== (d.capa || "") ? { capa, solapaCon: sol } : {};
+      tx.update(lRef, { numero, estado: "EP", nombreLiberacion: nombre || d.nombreLiberacion || "", ...conCapa, generadoPor: S.perfil?.nombre || S.email, fechaLiberacion: serverTimestamp(), notaObservacion: "", editadoEn: serverTimestamp(), editadoPor: S.email });
+      resumenEn(tx, r.id, { ...d, ...conCapa, numero, estado: "EP" });
+      tx.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: d.estado, a: "EP", usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: "Código " + numero + " generado" + (conCapa.capa != null ? ` · capa: ${conCapa.capa || "sin capa"}${d.capa ? ` (antes ${d.capa})` : ""}` : "") });
       return numero;
     });
   } catch (e) { console.error(e); toast("No se pudo generar el código: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return null; }
@@ -4126,22 +4235,78 @@ function cambiarEstado(ids, datos, a, nota) {
   });
   return b.commit().then(() => regs.length).catch(e => { toast("No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return 0; });
 }
+// Gabinete pone o corrige la capa al aceptar (en campo es opcional) y ve al instante si el tramo se cruza con otra liberación de esa capa
+const capasSug = regs => { const m = new Map(); regs.forEach(r => cfgTipo(r.subestructuraId, r.tipoId).capas.forEach(c => { if (!m.has(c.nombre)) m.set(c.nombre, c.cota); })); return [...m].map(([n, c]) => `<option value="${esc(n)}">${c ? "cota " + esc(c) : ""}</option>`).join(""); };
+const campoCapa = (regs, valor, lote) => `<div class="f" style="margin-top:10px"><label for="dCapa">Capa <span class="opt">(${lote ? "opcional · vacío deja la de cada una" : "opcional"})</span></label><input id="dCapa" name="capa" placeholder="Capa 15" value="${esc(valor)}" list="dlCapaAc" autocomplete="off" maxlength="40"><datalist id="dlCapaAc">${capasSug(regs)}</datalist></div><div id="dSolape" aria-live="polite"></div>`;
+// Cruces de un grupo de registros con lo ya liberado y entre ellos mismos, con la capa que tendrían
+function crucesLote(regs, capaDe) {
+  const ids = new Set(regs.map(r => r.id)), out = [];
+  regs.forEach((r, i) => {
+    if (r.actividad !== "LIB" || r.pkInicio == null) return;
+    const a = r.pkInicio, b = r.pkFin ?? r.pkInicio, c = capaDe(r);
+    solapados(r.subestructuraId, r.tipoId, c, a, b, r.id).filter(x => !ids.has(x.id)).forEach(x => out.push([r, x, c]));
+    regs.slice(i + 1).forEach(x => { if (x.actividad === "LIB" && x.pkInicio != null && x.subestructuraId === r.subestructuraId && x.tipoId === r.tipoId && capaDe(x) === c && Math.min(b, x.pkFin ?? x.pkInicio) - Math.max(a, x.pkInicio) > 0.5) out.push([r, x, c]); });
+  });
+  return out;
+}
+function avisoCruces(cr, lote) {
+  if (!cr.length) return "";
+  const li = ([r, x]) => `<li>${lote ? `<span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span> con ` : ""}<b class="mono">${esc(x.numero || "Sin número")}</b> <span class="mono">${esc(rangoPk(x.pkInicio, x.pkFin))}</span> <span class="st ${esc(x.estado)}">${esc(ESTADOS[x.estado] || x.estado)}</span></li>`;
+  const c = cr[0][2];
+  return `<div class="pinfo aviso dsolape"><b>Se superpone${c ? " en " + esc(c) : ""}</b>${lote ? "" : ` · el tramo ${esc(rangoPk(cr[0][0].pkInicio, cr[0][0].pkFin))} se cruza con:`}<ul class="solist">${cr.slice(0, 6).map(li).join("")}${cr.length > 6 ? `<li class="muted">y ${cr.length - 6} más</li>` : ""}</ul><span class="small">Revisa la capa. Si es correcto (un re-trabajo), genera igual.</span></div>`;
+}
+function vigilarCruces(d, regs, lote, txtOk) {
+  const inp = d.querySelector("#dCapa"), box = d.querySelector("#dSolape"), sub = d.querySelector("[type=submit]");
+  const revisar = () => {
+    const v = inp.value.trim(), capaDe = r => v ? normCapa(v, r.subestructuraId, r.tipoId) : (r.capa || "").trim();
+    const cr = crucesLote(regs, capaDe);
+    box.innerHTML = avisoCruces(cr, lote); sub.textContent = cr.length ? txtOk + " igual" : txtOk;
+  };
+  inp.addEventListener("input", revisar); inp.addEventListener("blur", () => { if (regs.length === 1) { const v = normCapa(inp.value, regs[0].subestructuraId, regs[0].tipoId); if (v !== inp.value.trim()) inp.value = v; } revisar(); });
+  revisar();
+  // Los registros del frente pueden tardar un momento en llegar
+  [...new Set(regs.map(r => r.subestructuraId))].forEach(precargarFrente);
+  setTimeout(() => { if (d.isConnected) revisar(); }, 900); setTimeout(() => { if (d.isConnected) revisar(); }, 2500);
+}
 function aceptarUno(r) {
   if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
   if (r.actividad === "DRN") return aceptarDron(r);
-  dialogo("Aceptar y generar código", `<p class="muted small" style="margin:0 0 10px">Se asigna el siguiente ${esc((S.config || {}).prefijo || "SKT-TOP-")}… libre. El nombre es el que va en el protocolo.</p>
-    <div class="f"><label for="dNom">Nombre de la liberación</label><textarea id="dNom" name="nombre" style="min-height:70px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>`,
-    async o => { const n = await generarCodigo(r, o.nombre); if (n) { toast(`Código ${n} generado`); if (!$("#sheet").hidden) cerrarFicha(); } }, "Generar código");
+  const d = dialogo("Aceptar y generar código", `<p class="muted small" style="margin:0 0 10px">Se asigna el siguiente ${esc((S.config || {}).prefijo || "SKT-TOP-")}… libre. El nombre es el que va en el protocolo.</p>
+    <div class="f"><label for="dNom">Nombre de la liberación</label><textarea id="dNom" name="nombre" style="min-height:70px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>
+    ${campoCapa([r], r.capa || "", false)}`,
+    async o => { const capa = normCapa(o.capa, r.subestructuraId, r.tipoId); const n = await generarCodigo(r, o.nombre, capa); if (n) { toast(`Código ${n} generado`); if (!$("#sheet").hidden) cerrarFicha(); } }, "Generar código");
+  vigilarCruces(d, [r], false, "Generar código");
 }
 async function aceptarVarios(ids) {
   if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
-  let n = 0; const todos = regsDe(ids), regs = todos.filter(r => r.actividad !== "DRN");
+  const todos = regsDe(ids), regs = todos.filter(r => r.actividad !== "DRN");
   if (todos.length > regs.length) toast("Los levantamientos con dron se aceptan uno por uno, para elegir sus protocolos.", regs.length ? "" : "bad");
   if (!regs.length) return;
-  const c0 = (S.config || {}).prefijo || "SKT-TOP-";
-  if (!await confirmar(`Aceptar ${regs.length}`, `Se ${regs.length === 1 ? "genera 1 código" : `generan ${regs.length} códigos`} ${esc(c0)}… nuevos, uno por liberación, y pasan a «En proceso». Los códigos no se pueden reutilizar.`, regs.length === 1 ? "Generar código" : `Generar ${regs.length} códigos`)) return;
-  for (const r of regs) { const c = await generarCodigo(r, r.nombreLiberacion || r.descripcion); if (c) n++; else break; }
-  S.bandeja.sel.clear(); if (n) toast(`${n} ${n === 1 ? "código generado" : "códigos generados"}`);
+  const c0 = (S.config || {}).prefijo || "SKT-TOP-", txt = regs.length === 1 ? "Generar código" : `Generar ${regs.length} códigos`;
+  const d = dialogo(`Aceptar ${regs.length}`, `<p class="dlg-p">Se ${regs.length === 1 ? "genera 1 código" : `generan ${regs.length} códigos`} ${esc(c0)}… nuevos, uno por liberación, y pasan a «En proceso». Los códigos no se pueden reutilizar.</p>
+    ${campoCapa(regs, "", regs.length > 1)}`,
+    o => { (async () => {
+      let n = 0;
+      for (const r of regs) { const capa = o.capa ? normCapa(o.capa, r.subestructuraId, r.tipoId) : undefined; const c = await generarCodigo(r, r.nombreLiberacion || r.descripcion, capa); if (c) n++; else break; }
+      S.bandeja.sel.clear(); if (n) toast(`${n} ${n === 1 ? "código generado" : "códigos generados"}`); else pintarBandeja();
+    })(); }, txt, { sinFoco: true });
+  vigilarCruces(d, regs, true, txt);
+}
+// Gabinete pone o corrige solo la capa de una liberación (sin editar nada más)
+const puedeCapa = r => esGab() && !esAdmin() && r.actividad === "LIB" && !r.borrado && !["RE", "X"].includes(r.estado) && !puedeEditar(r);
+function ponerCapa(r) {
+  if (!navigator.onLine) { toast("Se necesita señal para cambiar la capa.", "bad"); return; }
+  const d = dialogo(r.capa ? "Cambiar capa" : "Poner capa", `<p class="muted small" style="margin:0">${esc(r.numero || "Sin número")} · ${esc(nom(L.tipo(r.tipoId)))} · <span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span> · ${esc(nom(L.sub(r.subestructuraId)))}</p>${campoCapa([r], r.capa || "", false)}`,
+    o => {
+      const capa = normCapa(o.capa, r.subestructuraId, r.tipoId); if (capa === (r.capa || "")) return;
+      const sol = r.pkInicio != null ? solapados(r.subestructuraId, r.tipoId, capa, r.pkInicio, r.pkFin ?? r.pkInicio, r.id).map(x => x.id) : [];
+      const b = writeBatch(db);
+      b.update(doc(db, "liberaciones", r.id), { capa, solapaCon: sol, editadoEn: serverTimestamp(), editadoPor: S.email });
+      resumenEn(b, r.id, { ...r, capa });
+      hist(b, r, "editado", `Capa: ${capa || "sin capa"}${r.capa ? ` (antes ${r.capa})` : ""}`);
+      escribir(b.commit(), capa ? `Capa ${capa} guardada` : "Capa quitada", "No se guardó la capa: ").then(okk => { if (okk && S._ficha?.id === r.id) cerrarFicha(); });
+    }, "Guardar capa");
+  vigilarCruces(d, [r], false, "Guardar capa");
 }
 /* ---------- Levantamiento con dron: al aceptarlo se generan sus protocolos ----------
    Los protocolos se arman en Ajustes → Protocolos, con las zonas (estructura o frente) donde aplican.
@@ -4288,11 +4453,28 @@ function suscribirBandeja() {
   getDoc(doc(db, "config", "general")).then(d => { if (d.exists()) S.config = d.data(); }).catch(() => {});
 }
 /* ---------- Aspas para vuelo de dron: llegan a la bandeja del administrador y del jefe de área para procesarlas ---------- */
-const aspasPorProcesar = () => S.bandeja.aspas.filter(r => !r.procesado);
 function suscribirAspas() {
   S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("actividad", "==", "ASP")), { includeMetadataChanges: true }, snap => {
     S.bandeja.aspas = snap.docs.map(fila).filter(vivo); pintarNav(); if (S.view === "bandeja") pintarBandeja();
   }, e => console.warn("aspas", e)));
+}
+/* ---------- Levantamientos (sin código): llegan a gabinete y al jefe de área para que se den por enterados ---------- */
+function suscribirLevantamientos() {
+  S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "==", "NA"), where("origen", "==", "app")), { includeMetadataChanges: true }, snap => {
+    S.bandeja.levs = snap.docs.map(fila).filter(r => r.actividad !== "ASP" && vivo(r)); pintarNav(); if (S.view === "bandeja") pintarBandeja();
+  }, e => console.warn("levantamientos", e)));
+}
+async function marcarVisto(regs0, si = true) {
+  const regs = regs0.filter(r => r.estado === "NA" && r.actividad !== "ASP" && !!r.visto !== si); if (!regs.length) return 0;
+  const n = regs.length;
+  if (!si && !await confirmar("Quitar «Enterado»", `${n === 1 ? "El levantamiento vuelve" : `Los ${n} levantamientos vuelven`} a «Por ver».`, "Quitar")) return 0;
+  const p = lotes(regs, (b, r) => {
+    b.update(doc(db, "liberaciones", r.id), si ? { visto: true, vistoPor: S.email, vistoNombre: S.perfil?.nombre || "", vistoEn: serverTimestamp() } : { visto: false, vistoPor: "", vistoNombre: "", vistoEn: null });
+    hist(b, r, si ? "visto" : "novisto", si ? "Enterado" : "Vuelve a por ver");
+  });
+  S.bandeja.sel.clear();
+  if (S._ficha && regs.some(r => r.id === S._ficha.id)) cerrarFicha();
+  return await escribir(p, si ? (n === 1 ? "Marcado como enterado" : `${n} marcados como enterados`) : (n === 1 ? "Vuelve a por ver" : `${n} vuelven a por ver`), "No se pudo guardar: ") ? n : 0;
 }
 async function marcarProcesado(regs0, si = true) {
   const regs = regs0.filter(r => r.actividad === "ASP" && !!r.procesado !== si); if (!regs.length) return 0;
@@ -4306,34 +4488,52 @@ async function marcarProcesado(regs0, si = true) {
   if (S._ficha && regs.some(r => r.id === S._ficha.id)) cerrarFicha();
   return await escribir(p, si ? (n === 1 ? "Marcado como procesado" : `${n} marcados como procesados`) : (n === 1 ? "Devuelto a por procesar" : `${n} devueltos a por procesar`), "No se pudo guardar: ") ? n : 0;
 }
-function pintarAspas() {
-  const B = S.bandeja, por = B.aspVer !== "hechas";
-  const fuente = B.aspas.filter(r => por ? !r.procesado : r.procesado);
+// Listas de seguimiento de la bandeja: aspas (se procesan) y levantamientos (gabinete y jefe se dan por enterados)
+const SEG = {
+  ASP: { kOk: "procesar", kDes: "desprocesar", campo: "procesado", chip: "asp", por: "Por procesar", hechas: "Procesadas", hechoPor: "Procesado", ok: "Marcar procesado", oks: "Marcar procesados", des: "Devolver a por procesar", lead: "Levantamientos de aspas para vuelo de dron. Descarga el CSV y las fotos desde la ficha y márcalos como procesados.", vacioPor: "No hay aspas por procesar", vacioHechas: "Aún no hay aspas procesadas", vacioTxt: "Los levantamientos de aspas para vuelo de dron que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha y descargar el CSV y las fotos.", fuente: () => S.bandeja.aspas, marcar: (r, si) => marcarProcesado(r, si) },
+  LEV: { kOk: "enterado", kDes: "quitar", campo: "visto", chip: "lev", por: "Por ver", hechas: "Vistos", hechoPor: "Visto", ok: "Enterado", oks: "Marcar enterados", des: "Quitar enterado", lead: "Levantamientos topográficos de campo (sin código). Revísalos y marca «Enterado»; quien lo registró ve que ya llegó.", vacioPor: "No hay levantamientos por ver", vacioHechas: "Aún no hay levantamientos vistos", vacioTxt: "Los levantamientos que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha con sus archivos.", fuente: () => S.bandeja.levs, marcar: (r, si) => marcarVisto(r, si) }
+};
+const porHacer = k => SEG[k].fuente().filter(r => !r[SEG[k].campo]);
+// Pestañas de la bandeja según el rol: gabinete (aceptar, observadas, entregar, levantamientos), jefe (aspas, levantamientos), administrador (todas)
+function tabsBandeja(t) {
+  const B = S.bandeja, ts = [];
+  if (esGab()) ts.push(["PT", "Por aceptar", B.pend.filter(r => r.estado === "PT").length], ["OB", "Observadas", B.pend.filter(r => r.estado === "OB").length], ["EP", "Por entregar", B.ep.length + B.epHist.length]);
+  if (puedeAjustes()) ts.push(["ASP", "Aspas", porHacer("ASP").length]);
+  ts.push(["LEV", "Levantamientos", porHacer("LEV").length]);
+  return `<div class="tabs" role="group">${ts.map(([k, n, c]) => `<button type="button" data-bt="${k}" aria-pressed="${t === k}">${n} <span class="cnt">${c}</span></button>`).join("")}</div>`;
+}
+function pintarSeguimiento(k) {
+  const B = S.bandeja, C = SEG[k], ver = k === "ASP" ? "aspVer" : "levVer", por = B[ver] !== "hechas";
+  const todos = C.fuente(), fuente = todos.filter(r => por ? !r[C.campo] : r[C.campo]);
   const q = B.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const cuando = r => toDate(r[C.campo + "En"])?.getTime() || 0;
   const vis = fuente.filter(r => { if (!q.length) return true; const s = textoBusqueda(r); return q.every(x => s.includes(x)); })
-    .sort((a, b) => por ? (toDate(a.fechaCampo)?.getTime() || 0) - (toDate(b.fechaCampo)?.getTime() || 0) : (toDate(b.procesadoEn)?.getTime() || 0) - (toDate(a.procesadoEn)?.getTime() || 0));
+    .sort((a, b) => por ? (toDate(a.fechaCampo)?.getTime() || 0) - (toDate(b.fechaCampo)?.getTime() || 0) : cuando(b) - cuando(a));
   B.sel = new Set([...B.sel].filter(id => fuente.some(r => r.id === id)));
-  const ns = B.sel.size, lim = B.ver || 60, nPor = aspasPorProcesar().length, nHechas = B.aspas.length - nPor;
+  const ns = B.sel.size, lim = B.ver || 60, nPor = porHacer(k).length, nHechas = todos.length - nPor;
+  const quien = r => esc(r[C.campo + "Nombre"] || r[C.campo + "Por"] || "");
   const arch = r => { const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c; return [c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ") || '<span class="muted">Sin archivos</span>'; };
-  const acc = r => por ? `<button type="button" class="mini ok-btn" data-a="procesar">Marcar procesado</button>` : `<button type="button" class="mini" data-a="desprocesar">Devolver a por procesar</button>`;
-  const lista = !vis.length ? `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : por ? "No hay aspas por procesar" : "Aún no hay aspas procesadas"}</b>${fuente.length || !por ? "" : "Los levantamientos de aspas para vuelo de dron que registren en campo aparecerán aquí al instante."}</div>`
-    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Fecha en campo</th><th>Topógrafo</th><th>Archivos</th><th>${por ? "Registrado por" : "Procesado"}</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r._pend ? '<span class="pend-tag" style="margin:2px 0 0;align-self:flex-start">Por subir</span>' : ""}${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}${r.pkInicio != null ? `<br><span class="mono small">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}</td><td class="nw">${esc(fmtFecha(r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td class="nw">${arch(r)}</td><td>${por ? esc(r.creadoPor || "") : `${esc(r.procesadoNombre || r.procesadoPor || "")}<br><span class="muted small">${esc(fmtFecha(r.procesadoEn))}</span>`}</td><td><div class="bact">${acc(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Toca una fila para ver la ficha y descargar el CSV y las fotos.</p>`
-    : `<div class="list" id="blist">${vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}${por ? "" : `<div class="muted small" style="padding:4px 2px 0">Procesado por ${esc(r.procesadoNombre || r.procesadoPor || "")} · ${esc(fmtFecha(r.procesadoEn))}</div>`}<div class="bact">${acc(r)}</div></div></div>`).join("")}</div>`;
+  const acc = r => por ? `<button type="button" class="mini ok-btn" data-a="${C.kOk}">${C.ok}</button>` : `<button type="button" class="mini" data-a="${C.kDes}">${C.des}</button>`;
+  const lista = !vis.length ? `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : por ? C.vacioPor : C.vacioHechas}</b>${fuente.length || !por ? "" : C.vacioTxt}</div>`
+    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Fecha en campo</th><th>Topógrafo</th><th>Archivos</th><th>${por ? "Registrado por" : C.hechoPor}</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r._pend ? '<span class="pend-tag" style="margin:2px 0 0;align-self:flex-start">Por subir</span>' : ""}${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}${r.pkInicio != null ? `<br><span class="mono small">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}</td><td class="nw">${esc(fmtFecha(r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td class="nw">${arch(r)}</td><td>${por ? esc(r.creadoPor || "") : `${quien(r)}<br><span class="muted small">${esc(fmtFecha(r[C.campo + "En"]))}</span>`}</td><td><div class="bact">${acc(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">${C.nota}</p>`
+    : `<div class="list" id="blist">${vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}${por ? "" : `<div class="muted small" style="padding:4px 2px 0">${C.hechoPor} por ${quien(r)} · ${esc(fmtFecha(r[C.campo + "En"]))}</div>`}<div class="bact">${acc(r)}</div></div></div>`).join("")}</div>`;
   return { vis, fuente, lim, html: `
-  <div class="chips" role="group" aria-label="Aspas"><button type="button" class="chip" data-asp="por" aria-pressed="${por}">Por procesar<span class="c">${nPor}</span></button><button type="button" class="chip" data-asp="hechas" aria-pressed="${!por}">Procesadas<span class="c">${nHechas}</span></button></div>
+  <div class="chips" role="group" aria-label="${k === "ASP" ? "Aspas" : "Levantamientos"}"><button type="button" class="chip" data-${C.chip}="por" aria-pressed="${por}">${C.por}<span class="c">${nPor}</span></button><button type="button" class="chip" data-${C.chip}="hechas" aria-pressed="${!por}">${C.hechas}<span class="c">${nHechas}</span></button></div>
   <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar descripción, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionado" : "seleccionados"}</span>
-    ${por ? '<button type="button" class="mini ok-btn" data-bk="procesar">Marcar procesados</button>' : '<button type="button" class="mini" data-bk="desprocesar">Devolver a por procesar</button>'}<button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
-  ${!ns && vis.length > 1 ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${por ? "marcar como procesados" : "devolver"}</label>` : ""}
+    ${por ? `<button type="button" class="mini ok-btn" data-bk="${C.kOk}">${C.oks}</button>` : `<button type="button" class="mini" data-bk="${C.kDes}">${C.des}</button>`}<button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
+  ${!ns && vis.length > 1 ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${por ? (k === "ASP" ? "marcar como procesados" : "marcar enterados") : "devolver"}</label>` : ""}
   ${lista}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}` };
 }
+const btnEdCapa = r => puedeEditar(r) ? '<button type="button" class="mini" data-a="editar">Editar</button>' : puedeCapa(r) ? `<button type="button" class="mini" data-a="capa">${r.capa ? "Cambiar capa" : "Poner capa"}</button>` : "";
 function pintarBandeja() {
   const B = S.bandeja;
   // El jefe de área solo ve la pestaña Aspas; gabinete no la ve
-  if (!esGab()) B.tab = "ASP"; else if (B.tab === "ASP" && !puedeAjustes()) B.tab = "PT";
+  // Jefe de área: aspas y levantamientos; gabinete no ve aspas
+  if (!esGab() && !["ASP", "LEV"].includes(B.tab)) B.tab = "ASP"; else if (B.tab === "ASP" && !puedeAjustes()) B.tab = "PT";
   const t = B.tab;
-  if (t === "ASP") return pintarBandejaAspas();
+  if (t === "ASP" || t === "LEV") return pintarBandejaSeg(t);
   const fuente = t === "EP" ? [...B.ep, ...B.epHist] : B.pend.filter(r => r.estado === t);
   const q = B.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const vis = fuente.filter(r => { if (!q.length) return true; const s = textoBusqueda(r); return q.every(x => s.includes(x)); })
@@ -4344,13 +4544,13 @@ function pintarBandeja() {
   $("#view").innerHTML = `
   <h1 class="view-title">Bandeja de gabinete</h1>
   <p class="lead">Lo que llega de campo. Al aceptar se genera el código único para el protocolo; luego se entrega a Calidad.</p>
-  <div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="${t === "PT"}">Por aceptar <span class="cnt">${nPT}</span></button><button type="button" data-bt="OB" aria-pressed="${t === "OB"}">Observadas <span class="cnt">${nOB}</span></button><button type="button" data-bt="EP" aria-pressed="${t === "EP"}">Por entregar <span class="cnt">${nEP}</span></button>${puedeAjustes() ? `<button type="button" data-bt="ASP" aria-pressed="false">Aspas <span class="cnt">${aspasPorProcesar().length}</span></button>` : ""}</div>
+  ${tabsBandeja(t)}
   <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar N°, PK, tipo, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
   ${t === "EP" && B.errEP ? `<p class="pinfo" style="margin:0 0 12px">${esc(B.errEP)}</p>` : ""}
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
     ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini warn-mini" data-bk="papelera">Mandar a la papelera</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
   ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
-  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
+  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}
   ${t === "EP" && !B.epHistOk ? `<button class="btn sec more" id="bHist" type="button">Cargar también las del histórico sin entregar</button>` : ""}`;
   $("#bHist")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Cargando…";
@@ -4367,31 +4567,31 @@ function pintarBandeja() {
     const row = e.target.closest("[data-rid]"); if (!row) return;
     const r = fuente.find(x => x.id === row.dataset.rid); if (!r) return;
     const a = e.target.closest("[data-a]");
-    if (a) { ({ aceptar: () => aceptarUno(r), observar: () => observar(r), rechazar: () => rechazar(r), entregar: () => entregar([r.id]), reabrir: () => reabrir(r), editar: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } })[a.dataset.a]?.(); return; }
+    if (a) { ({ aceptar: () => aceptarUno(r), observar: () => observar(r), rechazar: () => rechazar(r), entregar: () => entregar([r.id]), reabrir: () => reabrir(r), capa: () => ponerCapa(r), editar: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } })[a.dataset.a]?.(); return; }
     if (e.target.closest(".item") || (row.tagName === "TR" && !e.target.closest("button,input,label,.ck"))) abrirFicha(r);
   });
 }
 
-function pintarBandejaAspas() {
-  const B = S.bandeja, { vis, fuente, lim, html } = pintarAspas();
+function pintarBandejaSeg(k) {
+  const B = S.bandeja, C = SEG[k], { vis, fuente, lim, html } = pintarSeguimiento(k);
   $("#view").innerHTML = `
   <h1 class="view-title">${esGab() ? "Bandeja de gabinete" : "Bandeja"}</h1>
-  <p class="lead">Levantamientos de aspas para vuelo de dron. Descarga el CSV y las fotos desde la ficha y márcalos como procesados.</p>
-  ${esGab() ? `<div class="tabs" role="group"><button type="button" data-bt="PT" aria-pressed="false">Por aceptar <span class="cnt">${B.pend.filter(r => r.estado === "PT").length}</span></button><button type="button" data-bt="OB" aria-pressed="false">Observadas <span class="cnt">${B.pend.filter(r => r.estado === "OB").length}</span></button><button type="button" data-bt="EP" aria-pressed="false">Por entregar <span class="cnt">${B.ep.length + B.epHist.length}</span></button><button type="button" data-bt="ASP" aria-pressed="true">Aspas <span class="cnt">${aspasPorProcesar().length}</span></button></div>` : ""}
+  <p class="lead">${C.lead}</p>
+  ${tabsBandeja(k)}
   ${html}`;
   $(".tabs")?.addEventListener("click", e => { const b = e.target.closest("[data-bt]"); if (b) { B.tab = b.dataset.bt; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
-  $("#view .chips").addEventListener("click", e => { const c = e.target.closest("[data-asp]"); if (c) { B.aspVer = c.dataset.asp; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
+  $("#view .chips").addEventListener("click", e => { const c = e.target.closest(`[data-${C.chip}]`); if (c) { B[k === "ASP" ? "aspVer" : "levVer"] = c.dataset[C.chip]; B.sel.clear(); B.ver = 60; pintarBandeja(); } });
   const bq = $("#bq"); bq.addEventListener("input", () => { B.q = bq.value; clearTimeout(S._qt); S._qt = setTimeout(() => { if (S.view !== "bandeja" || !$("#bq")) return; const v = $("#bq"), pos = v.selectionStart, foco = document.activeElement === v; pintarBandeja(); const n = $("#bq"); if (foco) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (er) {} } }, 150); });
   const todo = on => { vis.slice(0, lim).forEach(r => on ? B.sel.add(r.id) : B.sel.delete(r.id)); pintarBandeja(); };
   $("#bAll")?.addEventListener("change", e => todo(e.target.checked)); $("#bAll2")?.addEventListener("change", e => todo(e.target.checked));
-  $("#bBulk").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (!b) return; const regs = regsDe([...B.sel]), k = b.dataset.bk;
-    if (k === "limpiar") { B.sel.clear(); pintarBandeja(); } else if (k === "exportar") exportarSel(regs); else marcarProcesado(regs, k === "procesar"); });
+  $("#bBulk").addEventListener("click", e => { const b = e.target.closest("[data-bk]"); if (!b) return; const regs = regsDe([...B.sel]), q = b.dataset.bk;
+    if (q === "limpiar") { B.sel.clear(); pintarBandeja(); } else if (q === "exportar") exportarSel(regs); else C.marcar(regs, q === C.kOk); });
   $("#bMas")?.addEventListener("click", () => { B.ver = (B.ver || 60) + 60; pintarBandeja(); });
   $("#blist")?.addEventListener("change", e => { if (!e.target.matches("[data-sel]")) return; const id = e.target.closest("[data-rid]").dataset.rid; e.target.checked ? B.sel.add(id) : B.sel.delete(id); pintarBandeja(); });
   $("#blist")?.addEventListener("click", e => {
     const row = e.target.closest("[data-rid]"); if (!row) return;
     const r = fuente.find(x => x.id === row.dataset.rid); if (!r) return;
-    const a = e.target.closest("[data-a]"); if (a) { marcarProcesado([r], a.dataset.a === "procesar"); return; }
+    const a = e.target.closest("[data-a]"); if (a) { C.marcar([r], a.dataset.a === C.kOk); return; }
     if (e.target.closest(".item") || (row.tagName === "TR" && !e.target.closest("button,input,label,.ck"))) abrirFicha(r);
   });
 }

@@ -96,18 +96,11 @@ const aceptarDlg = async p => { await p.waitForSelector('.dlg.on [type=submit]')
   ok((await p.textContent('#sheet')).includes('Foto depurada'), 'la ficha dice «Foto depurada»');
   await p.click('#fCerrar'); await p.waitForTimeout(400);
 
-  // 7. Gabinete corrige un entregado: pide motivo
+  // 7. Gabinete ya no edita lo de campo (ni lo entregado): solo puede cambiar la capa
   await entrarComo(p, GAB); await p.click('[data-v="todos"]'); await p.click('.chip[data-st="EC"]'); await p.waitForSelector('.rtab tr[data-id="e1"]');
-  await p.click('.rtab tr[data-id="e1"] td:nth-child(4)'); await p.waitForSelector('#sheet.on #fEditar'); await p.click('#fEditar'); await p.waitForSelector('#fLib');
-  await p.fill('#iObs', 'Se corrige la cota'); await p.click('#bGuardar'); await p.waitForSelector('.dlg.on #dMotEC');
-  ok(true, 'gabinete: editar un entregado pide el motivo');
-  await p.waitForTimeout(250); await p.click('.dlg.on [type=submit]'); await p.waitForTimeout(200);
-  ok(await p.$('.dlg.on #dMotEC'), 'sin motivo no guarda');
-  await p.fill('.dlg.on #dMotEC', 'Calidad pidió corregir la cota'); await p.click('.dlg.on [type=submit]'); await p.waitForTimeout(600);
-  st = await store(p);
-  ok(st['liberaciones/e1'].motivoEdicion === 'Calidad pidió corregir la cota' && st['liberaciones/e1'].observaciones === 'Se corrige la cota' && st['liberaciones/e1'].estado === 'EC', 'guardado con su motivo y sigue entregado');
-  ok(st['liberaciones/e1'].archivos[0].purgado === true, 'editar no pierde la marca de foto depurada');
-  ok(Object.values(st).some(h => h && h.liberacionId === 'e1' && /Edición de entregado: Calidad pidió/.test(h.nota || '')), 'el motivo queda en el historial');
+  await p.click('.rtab tr[data-id="e1"] td:nth-child(4)'); await p.waitForSelector('#sheet.on');
+  ok(!(await p.$('#fEditar')) && await p.$('#fCapa'), 'gabinete: en un entregado no hay «Editar», solo «Cambiar capa»');
+  await p.click('#fCerrar'); await p.waitForTimeout(400);
 
   // 8. Superposición: el operario registra un tramo que se cruza con 0+100 – 0+140 de la misma capa
   await entrarComo(p, OPER); await p.click('[data-v="nueva"]'); await p.waitForSelector('#fLib:not([hidden])');

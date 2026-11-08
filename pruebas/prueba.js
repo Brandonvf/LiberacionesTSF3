@@ -166,7 +166,7 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await page.waitForTimeout(200);
   await page.click('[data-v="mis"]');
   await page.waitForSelector('.item');
-  ok((await page.textContent('.item')).includes('Sin liberación'), 'levantamiento queda como Sin liberación');
+  ok((await page.textContent('.item')).includes('Levantamiento'), 'levantamiento queda como Levantamiento');
   await page.screenshot({ path: OUT + '/08-topografo-mis.png' });
 
   // Escritorio

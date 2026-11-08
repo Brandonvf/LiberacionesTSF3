@@ -31,12 +31,13 @@ bash pruebas/correr.sh prueba5    # una sola
 | prueba12 | App instalable: manifiesto, logo, botón «Instalar», número en el ícono, atajos, aviso de versión nueva y apertura sin señal |
 | prueba13 | Mudanza de dirección: aviso en la dirección vieja y paso a la nueva solo cuando no queda nada por subir |
 | prueba14 | Estilo «Cuaderno de obra»: ventanas emergentes (✕, Escape, «Atrás», tocar fuera, tamaños), filtros del panel (acordeón y hoja con «Aplicar»), búsqueda sin trabarse, hora actual y no perder lo escrito si falla la grabación |
-| prueba15 | Aspas para vuelo de dron: llegan a la bandeja del administrador y del jefe de área, se descargan y se marcan como procesadas; gabinete no las ve |
+| prueba15 | Aspas para vuelo de dron: llegan a la bandeja del administrador y del jefe de área, se descargan y se marcan como procesadas; gabinete no las ve; pestaña Levantamientos |
 | prueba16 | «Qué se liberó»: buscador único que tolera errores, agregar tipos y elementos desde campo revisando parecidos, revisar y unir en Ajustes |
 | prueba17 | Cambio de rol con la app abierta (aparece la Bandeja sin cerrar la app y sin perder lo escrito) y rol elegido al aprobar una solicitud |
 | prueba18 | Equipo del levantamiento, filtros de Registros (fechas, tipo, frente, topógrafo, actividad, equipo) y levantamiento con dron con protocolos por zona |
 | prueba19 | Fotos HEIC (Samsung con «alta eficiencia», iPhone): se convierten a JPG en el teléfono; si no se puede, explica qué hacer |
 | prueba20 | Actualizaciones: al abrir con una copia vieja guardada se pone sola la versión nueva (si aún no se escribió nada); si se está escribiendo, avisa «Actualizar». Lo nuevo (dron, equipos) aparece aunque la lista de Firebase sea vieja |
-| prueba10 | Ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal, corregir entregados con motivo, superposición, depuración de fotos, jefe en Modelo 2D |
+| prueba21 | Capa al aceptar (uno y en grupo) con aviso de traslape, gabinete solo cambia la capa, levantamientos con «Enterado» (gabinete y jefe), resumen para WhatsApp en Mis registros y base de una capa en un frente vacío |
+| prueba10 | Ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal, gabinete sin «Editar» (solo cambiar capa), superposición, depuración de fotos, jefe en Modelo 2D |
 
 `capturas.js` toma fotos de las pantallas principales en celular y computadora (`node pruebas/capturas.js <carpeta>`), útil para comparar antes y después de un cambio de diseño. `filtros.js` reúne las ayudas que usan las pruebas para manejar los filtros del panel.
