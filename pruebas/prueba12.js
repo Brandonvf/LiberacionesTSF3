@@ -68,7 +68,8 @@ const avisoInstalable = p => p.evaluate(() => {
   ok(await p.evaluate(() => typeof window.__lanzar === 'function'), 'la app recibe los atajos cuando ya está abierta');
   await p.evaluate(u => window.__lanzar({ targetURL: u + '#panel' }), URL); await p.waitForTimeout(300);
   ok(await p.$eval('[data-v="panel"]', b => b.getAttribute('aria-current') === 'page'), 'atajo «Panel» con la app abierta: cambia de pantalla sin recargar');
-  // Versión nueva
+  // Versión nueva con la app ya en uso (recién abierta se recarga sola: ver prueba20)
+  await p.waitForFunction(() => performance.now() > 15500, null, { timeout: 20000 });
   await p.evaluate(() => document.dispatchEvent(new Event('version-nueva'))); await p.waitForSelector('#verNueva');
   ok(/versión nueva/.test(await p.textContent('#verNueva')), 'aviso de versión nueva con botón «Actualizar»');
   await p.screenshot({ path: path.join(OUT, '3-version.png') });
@@ -102,9 +103,9 @@ const avisoInstalable = p => p.evaluate(() => {
   await q.evaluate(u => { localStorage.clear(); localStorage.setItem('__fakeUser', JSON.stringify(u)); }, ADMIN);
   await q.evaluate(() => navigator.serviceWorker.register('sw.js'));
   await q.evaluate(() => navigator.serviceWorker.ready);
-  await q.waitForFunction(async () => (await caches.keys()).includes('liberaciones-v14'));
+  await q.waitForFunction(async () => (await caches.keys()).includes('liberaciones-v15'));
   await q.waitForTimeout(800);
-  const guardado = await q.evaluate(async () => (await (await caches.open('liberaciones-v14')).keys()).map(r => r.url));
+  const guardado = await q.evaluate(async () => (await (await caches.open('liberaciones-v15')).keys()).map(r => r.url));
   const tiene = f => guardado.some(u => u.endsWith(f));
   ok(['/', 'manifest.webmanifest', 'logo.svg', 'icono-192.png', 'icono-512.png', 'apple-touch-icon.png'].every(tiene), 'al instalarse guarda la página, el manifiesto y el logo');
   ok(['firebase-app.js', 'firebase-auth.js', 'firebase-firestore.js'].every(tiene), 'y las librerías de Firebase (abre sin señal aunque nunca se usó sin internet)');

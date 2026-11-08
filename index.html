@@ -900,6 +900,7 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
 .rf-hoja .chip{min-height:40px;font-size:14px}
 .rf-hoja select{min-height:48px;font-size:16px}
 .rf-nota{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.ver-app{font-size:12px;color:var(--muted);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -924,17 +925,17 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
   window.__inst = null;
   addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); window.__inst = e; document.dispatchEvent(new Event('instalable')); });
   if('serviceWorker' in navigator && location.protocol==='https:'){
-    var habia = !!navigator.serviceWorker.controller, ultimo = Date.now();
+    var habia = !!navigator.serviceWorker.controller, ultimo = 0;
     navigator.serviceWorker.register('sw.js').then(function(reg){
-      // La app instalada suele quedar abierta días: al volver a ella se revisa si hay versión nueva (máximo cada 10 min)
+      // La app instalada suele quedar abierta días: al volver a ella se revisa si hay versión nueva (máximo cada 2 min)
       document.addEventListener('visibilitychange', function(){
-        if(document.visibilityState==='visible' && Date.now()-ultimo>600000){ ultimo = Date.now(); reg.update().catch(function(){}); }
+        if(document.visibilityState==='visible' && Date.now()-ultimo>120000){ ultimo = Date.now(); reg.update().catch(function(){}); }
       });
     }).catch(function(){});
     navigator.serviceWorker.addEventListener('controllerchange', function(){ if(habia) document.dispatchEvent(new Event('version-nueva')); habia = true; });
-    // La página abre con la copia guardada; si al bajar la nueva resulta distinta, el service worker avisa
-    navigator.serviceWorker.addEventListener('message', function(e){ if(e.data && e.data.tipo==='version-nueva') document.dispatchEvent(new Event('version-nueva')); });
   }
+  // La página abre con la copia guardada; si al bajar la nueva resulta distinta, el service worker avisa
+  if('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', function(e){ if(e.data && e.data.tipo==='version-nueva') document.dispatchEvent(new Event('version-nueva')); });
 </script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
@@ -1185,8 +1186,20 @@ matchMedia("(display-mode: standalone)").addEventListener?.("change", () => { do
 document.addEventListener("instalable", pintarInstalar);
 addEventListener("online", () => { if (S.dentro && enDirVieja()) mudarse(false); });
 addEventListener("appinstalled", () => { window.__inst = null; pintarInstalar(); });
-// Versión nueva publicada mientras la app estaba abierta: se avisa y se actualiza cuando la persona quiera
+// Número de versión de la app (sube con cada publicación; es el mismo de la copia guardada en sw.js)
+const VERSION_APP = 15;
+// Versión nueva: si se acaba de abrir la app y aún no se escribió nada, se recarga sola;
+// si ya se está trabajando, se avisa y se actualiza cuando la persona quiera
+function hayAlgoEscrito() {
+  if ($(".dlg.on")) return true;
+  if (S.view !== "nueva" || !S.form) return false;
+  try { leerCampos(); } catch (_) {}
+  const f = S.form; return ["pkInicio", "pkFin", "cota", "capa", "area", "descripcion", "observaciones"].some(k => String(f[k] || "").trim()) || (f.archivos || []).length > 0;
+}
+let recargando = false;
 document.addEventListener("version-nueva", () => {
+  if (recargando) return;
+  if (performance.now() < 15000 && !hayAlgoEscrito()) { recargando = true; ls.set("lib.actualizada", VERSION_APP); location.reload(); return; }
   if ($("#verNueva")) return;
   const d = document.createElement("div"); d.id = "verNueva"; d.className = "vernueva"; d.setAttribute("role", "status");
   d.innerHTML = '<span>Hay una versión nueva</span><button type="button" data-ok>Actualizar</button><button type="button" class="x" aria-label="Cerrar">✕</button>';
@@ -1381,6 +1394,7 @@ const veTodo = () => ["gabinete", "jefe", "admin"].includes(rol());
 
 function entrarApp() {
   S.dentro = true;
+  if (!recargando) { const v = ls.get("lib.actualizada", 0); if (v) { ls.set("lib.actualizada", 0); if (v !== VERSION_APP) setTimeout(() => toast(`App actualizada a la versión ${VERSION_APP}`), 900); } }
   const aviso = ls.get("lib.avisoRol", ""); if (aviso) { ls.set("lib.avisoRol", ""); setTimeout(() => toast(aviso), 600); }
   $("#gate").hidden = true; $("#app").hidden = false;
   guardadoPersistente(); pintarInstalar();
@@ -1388,6 +1402,9 @@ function entrarApp() {
   if (enDirVieja()) { avisoMudanza(); setTimeout(() => mudarse(false), 1500); }
   S.subs.push(onSnapshot(collection(db, "listas"), snap => {
     snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
+    // Lo nuevo de la app aparece aunque el administrador todavía no haya entrado con esta versión
+    LISTAS_INICIALES.actividades.forEach(a => { if (!S.listas.actividades.some(x => x.id === a.id)) { const j = S.listas.actividades.findIndex(x => x.id === "ASP"); j < 0 ? S.listas.actividades.push({ ...a }) : S.listas.actividades.splice(j, 0, { ...a }); } });
+    if (!(S.listas.equipos || []).length) S.listas.equipos = LISTAS_INICIALES.equipos.map(x => ({ ...x }));
     pintarNav();
     S.listas.tipos.sort((a, b) => (a.orden || 0) - (b.orden || 0));
     if (S.view === "nueva") { leerCampos(); pintarForm(); }
@@ -2129,6 +2146,7 @@ function pintarLista(cual) {
   ${bulk}
   ${!vis.length ? vacio : tabla ? `<div class="card twrap"><table class="rtab" id="lista"><thead><tr><th class="ck"><input type="checkbox" id="rAll" ${vis.slice(0, lim).every(r => sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todos"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${pap ? "Borrado" : "Fecha en campo"}</th><th>${pap ? "Por" : "Topógrafo"}</th></tr></thead><tbody>${vis.slice(0, lim).map(filaT).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver sus acciones. Marca varias para trabajarlas juntas.</p>`
     : `<div class="list" id="lista">${vis.slice(0, lim).map((r, i) => tarjeta(r, i)).join("")}</div>`}
+  ${cual === "mis" ? `<p class="ver-app" style="text-align:center;margin:18px 0 0">Versión ${VERSION_APP}</p>` : ""}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && !pap && !porFecha && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
   const q = $("#q");
   // Se redibuja cuando se deja de escribir (150 ms), no con cada letra
@@ -4474,7 +4492,7 @@ function pintarAjustes() {
   if (lista) A.b = clon(S.listas[lista] || []);
   $("#view").innerHTML = `
   <h1 class="view-title">Ajustes</h1>
-  <p class="lead">Solo el administrador y el jefe de área ven esta sección. Cada cambio se guarda solo.</p>
+  <p class="lead">Solo el administrador y el jefe de área ven esta sección. Cada cambio se guarda solo. <span class="ver-app">Versión ${VERSION_APP}</span></p>
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}${k === "tipos" && [...S.listas.tipos, ...S.listas.elementos].some(x => x.nuevo && x.activo !== false) ? ` (${[...S.listas.tipos, ...S.listas.elementos].filter(x => x.nuevo && x.activo !== false).length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });

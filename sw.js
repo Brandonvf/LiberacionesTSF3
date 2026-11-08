@@ -3,7 +3,7 @@
    Al instalarse se guardan de una vez la página, el logo y las librerías de Firebase, para que la app
    instalada abra al instante y sin señal aunque nunca se haya usado sin internet.
    Los datos no pasan por aquí: Firestore los guarda en el teléfono y los sube cuando vuelve la señal. */
-const CACHE = 'liberaciones-v14';
+const CACHE = 'liberaciones-v15';
 const SHELL = ['./', 'manifest.webmanifest', 'iconos/logo.svg', 'iconos/icono-192.png', 'iconos/icono-512.png',
   'iconos/icono-mascara-512.png', 'iconos/apple-touch-icon.png', 'iconos/favicon-32.png'];
 const FB = 'https://www.gstatic.com/firebasejs/13.2.0/';
@@ -32,7 +32,7 @@ self.addEventListener('activate', e => {
       }
       await caches.delete(k);
     }
-    if (self.registration.navigationPreload) { try { await self.registration.navigationPreload.enable(); } catch (_) {} }
+    if (self.registration.navigationPreload) { try { await self.registration.navigationPreload.disable(); } catch (_) {} }
     await self.clients.claim();
   })());
 });
@@ -44,8 +44,8 @@ self.addEventListener('fetch', e => {
     e.respondWith((async () => {
       const nav = r.mode === 'navigate';
       const key = nav ? './' : r;
-      // En la apertura se aprovecha la descarga que el navegador ya empezó (más rápido al tocar el ícono)
-      const pedir = nav && e.preloadResponse ? e.preloadResponse.then(p => p || fetch(r)) : fetch(r);
+      // La página se revalida siempre con el servidor (GitHub deja copias de hasta 10 min en el navegador)
+      const pedir = nav ? fetch(new Request(r.url, { cache: 'no-cache', credentials: 'same-origin' })) : fetch(r);
       const cached = await caches.match(key, { ignoreSearch: true });
       const net = pedir.then(async res => {
         if (res && res.ok) {
