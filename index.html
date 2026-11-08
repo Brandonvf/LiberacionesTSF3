@@ -1384,6 +1384,7 @@ function entrarApp() {
   const aviso = ls.get("lib.avisoRol", ""); if (aviso) { ls.set("lib.avisoRol", ""); setTimeout(() => toast(aviso), 600); }
   $("#gate").hidden = true; $("#app").hidden = false;
   guardadoPersistente(); pintarInstalar();
+  if (escribe() && !esIOS()) prepararConversorHeic();
   if (enDirVieja()) { avisoMudanza(); setTimeout(() => mudarse(false), 1500); }
   S.subs.push(onSnapshot(collection(db, "listas"), snap => {
     snap.docs.forEach(d => { S.listas[d.id] = (d.data().items || []).slice(); });
@@ -1535,8 +1536,40 @@ function cargarImagen(file) {
   return new Promise((ok, mal) => { const u = URL.createObjectURL(file); const im = new Image();
     im.onload = () => { URL.revokeObjectURL(u); ok(im); }; im.onerror = () => { URL.revokeObjectURL(u); mal(new Error("No se pudo leer la imagen")); }; im.src = u; });
 }
+/* Fotos HEIC (cámaras Samsung o iPhone con «alta eficiencia»): el navegador del celular no las abre, así que se
+   convierten a JPG con un conversor que se baja solo cuando hace falta (y con señal, una vez en segundo plano, para
+   que después funcione también sin señal). */
+const esHeic = f => /\.(heic|heif)$/i.test(f.name || "") || /image\/hei[cf]/i.test(f.type || "");
+const RUTA_HEIC = "lib/heic2any.min.js";
+let conversorHeic = null;
+function cargarConversorHeic() {
+  return conversorHeic ||= new Promise((ok, mal) => {
+    if (window.heic2any) return ok(window.heic2any);
+    const sc = document.createElement("script"); sc.src = RUTA_HEIC; sc.async = true;
+    sc.onload = () => window.heic2any ? ok(window.heic2any) : mal(new Error("no se pudo preparar el conversor"));
+    sc.onerror = () => { conversorHeic = null; sc.remove(); mal(new Error(navigator.onLine ? "no se pudo bajar el conversor de fotos HEIC" : "sin señal para preparar el conversor de fotos HEIC")); };
+    document.head.append(sc);
+  });
+}
+// Con señal, deja listo el conversor en el teléfono (una sola vez) para poder convertir HEIC sin señal en campo
+function prepararConversorHeic() {
+  if (!navigator.onLine || !("caches" in window) || prepararConversorHeic.hecho) return; prepararConversorHeic.hecho = true;
+  const ir = () => caches.match(new URL(RUTA_HEIC, location.href).href).then(r => r || fetch(RUTA_HEIC).then(() => {})).catch(() => {});
+  ("requestIdleCallback" in window) ? requestIdleCallback(ir, { timeout: 8000 }) : setTimeout(ir, 4000);
+}
+async function abrirFoto(file) {
+  try { return await cargarImagen(file); }
+  catch (e) {
+    if (!esHeic(file)) throw e;
+    toast("Convirtiendo la foto HEIC a JPG…", "pend");
+    let jpg;
+    try { const h = await cargarConversorHeic(); jpg = await h({ blob: file, toType: "image/jpeg", quality: 0.85 }); }
+    catch (er) { throw new Error(`está en formato HEIC y ${er.message || "no se pudo convertir"}. Conéctate a la señal o, en la cámara, desactiva «Imágenes de alta eficiencia».`); }
+    return await cargarImagen(Array.isArray(jpg) ? jpg[0] : jpg);
+  }
+}
 async function comprimirFoto(file) {
-  const im = await cargarImagen(file);
+  const im = await abrirFoto(file);
   let max = 1600, q = 0.72;
   for (let i = 0; i < 7; i++) {
     const s = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight));
@@ -1560,7 +1593,7 @@ async function leerArchivos(files, tipo) {
         f.archivos.push({ id: rid(), tipo: "csv", nombre: file.name, tam: t.length, lineas, datos: t, nuevo: true });
       } else {
         const d = await comprimirFoto(file);
-        f.archivos.push({ id: rid(), tipo: "foto", nombre: file.name || "foto.jpg", tam: Math.round(d.length * 0.75), datos: d, nuevo: true });
+        f.archivos.push({ id: rid(), tipo: "foto", nombre: (file.name || "foto.jpg").replace(/\.(heic|heif)$/i, ".jpg"), tam: Math.round(d.length * 0.75), datos: d, nuevo: true });
       }
     } catch (e) { toast(`No se pudo cargar «${file.name}»: ${e.message}`, "bad"); }
   }

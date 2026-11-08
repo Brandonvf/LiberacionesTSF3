@@ -4,6 +4,7 @@ Registro de liberaciones topográficas de la presa de relaves: los topógrafos r
 
 - `index.html`: la app completa (Firebase Firestore + acceso con Google).
 - `sw.js`: permite abrir la app sin señal (guarda la página, el logo y Firebase al instalarse).
+- `lib/heic2any.min.js`: conversor de fotos HEIC a JPG (se baja solo si hace falta).
 - `manifest.webmanifest` e `iconos/`: nombre, logo y atajos de la app instalada.
 - `DESIGN.md`: guía de diseño («Cuaderno de obra»): colores, tipografía, botones, ventanas, tablas y filtros. Todo cambio visual la sigue.
 - `firestore.rules`: reglas de seguridad. Se copian en Firebase → Firestore Database → Reglas → Publicar.
@@ -22,6 +23,10 @@ Incluye: acceso con Google y roles (operario, topógrafo, gabinete, jefe, admini
 - **Levantamiento con dron** es una actividad propia: el equipo queda en Dron y el registro llega a la Bandeja de gabinete como «Por aceptar».
 - Al aceptarlo, gabinete ve marcados los **protocolos de esa zona** y puede quitar o agregar. Los protocolos y las zonas (estructura completa o frentes) donde aplica cada uno se arman en **Ajustes → Protocolos**.
 - En Ajustes → Protocolos también se elige si se genera **un código SKT-TOP por protocolo** (por defecto) o **uno solo** para todo el levantamiento. Los códigos salen seguidos del mismo correlativo; en las listas se ve «+2» junto al código cuando hay más de uno.
+
+## Fotos HEIC
+
+Las cámaras Samsung con «Imágenes de alta eficiencia» y los iPhone guardan fotos HEIC, que el navegador del celular no abre. La app las convierte a JPG en el teléfono antes de reducirlas, con `lib/heic2any.min.js` (licencia MIT), que solo se baja cuando hace falta; con señal se deja guardado en segundo plano una vez, para poder convertir también sin señal en campo. Si no se puede convertir, la app explica qué hacer (conectarse o desactivar «Imágenes de alta eficiencia» en la cámara).
 
 ## Filtros de Registros
 

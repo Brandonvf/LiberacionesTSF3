@@ -3,7 +3,7 @@
    Al instalarse se guardan de una vez la página, el logo y las librerías de Firebase, para que la app
    instalada abra al instante y sin señal aunque nunca se haya usado sin internet.
    Los datos no pasan por aquí: Firestore los guarda en el teléfono y los sube cuando vuelve la señal. */
-const CACHE = 'liberaciones-v13';
+const CACHE = 'liberaciones-v14';
 const SHELL = ['./', 'manifest.webmanifest', 'iconos/logo.svg', 'iconos/icono-192.png', 'iconos/icono-512.png',
   'iconos/icono-mascara-512.png', 'iconos/apple-touch-icon.png', 'iconos/favicon-32.png'];
 const FB = 'https://www.gstatic.com/firebasejs/13.2.0/';
@@ -22,12 +22,12 @@ self.addEventListener('install', e => {
 });
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
-    // Las librerías no cambian (versión fija): se pasan de la copia anterior para no volver a bajarlas
+    // Las librerías no cambian (versión fija): se pasan de la copia anterior para no volver a bajarlas (también el conversor de fotos HEIC)
     const viejas = (await caches.keys()).filter(k => k !== CACHE);
     const c = await caches.open(CACHE);
     for (const k of viejas) {
       const v = await caches.open(k);
-      for (const req of await v.keys()) if (CDN.test(new URL(req.url).hostname) && !(await c.match(req))) {
+      for (const req of await v.keys()) if ((CDN.test(new URL(req.url).hostname) || new URL(req.url).pathname.includes('/lib/')) && !(await c.match(req))) {
         const res = await v.match(req); if (res) await c.put(req, res);
       }
       await caches.delete(k);
