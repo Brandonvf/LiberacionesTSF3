@@ -147,6 +147,11 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await page.click('[data-v="nueva"]');
   await page.waitForSelector('#fLib:not([hidden])');
   ok(await page.inputValue('#iTopo') === 'AB', 'topógrafo tiene su clave preseleccionada');
+  // Abrir la app con la sesión ya iniciada: la clave sigue elegida aunque las listas lleguen después
+  await page.evaluate(() => localStorage.removeItem('lib.borrador.alexandre@gmail.com'));
+  await page.reload(); await page.waitForSelector('#nav button');
+  await page.click('[data-v="nueva"]'); await page.waitForSelector('#fLib:not([hidden])'); await page.waitForTimeout(300);
+  ok(await page.inputValue('#iTopo') === 'AB', 'al reabrir con la sesión iniciada, la clave del topógrafo sigue elegida');
   await page.click('[data-act="LEV"]');
   ok((await page.textContent('#tSel .flabel')).includes('opcional'), 'levantamiento: tipo opcional');
   await page.selectOption('#iEst', 'cas');
