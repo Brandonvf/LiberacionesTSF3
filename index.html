@@ -873,6 +873,33 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
 .nv .nn{flex:1;min-width:180px}
 .nv .nn b{display:block}
 .nv .nn small{color:var(--muted)}
+
+/* Equipo, protocolos y filtros de registros */
+.pills.eq .pill{min-height:48px;padding:0 18px;font-size:15px}
+.check.prot{padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.check.prot:last-child{border-bottom:0}
+.prot-mas{margin-top:8px}
+.prot-mas summary{cursor:pointer;color:var(--accent-strong);font-weight:600;font-size:14px;padding:6px 0}
+.prot-row{padding:10px 0;border-top:1px solid var(--line)}
+.prot-row:first-of-type{border-top:0}
+.prot-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.prot-h input{flex:1;min-width:180px}
+.prot-z{margin-top:4px}
+.prot-zonas{margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.prot-e{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.prot-e .chip.sub{font-size:12.5px;min-height:30px}
+.num-mas{font-size:11.5px;font-weight:600;color:var(--muted);margin-left:4px}
+.rfil{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:0 0 10px}
+.rfil .f{margin:0;min-width:150px;flex:0 1 auto}
+.rfil .f select,.rfil .f input{min-height:40px;font-size:14px;padding:6px 10px}
+.rfil .f label{font-size:11px}
+.rfil .rf-tipo{min-width:220px}
+.rfil-fe{display:flex;gap:6px}
+.rf-hoja .f{margin:0 0 14px}
+.rf-hoja .chips{flex-wrap:wrap;overflow:visible;margin:0}
+.rf-hoja .chip{min-height:40px;font-size:14px}
+.rf-hoja select{min-height:48px;font-size:16px}
+.rf-nota{font-size:12.5px;color:var(--muted);margin:0 0 10px}
 </style>
 </head>
 <body>
@@ -998,8 +1025,17 @@ const LISTAS_INICIALES = {
   actividades: [
     { id: "LIB", nombre: "Liberación" },
     { id: "LEV", nombre: "Levantamiento topográfico" },
+    { id: "DRN", nombre: "Levantamiento con dron" },
     { id: "ASP", nombre: "Aspas para vuelo de dron" }
-  ]
+  ],
+  // Equipo con que se hizo el levantamiento (uno por registro). Se edita en Ajustes → Tipos
+  equipos: [
+    { id: "ET", nombre: "Estación total" },
+    { id: "GNSS", nombre: "GNSS" },
+    { id: "DRN", nombre: "Dron" }
+  ],
+  // Protocolos del levantamiento con dron; «zonas» = estructuras o frentes donde aplica (vacío = en todas). Se arma en Ajustes → Protocolos
+  protocolos: []
 };
 
 const ROLES = { topografo: "Topógrafo", operario: "Operario", gabinete: "Gabinete", jefe: "Jefe de área", admin: "Administrador" };
@@ -1008,7 +1044,7 @@ const ESTADOS = { PT: "Pendiente topografía", EP: "En proceso", EC: "Entregado 
 /* ---------- Estado ---------- */
 const S = {
   user: null, email: "", perfil: null,
-  listas: { estructuras: [], elementos: [], tipos: [], topografos: [], actividades: [] },
+  listas: { estructuras: [], elementos: [], tipos: [], topografos: [], actividades: [], equipos: [], protocolos: [] },
   mis: [], todos: [], solicitudes: [], usuarios: [],
   view: "", filtro: { mis: { q: "", st: "" }, todos: { q: "", st: "", pap: false } }, selReg: new Set(),
   editando: null, form: null, limiteTodos: 100, verTodos: 60,
@@ -1057,7 +1093,8 @@ const L = {
   ele: id => S.listas.elementos.find(e => e.id === id),
   tipo: id => S.listas.tipos.find(e => e.id === id),
   topo: id => S.listas.topografos.find(e => e.id === id),
-  act: id => S.listas.actividades.find(e => e.id === id)
+  act: id => S.listas.actividades.find(e => e.id === id),
+  equipo: id => (S.listas.equipos || []).find(e => e.id === id)
 };
 const nom = (o, alt = "") => o ? o.nombre : alt;
 
@@ -1318,7 +1355,13 @@ async function prepararAdmin(u) {
   if (!s.exists()) await setDoc(ref, { nombre: u.displayName || "Administrador", rol: "admin", activo: true, topografoId: "", creadoEn: serverTimestamp() });
   // Crea cada lista que falte (si una carga anterior falló, se completa aquí)
   const b = writeBatch(db); let n = 0;
-  ks.forEach((k, i) => { const d = ls_[i]; if (!d.exists() || !(d.data().items || []).length) { b.set(doc(db, "listas", k), { items: LISTAS_INICIALES[k], editadoEn: serverTimestamp() }); n++; } });
+  ks.forEach((k, i) => { const d = ls_[i]; if (!d.exists() || (!(d.data().items || []).length && LISTAS_INICIALES[k].length)) { b.set(doc(db, "listas", k), { items: LISTAS_INICIALES[k], editadoEn: serverTimestamp() }); n++; } });
+  // Actividades nuevas que no estaban en la lista guardada (p. ej. «Levantamiento con dron»)
+  const iAct = ks.indexOf("actividades"), dAct = ls_[iAct];
+  if (dAct.exists()) {
+    const items = (dAct.data().items || []).slice(), faltan = LISTAS_INICIALES.actividades.filter(a => !items.some(x => x.id === a.id));
+    if (faltan.length && items.length) { faltan.forEach(a => { const j = items.findIndex(x => x.id === "ASP"); j < 0 ? items.push(a) : items.splice(j, 0, a); }); b.set(doc(db, "listas", "actividades"), { items, editadoEn: serverTimestamp() }); n++; }
+  }
   if (!cont.exists()) {
     b.set(doc(db, "config", "general"), { obra: "Presa de relaves TSF3 — Mina Justa", prefijo: "SKT-TOP-", digitos: 5, zona: "America/Lima" });
     b.set(doc(db, "contadores", "skt"), { ultimo: 2689 }); n++;
@@ -1327,6 +1370,8 @@ async function prepararAdmin(u) {
 }
 
 const rol = () => S.perfil?.rol || "";
+// Pasan por la bandeja de gabinete y reciben código: liberaciones y levantamientos con dron
+const conCodigo = a => a === "LIB" || a === "DRN";
 const esAdmin = () => rol() === "admin";
 const esGab = () => rol() === "gabinete" || esAdmin();
 // Ajustes: administrador y jefe de área, con los mismos permisos
@@ -1465,12 +1510,12 @@ const ULT = () => "lib.ultimo." + S.email;
 const BORR = () => "lib.borrador." + S.email;
 function formVacio() {
   const u = ls.get(ULT(), {});
-  return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "",
+  return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "", equipo: u.actividad === "DRN" ? "DRN" : u.equipo || "",
     estructuraId: u.estructuraId || "", subestructuraId: u.subestructuraId || "", elementoId: u.elementoId || "", tipoId: u.tipoId || "",
     pkInicio: "", pkFin: "", sinPk: false, cota: "", capa: "", area: "", descripcion: "", observaciones: "", linksCsv: [], linksFotos: [], archivos: [], borrarArchivos: [] };
 }
 function formDesde(r) {
-  return { actividad: r.actividad || "LIB", fechaCampo: localInput(toDate(r.fechaCampo) || new Date()), topografoId: r.topografoId || "",
+  return { actividad: r.actividad || "LIB", fechaCampo: localInput(toDate(r.fechaCampo) || new Date()), topografoId: r.topografoId || "", equipo: r.equipo || "",
     estructuraId: r.estructuraId || "", subestructuraId: r.subestructuraId || "", elementoId: r.elementoId || "", tipoId: r.tipoId || "",
     pkInicio: r.pkInicio == null ? "" : fmtPk(r.pkInicio), pkFin: r.pkFin == null ? "" : fmtPk(r.pkFin), sinPk: r.pkInicio == null && r.pkFin == null,
     cota: r.cota || "", capa: r.capa || "", area: r.area == null ? "" : String(r.area), descripcion: r.descripcion || "", observaciones: r.observaciones || "",
@@ -1558,6 +1603,9 @@ function pintarForm() {
       <div class="grid">
         <div class="f"><label for="iFecha">Fecha y hora en campo</label><input id="iFecha" name="fechaCampo" type="datetime-local" value="${esc(f.fechaCampo)}" required></div>
         <div class="f"><label for="iTopo">Topógrafo</label><select id="iTopo" name="topografoId">${opciones(S.listas.topografos, f.topografoId, "Elegir…")}</select></div>
+        <div class="f full" id="fEquipo"><span class="flabel">Equipo</span><input type="hidden" name="equipo" value="${esc(f.actividad === "DRN" ? "DRN" : f.equipo || "")}">${f.actividad === "DRN"
+          ? '<p class="muted" style="margin:0">Dron</p>'
+          : `<div class="pills eq" role="group" aria-label="Equipo">${(S.listas.equipos || []).filter(e => e.activo !== false).map(e => `<button type="button" class="pill" data-eq="${esc(e.id)}" aria-pressed="${f.equipo === e.id}">${esc(e.nombre)}</button>`).join("")}</div>`}</div>
       </div>
     </div>
     <div class="card section">
@@ -1741,7 +1789,8 @@ function leerCampos() {
 function conectarForm() {
   const fm = $("#fLib"); if (!fm) return;
   const f = S.form;
-  $("#pAct").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; leerCampos(); if (f.actividad !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act; pintarForm(); });
+  $("#pAct").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; leerCampos(); if (f.actividad !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act; if (f.actividad === "DRN") f.equipo = "DRN"; pintarForm(); });
+  $("#fEquipo")?.addEventListener("click", e => { const b = e.target.closest("[data-eq]"); if (!b) return; leerCampos(); f.equipo = b.dataset.eq; pintarForm(); guardarBorrador(); });
   $("#iEst").addEventListener("change", () => { leerCampos(); f.subestructuraId = ""; pintarForm(); $("#iSub")?.focus(); });
   $("#iSub").addEventListener("change", () => { leerCampos(); pintarForm(); });
   conectarSelectorTipo(f);
@@ -1780,6 +1829,7 @@ function validar(f) {
   const esLib = f.actividad === "LIB";
   if (!f.fechaCampo || isNaN(new Date(f.fechaCampo))) err.fechaCampo = "Indica la fecha y hora.";
   if (!f.topografoId) err.topografoId = "Elige el topógrafo.";
+  if (!S.editando && f.actividad !== "DRN" && !f.equipo) err.equipo = "Marca con qué equipo se hizo.";
   if (!f.estructuraId) err.estructuraId = "Elige la estructura.";
   if (!f.subestructuraId) err.subestructuraId = "Elige la sub-estructura.";
   if (esLib && !f.tipoId) err.tipoId = "Elige qué se liberó (busca el tipo o agrégalo).";
@@ -1833,7 +1883,7 @@ function guardar() {
   const motivoEC = S._motivoEC; S._motivoEC = null; S._solapeOk = false;
   const bg = $("#bGuardar"); if (bg) { bg.disabled = true; bg.textContent = "Guardando…"; }
   const datos = {
-    actividad: f.actividad, fechaCampo: Timestamp.fromDate(new Date(f.fechaCampo)), topografoId: f.topografoId,
+    actividad: f.actividad, fechaCampo: Timestamp.fromDate(new Date(f.fechaCampo)), topografoId: f.topografoId, equipo: f.actividad === "DRN" ? "DRN" : f.equipo || "",
     estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId || "", tipoId: f.tipoId || "",
     pkInicio: f.sinPk || p1 == null || isNaN(p1) ? null : p1,
     pkFin: f.sinPk || p1 == null || isNaN(p1) ? null : (p2 == null || isNaN(p2) ? p1 : p2),
@@ -1849,7 +1899,7 @@ function guardar() {
   if (E) {
     ref = doc(db, "liberaciones", E.id);
     de = E.estado;
-    if (!esLib) a = "NA";
+    if (!conCodigo(f.actividad)) a = "NA";
     else if (E.estado === "NA" || (E.estado === "OB" && !esGab())) a = "PT";
     else a = E.estado;
     datos.estado = a;
@@ -1857,7 +1907,7 @@ function guardar() {
     resumenEn(b, E.id, { ...E, ...datos }, E.subestructuraId);
   } else {
     ref = doc(collection(db, "liberaciones"));
-    a = esLib ? "PT" : "NA";
+    a = conCodigo(f.actividad) ? "PT" : "NA";
     b.set(ref, { ...datos, numero: "", nombreLiberacion: "", generadoPor: "", estado: a, notaObservacion: "",
       fechaLiberacion: null, fechaEntrega: null, numeroCargo: "", creadoEn: serverTimestamp(), creadoPor: S.email, origen: "app" });
     resumenEn(b, ref.id, { ...datos, numero: "", estado: a });
@@ -1870,7 +1920,7 @@ function guardar() {
   // Copia de lo escrito: si Firebase rechaza la grabación, el formulario vuelve tal cual
   const respaldo = { ...f, archivos: f.archivos.map(x => ({ ...x })), borrarArchivos: f.borrarArchivos.slice(), linksCsv: f.linksCsv.slice(), linksFotos: f.linksFotos.slice() };
   const listo = () => {
-    ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId,
+    ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, equipo: f.actividad === "DRN" ? (ls.get(ULT(), {}).equipo || "") : f.equipo, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId,
       capa: datos.capa, pkFin: datos.pkFin, largo: datos.pkFin != null ? Math.round((datos.pkFin - datos.pkInicio) * 100) / 100 : null });
     toast(navigator.onLine ? (E ? "Cambios guardados" : "Liberación guardada") : "Guardado en el teléfono. Se subirá cuando haya señal.", navigator.onLine ? "" : "pend");
     if (E) { S.editando = null; S.form = null; if (S.view === "nueva") ir(E.creadoPor === S.email ? "mis" : "todos"); return; }
@@ -1915,7 +1965,7 @@ function solapados(subId, tipoId, capa, a, b, propio) {
 
 /* ---------- Listas de registros ---------- */
 function textoBusqueda(r) {
-  return [r.numero, r.nombreLiberacion, r.descripcion, nom(L.sub(r.subestructuraId)), nom(L.tipo(r.tipoId)), nom(L.topo(r.topografoId), r.topografoId), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.observaciones, r.capa, r.cota, ESTADOS[r.estado], r.numeroCargo].join(" ").toLowerCase();
+  return [r.numero, r.nombreLiberacion, r.descripcion, nom(L.sub(r.subestructuraId)), nom(L.tipo(r.tipoId)), nom(L.topo(r.topografoId), r.topografoId), nom(L.equipo(r.equipo)), nom(L.act(r.actividad)), ...(r.protocolos || []).flatMap(x => [x.numero, x.nombre]), fmtPk(r.pkInicio), fmtPk(r.pkFin), r.observaciones, r.capa, r.cota, ESTADOS[r.estado], r.numeroCargo].join(" ").toLowerCase();
 }
 // Gabinete, jefe y administrador: accesos rápidos (Ctrl+K, clic derecho, casillas) y tablas en computadora
 const poder = () => esGab() || puedeAjustes();
@@ -1923,10 +1973,101 @@ const veModelo = () => esGab() || puedeAjustes();
 const DESK = matchMedia("(min-width:1024px)");
 const enPC = () => DESK.matches;
 const tablaPC = () => enPC() && poder();
+/* ---------- Filtros de Registros y Mis registros: fechas, tipo, frente, topógrafo, actividad y equipo ----------
+   Con un filtro de fechas, Registros pide a Firebase justo ese rango (así encuentra también registros antiguos). */
+const CAMPOS_RF = ["fecha", "f1", "f2", "tipo", "sub", "topo", "act", "equipo"];
+const FECHAS_RF = [["", "Todas"], ["hoy", "Hoy"], ["ayer", "Ayer"], ["7d", "Últimos 7 días"], ["mes", "Este mes"], ["dia", "Un día"], ["rango", "Entre fechas"]];
+const isoAFecha = t => { if (!t) return null; const [y, m, d] = t.split("-").map(Number); return y ? new Date(y, m - 1, d) : null; };
+const dd = d => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+function rangoFecha(fl) {
+  const d0 = new Date(); d0.setHours(0, 0, 0, 0); const dia = n => new Date(d0.getFullYear(), d0.getMonth(), d0.getDate() + n);
+  const sig = x => new Date(x.getFullYear(), x.getMonth(), x.getDate() + 1);
+  switch (fl.fecha) {
+    case "hoy": return [d0, dia(1)];
+    case "ayer": return [dia(-1), d0];
+    case "7d": return [dia(-6), dia(1)];
+    case "mes": return [new Date(d0.getFullYear(), d0.getMonth(), 1), dia(1)];
+    case "dia": { const a = isoAFecha(fl.f1); return a ? [a, sig(a)] : null; }
+    case "rango": { const a = isoAFecha(fl.f1), b = isoAFecha(fl.f2); if (!a && !b) return null; return [a || new Date(2000, 0, 1), b ? sig(b) : dia(1)]; }
+  }
+  return null;
+}
+function textoFecha(fl) {
+  const a = isoAFecha(fl.f1), b = isoAFecha(fl.f2);
+  return { hoy: "Hoy", ayer: "Ayer", "7d": "Últimos 7 días", mes: "Este mes", dia: a ? dd(a) : "", rango: a && b ? `${dd(a)} al ${dd(b)}` : a ? "Desde " + dd(a) : b ? "Hasta " + dd(b) : "" }[fl.fecha] || "";
+}
+function pasaFiltrosReg(fl, r) {
+  const rg = rangoFecha(fl);
+  if (rg) { const t = toDate(r.fechaCampo); if (!t || t < rg[0] || t >= rg[1]) return false; }
+  if (fl.tipo && r.tipoId !== fl.tipo) return false;
+  if (fl.sub && r.subestructuraId !== fl.sub && r.estructuraId !== fl.sub) return false;
+  if (fl.topo && r.topografoId !== fl.topo) return false;
+  if (fl.act && r.actividad !== fl.act) return false;
+  if (fl.equipo && (fl.equipo === "~" ? r.equipo : r.equipo !== fl.equipo)) return false;
+  return true;
+}
+// Lo que está filtrado, como lista [clave, texto] (para el renglón y los chips del celular)
+function activosReg(fl, cual) {
+  const it = [];
+  if (rangoFecha(fl)) it.push(["fecha", textoFecha(fl)]);
+  if (fl.tipo) it.push(["tipo", nom(L.tipo(fl.tipo), fl.tipo)]);
+  if (fl.sub) it.push(["sub", nom(L.sub(fl.sub) || L.est(fl.sub), fl.sub)]);
+  if (fl.topo && cual === "todos") it.push(["topo", nom(L.topo(fl.topo), fl.topo)]);
+  if (fl.act) it.push(["act", nom(L.act(fl.act), fl.act)]);
+  if (fl.equipo) it.push(["equipo", fl.equipo === "~" ? "Sin equipo" : nom(L.equipo(fl.equipo), fl.equipo)]);
+  return it;
+}
+// Registros con filtro de fechas: se escucha solo ese rango en Firebase
+function suscribirFechaTodos(fl) {
+  const rg = rangoFecha(fl), key = rg ? rg[0].getTime() + "-" + rg[1].getTime() : "";
+  if (key === (S._fqKey || "")) return;
+  S._fqUnsub?.(); S._fqUnsub = null; S._fqKey = key; S.todosFecha = null;
+  if (!rg) return;
+  S._fqUnsub = onSnapshot(query(collection(db, "liberaciones"), where("fechaCampo", ">=", Timestamp.fromDate(rg[0])), where("fechaCampo", "<", Timestamp.fromDate(rg[1])), orderBy("fechaCampo", "desc"), limit(3000)), { includeMetadataChanges: true }, snap => {
+    S.todosFecha = snap.docs.map(fila).filter(vivo); S.todosFechaLleno = snap.docs.length >= 3000; if (S.view === "todos") pintarLista("todos");
+  }, e => { console.warn("registros por fecha", e); S.todosFecha = []; if (S.view === "todos") pintarLista("todos"); });
+  if (!S._fqReg) { S._fqReg = true; S.subs.push(() => { S._fqUnsub?.(); S._fqUnsub = null; S._fqKey = ""; S._fqReg = false; }); }
+}
+// «+2» junto al código cuando un levantamiento con dron tiene varios códigos (uno por protocolo)
+const masCodigos = r => { const n = new Set((r.protocolos || []).map(x => x.numero).filter(Boolean)).size; return n > 1 ? `<span class="num-mas">+${n - 1}</span>` : ""; };
+const opcionesFrente = (sel, todos = "Todos") => `<option value="">${todos}</option>` + S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}"><option value="${esc(e.id)}" ${sel === e.id ? "selected" : ""}>Toda ${esc(e.nombre)}</option>${(e.subs || []).filter(x => x.activo !== false).map(x => `<option value="${esc(x.id)}" ${sel === x.id ? "selected" : ""}>${esc(x.nombre)}</option>`).join("")}</optgroup>`).join("");
+const opcionesTipo = sel => `<option value="">Todos</option>` + S.listas.elementos.map(e => { const ts = S.listas.tipos.filter(t => t.elementoId === e.id && t.activo !== false).sort((a, b) => a.nombre.localeCompare(b.nombre)); return ts.length ? `<optgroup label="${esc(e.nombre)}">${ts.map(t => `<option value="${esc(t.id)}" ${sel === t.id ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</optgroup>` : ""; }).join("");
+// Controles de filtro; «hoja» = versión grande para el celular (dentro de la hoja con «Aplicar»)
+function controlesReg(fl, cual, hoja) {
+  const ops = (lista, sel, todos = "Todos") => `<option value="">${todos}</option>` + lista.filter(x => x.activo !== false).map(x => `<option value="${esc(x.id)}" ${sel === x.id ? "selected" : ""}>${esc(x.nombre)}</option>`).join("");
+  const fechas = hoja
+    ? `<div class="f"><span class="flabel">Fecha en campo</span><div class="chips" role="group">${FECHAS_RF.map(([k, t]) => `<button type="button" class="chip" data-fe="${k}" aria-pressed="${(fl.fecha || "") === k}">${t}</button>`).join("")}</div></div>`
+    : `<div class="f"><label for="rfFecha">Fecha en campo</label><select id="rfFecha" data-rf="fecha">${FECHAS_RF.map(([k, t]) => `<option value="${k}" ${(fl.fecha || "") === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>`;
+  const dias = fl.fecha === "dia" ? `<div class="f"><label for="rfF1">Día</label><input id="rfF1" type="date" data-rf="f1" value="${esc(fl.f1 || "")}"></div>`
+    : fl.fecha === "rango" ? `<div class="f"><label for="rfF1">Desde</label><input id="rfF1" type="date" data-rf="f1" value="${esc(fl.f1 || "")}"></div><div class="f"><label for="rfF2">Hasta</label><input id="rfF2" type="date" data-rf="f2" value="${esc(fl.f2 || "")}"></div>` : "";
+  const equipos = (S.listas.equipos || []).filter(x => x.activo !== false);
+  return `${fechas}${hoja && dias ? `<div class="grid2">${dias}</div>` : dias}
+    <div class="f rf-tipo"><label for="rfTipo">Tipo de liberación</label><select id="rfTipo" data-rf="tipo">${opcionesTipo(fl.tipo)}</select></div>
+    <div class="f"><label for="rfSub">Frente</label><select id="rfSub" data-rf="sub">${opcionesFrente(fl.sub)}</select></div>
+    ${cual === "todos" ? `<div class="f"><label for="rfTopo">Topógrafo</label><select id="rfTopo" data-rf="topo">${ops(S.listas.topografos, fl.topo)}</select></div>` : ""}
+    <div class="f"><label for="rfAct">Actividad</label><select id="rfAct" data-rf="act">${ops(S.listas.actividades, fl.act, "Todas")}</select></div>
+    <div class="f"><label for="rfEq">Equipo</label><select id="rfEq" data-rf="equipo">${ops(equipos, fl.equipo)}<option value="~" ${fl.equipo === "~" ? "selected" : ""}>Sin equipo</option></select></div>`;
+}
+function abrirFiltrosReg(cual) {
+  const fl = S.filtro[cual], F = {}; CAMPOS_RF.forEach(k => { F[k] = fl[k] || ""; });
+  const d = dialogo("Filtrar registros", `<button type="button" class="btn-txt hoja-limpiar" id="rfLimpiar">Limpiar todo</button><div class="rf-hoja" id="rfHoja" style="clear:both"></div>`,
+    () => { CAMPOS_RF.forEach(k => { fl[k] = F[k]; }); S.verTodos = Math.max(S.verTodos, 100); pintarLista(cual); }, "Aplicar", { ancho: "medio", sinFoco: true });
+  const box = d.querySelector("#rfHoja"), pintar = () => { box.innerHTML = controlesReg(F, cual, true); };
+  pintar();
+  box.addEventListener("click", e => { const c = e.target.closest("[data-fe]"); if (c) { F.fecha = c.dataset.fe; if (F.fecha !== "dia" && F.fecha !== "rango") { F.f1 = ""; F.f2 = ""; } else if (!F.f1) F.f1 = hoyISO(); pintar(); } });
+  box.addEventListener("change", e => { const k = e.target.dataset.rf; if (k) F[k] = e.target.value; });
+  d.querySelector("#rfLimpiar").addEventListener("click", () => { CAMPOS_RF.forEach(k => { F[k] = ""; }); pintar(); });
+}
 function pintarLista(cual) {
   const fl = S.filtro[cual], pap = cual === "todos" && fl.pap && poder();
+  CAMPOS_RF.forEach(k => { fl[k] ??= ""; });
   if (pap) suscribirPapelera();
-  const datos = pap ? S.papelera || [] : cual === "mis" ? S.mis : S.todos;
+  const porFecha = cual === "todos" && !pap && !!rangoFecha(fl);
+  if (cual === "todos") suscribirFechaTodos(pap ? {} : fl);
+  const cargandoFecha = porFecha && !S.todosFecha;
+  const base = pap ? S.papelera || [] : cual === "mis" ? S.mis : porFecha ? S.todosFecha || [] : S.todos;
+  const datos = pap ? base : base.filter(r => pasaFiltrosReg(fl, r));
+  const activos = pap ? [] : activosReg(fl, cual), pcFil = enPC();
   const sel = S.selReg ||= new Set();
   const cuenta = {}; datos.forEach(r => { cuenta[r.estado] = (cuenta[r.estado] || 0) + 1; });
   const qs = fl.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -1935,30 +2076,38 @@ function pintarLista(cual) {
   [...sel].forEach(id => { if (!vis.some(r => r.id === id)) sel.delete(id); });
   const chips = [["", "Todos", datos.length], ...["PT", "EP", "EC", "OB", "RE", "NA"].map(k => [k, ESTADOS[k], cuenta[k] || 0])].filter(c => c[0] === "" || c[2] > 0 || c[0] === fl.st);
   const tabla = tablaPC(), ns = sel.size, selRegs = vis.filter(r => sel.has(r.id));
-  const vacio = `<div class="empty card"><b>${pap ? (S.papelera ? "La papelera está vacía" : "Cargando papelera…") : datos.length ? "Nada coincide con el filtro" : "Aún no hay registros"}</b>${pap ? (S.papelera ? "Lo que se borre aparecerá aquí y se podrá restaurar." : "") : datos.length ? "Prueba con otra búsqueda." : cual === "mis" ? "Lo que guardes en «Nueva» aparecerá aquí." : "Los registros de campo aparecerán aquí al instante."}</div>`;
+  const vacio = `<div class="empty card"><b>${pap ? (S.papelera ? "La papelera está vacía" : "Cargando papelera…") : datos.length ? "Nada coincide con el filtro" : cargandoFecha ? "Buscando…" : activos.length ? "No hay registros con esos filtros" : "Aún no hay registros"}</b>${pap ? (S.papelera ? "Lo que se borre aparecerá aquí y se podrá restaurar." : "") : datos.length ? "Prueba con otra búsqueda." : cual === "mis" ? "Lo que guardes en «Nueva» aparecerá aquí." : "Los registros de campo aparecerán aquí al instante."}</div>`;
   const bulk = !tabla ? "" : `<div class="cap-bulk ${ns ? "on" : ""}" id="rBulk"><span><b>${ns}</b> ${ns === 1 ? "seleccionado" : "seleccionados"}</span>${pap
     ? `${selRegs.some(puedeRestaurar) ? '<button type="button" class="mini ok-btn" data-rk="restaurar">Restaurar</button>' : ""}${puedeAjustes() ? '<button type="button" class="mini warn-mini" data-rk="siempre">Borrar para siempre</button>' : ""}`
     : `${esGab() && ns && selRegs.every(r => r.actividad === "LIB" && ["PT", "OB"].includes(r.estado)) ? '<button type="button" class="mini ok-btn" data-rk="aceptar">Aceptar y generar códigos</button>' : ""}${esGab() && ns && selRegs.every(r => r.estado === "EP") ? '<button type="button" class="mini ok-btn" data-rk="entregar">Entregar a Calidad</button>' : ""}<button type="button" class="mini" data-rk="exportar">Exportar CSV</button>${selRegs.some(puedeBorrar) ? '<button type="button" class="mini warn-mini" data-rk="papelera">Mandar a la papelera</button>' : ""}`}<button type="button" class="mini" data-rk="limpiar">Deseleccionar</button></div>`;
   const filaT = r => `<tr data-id="${esc(r.id)}" class="${sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-ck ${sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar ${esc(r.numero || r.descripcion || "")}"></td>
-    <td class="mono">${r.numero ? esc(r.numero) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}</td>
+    <td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}</td>
     <td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || r.descripcion || "")}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}${r.estado === "RE" && r.notaRechazo ? `<span class="tn re">Rechazo: ${esc(r.notaRechazo)}</span>` : ""}</td>
     <td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(pap ? r.borradoEn : r.fechaCampo))}</td><td>${esc(pap ? r.borradoNombre || r.borradoPor || "" : nom(L.topo(r.topografoId), r.topografoId))}</td></tr>`;
   $("#view").innerHTML = `
   <h1 class="view-title">${cual === "mis" ? "Mis registros" : pap ? "Papelera" : "Registros"}</h1>
-  <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado, y mandar a la papelera lo que aún no tiene código." : pap ? `Lo borrado no sale en las listas ni en el panel. ${puedeAjustes() ? "Restaura o borra para siempre." : "Puedes restaurar lo que no tiene código."}` : `Últimos ${datos.length} registros de todos.${poder() ? " Busca en todo el histórico con Ctrl+K." : ""}`}</p>
+  <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado, y mandar a la papelera lo que aún no tiene código." : pap ? `Lo borrado no sale en las listas ni en el panel. ${puedeAjustes() ? "Restaura o borra para siempre." : "Puedes restaurar lo que no tiene código."}` : porFecha ? `${datos.length} ${datos.length === 1 ? "registro" : "registros"} · ${esc(textoFecha(fl))}.` : `${activos.length ? datos.length + " de los" : "Los"} últimos ${base.length} registros de todos. Para ver más antiguos filtra por fechas.${poder() ? " Busca en todo el histórico con Ctrl+K." : ""}`}</p>
   ${cual === "todos" && poder() ? `<div class="tabs" role="group" aria-label="Registros o papelera"><button type="button" data-pap="0" aria-pressed="${!pap}">Registros</button><button type="button" data-pap="1" aria-pressed="${pap}">Papelera${S.papelera ? ` <span class="cnt">${S.papelera.length}</span>` : ""}</button></div>` : ""}
   <div class="tools"><input class="search" id="q" type="search" placeholder="Buscar N°, PK, tipo, frente…" value="${esc(fl.q)}" aria-label="Buscar">${pap && puedeAjustes() && datos.length ? '<button type="button" class="mini warn-mini" id="rVaciar">Vaciar papelera</button>' : ""}</div>
+  ${pap ? "" : pcFil ? `<div class="rfil" id="rFil">${controlesReg(fl, cual, false)}${activos.length ? '<button type="button" class="btn-txt" id="rfX">Limpiar filtros</button>' : ""}</div>`
+    : `<button type="button" class="fil-btn" id="rFilBtn" style="margin:0 0 8px;border-top:0;padding-top:0"><span class="fil-i"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><b>${activos.length ? `${activos.length} ${activos.length === 1 ? "filtro" : "filtros"}` : "Filtrar por fecha, tipo, frente…"}</b>${CHEV}</button>${activos.length ? `<div class="fchips" id="rChips" style="margin-top:0">${activos.map(([k, t]) => `<button type="button" class="chip on" data-quitar="${k}" aria-label="Quitar filtro ${esc(t)}">${esc(t)}<span class="x" aria-hidden="true">✕</span></button>`).join("")}</div>` : ""}`}
+  ${cargandoFecha ? '<p class="rf-nota">Buscando los registros de esas fechas…</p>' : porFecha && S.todosFechaLleno ? '<p class="rf-nota">Hay muchos registros en esas fechas; se muestran los 3000 más recientes. Acorta el rango para verlos todos.</p>' : ""}
   ${pap ? "" : `<div class="chips" role="group" aria-label="Filtrar por estado">${chips.map(([k, t, n]) => `<button type="button" class="chip" data-st="${k}" aria-pressed="${fl.st === k}">${esc(t)}<span class="c">${n}</span></button>`).join("")}</div>`}
   ${bulk}
   ${!vis.length ? vacio : tabla ? `<div class="card twrap"><table class="rtab" id="lista"><thead><tr><th class="ck"><input type="checkbox" id="rAll" ${vis.slice(0, lim).every(r => sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todos"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${pap ? "Borrado" : "Fecha en campo"}</th><th>${pap ? "Por" : "Topógrafo"}</th></tr></thead><tbody>${vis.slice(0, lim).map(filaT).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver sus acciones. Marca varias para trabajarlas juntas.</p>`
     : `<div class="list" id="lista">${vis.slice(0, lim).map((r, i) => tarjeta(r, i)).join("")}</div>`}
-  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && !pap && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
+  ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && !pap && !porFecha && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
   const q = $("#q");
   // Se redibuja cuando se deja de escribir (150 ms), no con cada letra
   q.addEventListener("input", () => { fl.q = q.value; clearTimeout(S._qt); S._qt = setTimeout(() => { if (S.view !== cual || !$("#q")) return; const v = $("#q"), pos = v.selectionStart, foco = document.activeElement === v; pintarLista(cual); const n = $("#q"); if (foco) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } }, 150); });
   $(".chips")?.addEventListener("click", e => { const c = e.target.closest("[data-st]"); if (c) { fl.st = c.dataset.st; pintarLista(cual); } });
   $("#view .tabs")?.addEventListener("click", e => { const b = e.target.closest("[data-pap]"); if (b) { fl.pap = b.dataset.pap === "1"; sel.clear(); pintarLista(cual); } });
   $("#rVaciar")?.addEventListener("click", () => borrarSiempre(datos, "Vaciar papelera"));
+  // Filtros: en computadora se aplican al cambiar; en el celular, desde la hoja con «Aplicar»
+  $("#rFil")?.addEventListener("change", e => { const k = e.target.dataset.rf; if (!k) return; fl[k] = e.target.value; if (k === "fecha") { if (fl.fecha === "dia" || fl.fecha === "rango") fl.f1 ||= hoyISO(); else { fl.f1 = ""; fl.f2 = ""; } } pintarLista(cual); });
+  $("#rfX")?.addEventListener("click", () => { CAMPOS_RF.forEach(k => { fl[k] = ""; }); pintarLista(cual); });
+  $("#rFilBtn")?.addEventListener("click", () => abrirFiltrosReg(cual));
+  $("#rChips")?.addEventListener("click", e => { const c = e.target.closest("[data-quitar]"); if (!c) return; const k = c.dataset.quitar; if (k === "fecha") { fl.fecha = ""; fl.f1 = ""; fl.f2 = ""; } else fl[k] = ""; pintarLista(cual); });
   const lista = $("#lista");
   lista?.addEventListener("click", e => {
     if (e.target.closest("[data-ck]") || e.target.closest("td.ck")) { const tr = e.target.closest("[data-id]"); if (!e.target.matches("[data-ck]")) { const c = tr.querySelector("[data-ck]"); c.checked = !c.checked; } const id = tr.dataset.id; tr.querySelector("[data-ck]").checked ? sel.add(id) : sel.delete(id); pintarLista(cual); return; }
@@ -1985,7 +2134,7 @@ function resumenArch(r) {
 function tarjeta(r, i) {
   const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
   return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
-    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
+    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}${masCodigos(r)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
     <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
     <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}${resumenArch(r)}</div>
     ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}${r.estado === "RE" && r.notaRechazo ? `<div class="nota re">Rechazo: ${esc(r.notaRechazo)}</div>` : ""}${r.borrado ? `<div class="nota re">En la papelera · ${esc(r.borradoNombre || r.borradoPor || "")}${r.borradoEn ? " · " + esc(fmtFecha(r.borradoEn)) : ""}</div>` : ""}
@@ -2024,6 +2173,8 @@ function abrirFicha(r) {
       ${fila("Área", r.area != null ? esc(r.area.toLocaleString("es-PE")) + " m²" : "")}
       ${fila("Fecha en campo", esc(fmtFecha(r.fechaCampo)))}
       ${fila("Topógrafo", esc(nom(L.topo(r.topografoId), r.topografoId)))}
+      ${r.equipo ? fila("Equipo", esc(nom(L.equipo(r.equipo), r.equipo))) : ""}
+      ${(r.protocolos || []).length ? fila("Protocolos", r.protocolos.map(x => `<div>${x.numero ? `<span class="mono">${esc(x.numero)}</span> · ` : ""}${esc(x.nombre)}</div>`).join("")) : ""}
       ${fila("Registrado por", esc(r.creadoPor))}
       ${fila("Fecha liberación", esc(fmtFecha(r.fechaLiberacion, false)))}
       ${fila("Entrega a Calidad", esc(fmtFecha(r.fechaEntrega, false)))}
@@ -2036,7 +2187,7 @@ function abrirFicha(r) {
     <div class="sub">Historial</div><div class="hist" id="hist"><span class="muted small">Cargando…</span></div>
     <div class="actions">
       ${r.borrado ? `${puedeRestaurar(r) ? '<button type="button" class="btn pri block" id="fRestaurar">Restaurar</button>' : ""}${puedeAjustes() ? '<button type="button" class="btn warn" id="fBorrarSiempre">Borrar para siempre</button>' : ""}<button type="button" class="btn sec" id="fCerrar">Cerrar</button>` : `
-      ${esGab() && r.actividad === "LIB" && ["PT", "OB"].includes(r.estado) ? '<button type="button" class="btn pri block" id="fAceptar">Aceptar y generar código</button><button type="button" class="btn sec" id="fObservar">Observar</button><button type="button" class="btn warn" id="fRechazar">Rechazar</button>' : ""}
+      ${esGab() && conCodigo(r.actividad) && ["PT", "OB"].includes(r.estado) ? '<button type="button" class="btn pri block" id="fAceptar">' + (r.actividad === "DRN" ? "Aceptar y generar protocolos" : "Aceptar y generar código") + '</button><button type="button" class="btn sec" id="fObservar">Observar</button><button type="button" class="btn warn" id="fRechazar">Rechazar</button>' : ""}
       ${esGab() && r.estado === "EP" ? '<button type="button" class="btn pri block" id="fEntregar">Entregar a Calidad</button>' : ""}
       ${esGab() && r.estado === "RE" ? '<button type="button" class="btn pri block" id="fReabrir">Devolver a pendientes</button>' : ""}
       ${puedeAjustes() && r.actividad === "ASP" ? (r.procesado ? '<button type="button" class="btn sec" id="fDesprocesar">Devolver a por procesar</button>' : '<button type="button" class="btn pri block" id="fProcesar">Marcar procesado</button>') : ""}
@@ -2150,7 +2301,7 @@ addEventListener("keydown", e => {
   if (e.key === "ArrowDown" || e.key === "ArrowUp") { const bs = [...m.querySelectorAll(".ctx-i:not([hidden])")]; let k = bs.indexOf(document.activeElement); k = e.key === "ArrowDown" ? (k + 1) % bs.length : (k - 1 + bs.length) % bs.length; bs[k]?.focus(); e.preventDefault(); }
 }, true);
 function accionesReg(r) {
-  const it = [], lib = r.actividad === "LIB";
+  const it = [], lib = conCodigo(r.actividad);
   it.push({ t: "Abrir ficha", fn: () => abrirFicha(r), pri: true });
   if (r.numero) it.push({ t: `Copiar código ${esc(r.numero)}`, fn: () => (navigator.clipboard ? navigator.clipboard.writeText(r.numero) : Promise.reject()).then(() => toast(`${r.numero} copiado`)).catch(() => toast(r.numero)) });
   if (r.borrado) {
@@ -3926,18 +4077,74 @@ function cambiarEstado(ids, datos, a, nota) {
 }
 function aceptarUno(r) {
   if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
+  if (r.actividad === "DRN") return aceptarDron(r);
   dialogo("Aceptar y generar código", `<p class="muted small" style="margin:0 0 10px">Se asigna el siguiente ${esc((S.config || {}).prefijo || "SKT-TOP-")}… libre. El nombre es el que va en el protocolo.</p>
     <div class="f"><label for="dNom">Nombre de la liberación</label><textarea id="dNom" name="nombre" style="min-height:70px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>`,
     async o => { const n = await generarCodigo(r, o.nombre); if (n) { toast(`Código ${n} generado`); if (!$("#sheet").hidden) cerrarFicha(); } }, "Generar código");
 }
 async function aceptarVarios(ids) {
   if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return; }
-  let n = 0; const regs = regsDe(ids);
+  let n = 0; const todos = regsDe(ids), regs = todos.filter(r => r.actividad !== "DRN");
+  if (todos.length > regs.length) toast("Los levantamientos con dron se aceptan uno por uno, para elegir sus protocolos.", regs.length ? "" : "bad");
   if (!regs.length) return;
   const c0 = (S.config || {}).prefijo || "SKT-TOP-";
   if (!await confirmar(`Aceptar ${regs.length}`, `Se ${regs.length === 1 ? "genera 1 código" : `generan ${regs.length} códigos`} ${esc(c0)}… nuevos, uno por liberación, y pasan a «En proceso». Los códigos no se pueden reutilizar.`, regs.length === 1 ? "Generar código" : `Generar ${regs.length} códigos`)) return;
   for (const r of regs) { const c = await generarCodigo(r, r.nombreLiberacion || r.descripcion); if (c) n++; else break; }
   S.bandeja.sel.clear(); if (n) toast(`${n} ${n === 1 ? "código generado" : "códigos generados"}`);
+}
+/* ---------- Levantamiento con dron: al aceptarlo se generan sus protocolos ----------
+   Los protocolos se arman en Ajustes → Protocolos, con las zonas (estructura o frente) donde aplican.
+   Según el ajuste, cada protocolo lleva su propio código SKT-TOP o todos comparten uno. */
+const protocolosDe = r => (S.listas.protocolos || []).filter(p => p.activo !== false && (!(p.zonas || []).length || p.zonas.includes(r.subestructuraId) || p.zonas.includes(r.estructuraId)));
+const modoCodigosDron = () => (S.config || {}).drnCodigos === "uno" ? "uno" : "porProtocolo";
+async function aceptarDron(r) {
+  try { const c = await getDoc(doc(db, "config", "general")); if (c.exists()) S.config = { ...(S.config || {}), ...c.data() }; } catch (_) {}
+  const sug = protocolosDe(r), todos = (S.listas.protocolos || []).filter(p => p.activo !== false), uno = modoCodigosDron() === "uno";
+  const otros = todos.filter(p => !sug.includes(p));
+  const caja = p => `<label class="check prot"><input type="checkbox" name="p_${esc(p.id)}" ${sug.includes(p) ? "checked" : ""}>${esc(p.nombre)}</label>`;
+  const d = dialogo("Aceptar levantamiento con dron", `<p class="dlg-p muted small">${esc(nom(L.sub(r.subestructuraId), "Sin frente"))} · ${esc(fmtFecha(r.fechaCampo))}. ${uno ? "Se genera <b>un código</b> para todo el levantamiento." : "Se genera <b>un código por protocolo</b>."}</p>
+    <div class="f"><span class="flabel">Protocolos de esta zona</span>${sug.length ? sug.map(caja).join("") : `<p class="muted small" style="margin:0">${todos.length ? "Ningún protocolo está asignado a esta zona." : "Aún no hay protocolos. Agrégalos en Ajustes → Protocolos, o escribe uno abajo."}</p>`}</div>
+    ${otros.length ? `<details class="prot-mas"><summary>Otros protocolos (${otros.length})</summary>${otros.map(caja).join("")}</details>` : ""}
+    <div class="f" style="margin-top:10px"><label for="dProtOtro">Otro protocolo <span class="opt">(opcional)</span></label><input id="dProtOtro" name="otro" placeholder="Nombre del protocolo" maxlength="80"></div>
+    <div class="f" style="margin-top:10px"><label for="dNomDrn">Nombre del levantamiento</label><textarea id="dNomDrn" name="nombre" style="min-height:60px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>
+    <p class="muted small" id="dProtN" style="margin:10px 0 0"></p>`,
+    o => {
+      const elegidos = todos.filter(p => o["p_" + p.id] === "on").map(p => ({ id: p.id, nombre: p.nombre }));
+      if (o.otro) elegidos.push({ id: "otro-" + Date.now().toString(36), nombre: capital(o.otro) });
+      if (!elegidos.length) { toast("Marca al menos un protocolo.", "bad"); return false; }
+      generarProtocolos(r, elegidos, o.nombre).then(cods => { if (cods) { toast(cods.length === 1 ? `Código ${cods[0]} generado` : `${cods.length} códigos generados: ${cods[0]} a ${cods.at(-1)}`); if (!$("#sheet").hidden) cerrarFicha(); } });
+    }, "Generar", { ancho: "medio" });
+  const sub = d.querySelector("[type=submit]"), nTxt = d.querySelector("#dProtN");
+  const cuenta = () => {
+    const n = d.querySelectorAll('input[type=checkbox][name^="p_"]:checked').length + (d.querySelector("#dProtOtro").value.trim() ? 1 : 0);
+    const c = !n ? 0 : uno ? 1 : n;
+    sub.textContent = !n ? "Marca un protocolo" : c === 1 ? "Generar 1 código" : `Generar ${c} códigos`; sub.disabled = !n;
+    nTxt.textContent = n ? `${n} ${n === 1 ? "protocolo" : "protocolos"} · ${c} ${c === 1 ? "código" : "códigos"} ${(S.config || {}).prefijo || "SKT-TOP-"}…` : "";
+  };
+  d.addEventListener("change", cuenta); d.addEventListener("input", cuenta); cuenta();
+}
+// Una transacción reserva los códigos seguidos del correlativo y guarda los protocolos en el registro
+async function generarProtocolos(r, elegidos, nombre) {
+  if (!navigator.onLine) { toast("Se necesita señal para generar códigos.", "bad"); return null; }
+  try {
+    return await runTransaction(db, async tx => {
+      const cRef = doc(db, "contadores", "skt"), lRef = doc(db, "liberaciones", r.id);
+      const c = await tx.get(cRef), l = await tx.get(lRef), g = await tx.get(doc(db, "config", "general"));
+      const uno = (g.exists() ? g.data().drnCodigos : (S.config || {}).drnCodigos) === "uno";
+      if (!l.exists()) throw new Error("el registro ya no existe");
+      const d = l.data(); if (d.numero) return (d.protocolos || []).map(x => x.numero).filter(Boolean).length ? [...new Set(d.protocolos.map(x => x.numero))] : [d.numero];
+      let u = c.exists() ? c.data().ultimo || 0 : 0;
+      const cod1 = uno ? fmtNumero(++u) : null;
+      const protocolos = elegidos.map(p => ({ id: p.id, nombre: p.nombre, numero: uno ? cod1 : fmtNumero(++u) }));
+      const numero = protocolos[0].numero;
+      tx.set(cRef, { ultimo: u }, { merge: true });
+      tx.update(lRef, { numero, protocolos, estado: "EP", nombreLiberacion: nombre || d.nombreLiberacion || d.descripcion || "", generadoPor: S.perfil?.nombre || S.email, fechaLiberacion: serverTimestamp(), notaObservacion: "", editadoEn: serverTimestamp(), editadoPor: S.email });
+      resumenEn(tx, r.id, { ...d, numero, estado: "EP" });
+      const cods = [...new Set(protocolos.map(x => x.numero))];
+      tx.set(doc(collection(db, "historial")), { liberacionId: r.id, accion: "estado", de: d.estado, a: "EP", usuario: S.email, nombre: S.perfil?.nombre || "", fecha: serverTimestamp(), nota: `${cods.length === 1 ? "Código " + cods[0] : "Códigos " + cods.join(", ")} · ${protocolos.map(x => x.nombre).join(", ")}` });
+      return cods;
+    });
+  } catch (e) { console.error(e); toast("No se pudieron generar los códigos: " + (e.code === "permission-denied" ? "sin permiso." : e.message), "bad"); return null; }
 }
 function observar(r) {
   dialogo("Observar", `<p class="muted small" style="margin:0 0 10px">El topógrafo verá la nota en «Mis registros» y podrá corregir.</p><div class="f"><label for="dNota">Qué debe corregir</label><textarea id="dNota" name="nota" style="min-height:80px" required></textarea></div>`,
@@ -4022,7 +4229,7 @@ function suscribirPapelera() {
 
 function suscribirBandeja() {
   S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "in", ["PT", "OB"])), { includeMetadataChanges: true }, snap => {
-    S.bandeja.pend = snap.docs.map(fila).filter(r => r.actividad === "LIB" && vivo(r)); pintarNav(); if (S.view === "bandeja") pintarBandeja();
+    S.bandeja.pend = snap.docs.map(fila).filter(r => conCodigo(r.actividad) && vivo(r)); pintarNav(); if (S.view === "bandeja") pintarBandeja();
   }, e => console.warn("bandeja", e)));
   S.subs.push(onSnapshot(query(collection(db, "liberaciones"), where("estado", "==", "EP"), where("origen", "==", "app")), { includeMetadataChanges: true }, snap => {
     S.bandeja.ep = snap.docs.map(fila).filter(vivo); if (S.view === "bandeja") pintarBandeja();
@@ -4092,7 +4299,7 @@ function pintarBandeja() {
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
     ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini warn-mini" data-bk="papelera">Mandar a la papelera</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
   ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
-  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
+  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}<button type="button" class="mini" data-a="editar">Editar</button></div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}
   ${t === "EP" && !B.epHistOk ? `<button class="btn sec more" id="bHist" type="button">Cargar también las del histórico sin entregar</button>` : ""}`;
   $("#bHist")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Cargando…";
@@ -4141,8 +4348,8 @@ function pintarBandejaAspas() {
 /* ---------- Exportar CSV (administrador) ---------- */
 // Filas del CSV de registros (mismas columnas que el Excel de protocolos)
 function csvRegistros(regs) {
-  const cab = ["ITEM", "N° Registro", "Key_Topografo", "Descripcion", "Km Inicio", "Km Fin", "Fecha Campo", "Fecha Liberacion", "Fecha de entrega", "N° Entrega", "Estructura", "Sub-Estructura", "Elemento", "Tipo de Liberacion", "Capa", "Cota", "Generado", "Key_Status", "Estado", "Superficie (m2)", "Observaciones", "Actividad", "Registrado por", "Nombre de liberacion"];
-  return [cab, ...regs.map((r, i) => [i + 1, r.numero, r.topografoId, r.descripcion, r.pkInicio ?? "", r.pkFin ?? "", fISO(r.fechaCampo), fISO(r.fechaLiberacion), fISO(r.fechaEntrega), r.numeroCargo, nom(L.est(r.estructuraId)), nom(L.sub(r.subestructuraId)), nom(L.ele(r.elementoId)), nom(L.tipo(r.tipoId)), r.capa, r.cota, r.generadoPor, r.estado, ESTADOS[r.estado] || r.estado, r.area ?? "", r.observaciones, nom(L.act(r.actividad), r.actividad), r.creadoPor, r.nombreLiberacion])];
+  const cab = ["ITEM", "N° Registro", "Key_Topografo", "Descripcion", "Km Inicio", "Km Fin", "Fecha Campo", "Fecha Liberacion", "Fecha de entrega", "N° Entrega", "Estructura", "Sub-Estructura", "Elemento", "Tipo de Liberacion", "Capa", "Cota", "Generado", "Key_Status", "Estado", "Superficie (m2)", "Observaciones", "Actividad", "Registrado por", "Nombre de liberacion", "Equipo", "Protocolos"];
+  return [cab, ...regs.map((r, i) => [i + 1, r.numero, r.topografoId, r.descripcion, r.pkInicio ?? "", r.pkFin ?? "", fISO(r.fechaCampo), fISO(r.fechaLiberacion), fISO(r.fechaEntrega), r.numeroCargo, nom(L.est(r.estructuraId)), nom(L.sub(r.subestructuraId)), nom(L.ele(r.elementoId)), nom(L.tipo(r.tipoId)), r.capa, r.cota, r.generadoPor, r.estado, ESTADOS[r.estado] || r.estado, r.area ?? "", r.observaciones, nom(L.act(r.actividad), r.actividad), r.creadoPor, r.nombreLiberacion, nom(L.equipo(r.equipo), r.equipo || ""), (r.protocolos || []).map(x => (x.numero ? x.numero + " " : "") + x.nombre).join(" | ")])];
 }
 function exportarSel(regs) {
   if (!regs.length) return;
@@ -4209,7 +4416,7 @@ function ajExportar() {
 }
 
 /* ---------- Ajustes (solo administrador). Cada cambio se guarda al instante. ---------- */
-const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["historico", "Histórico"], ["archivos", "Archivos"], ["exportar", "Exportar"]];
+const AJ_TABS = [["usuarios", "Usuarios"], ["lugares", "Lugares"], ["capas", "Capas"], ["topografos", "Topógrafos"], ["tipos", "Tipos"], ["protocolos", "Protocolos"], ["historico", "Histórico"], ["archivos", "Archivos"], ["exportar", "Exportar"]];
 const AJ_LISTA = { lugares: "estructuras", topografos: "topografos", tipos: "tipos" };
 const slug = t => String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) || "x";
 const nuevoId = (t, usados) => { let id = slug(t), i = 2; while (usados.has(id)) id = slug(t) + "-" + i++; return id; };
@@ -4238,7 +4445,7 @@ function pintarAjustes() {
   <div class="tabs" role="group" aria-label="Secciones de ajustes">${AJ_TABS.map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${A.tab === k}">${t}${k === "usuarios" && S.solicitudes.length ? ` (${S.solicitudes.length})` : ""}${k === "tipos" && [...S.listas.tipos, ...S.listas.elementos].some(x => x.nuevo && x.activo !== false) ? ` (${[...S.listas.tipos, ...S.listas.elementos].filter(x => x.nuevo && x.activo !== false).length})` : ""}</button>`).join("")}</div>
   <div id="ajBody"></div>`;
   $(".tabs").addEventListener("click", e => { const b = e.target.closest("[data-tab]"); if (b && b.dataset.tab !== A.tab) { A.tab = b.dataset.tab; pintarAjustes(); } });
-  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, historico: ajHistorico, archivos: ajArchivos, exportar: ajExportar })[A.tab]();
+  ({ usuarios: pintarUsuarios, lugares: ajLugares, capas: ajCapas, topografos: ajTopografos, tipos: ajTipos, protocolos: ajProtocolos, historico: ajHistorico, archivos: ajArchivos, exportar: ajExportar })[A.tab]();
 }
 // Espacio de archivos: se calcula con los registros que tienen archivos (no se leen las fotos, que pesan)
 function ajArchivos() {
@@ -4643,6 +4850,54 @@ async function borrarHist() {
   btn.disabled = false; btn.textContent = "Quitar registros importados";
 }
 
+/* Protocolos del levantamiento con dron: nombre, zonas donde aplica y cómo se generan los códigos */
+function ajProtocolos() {
+  cuerpoAj();
+  const P = clon(S.listas.protocolos || []), uno = modoCodigosDron() === "uno";
+  const ests = S.listas.estructuras.filter(e => e.activo !== false);
+  const nZonas = p => (p.zonas || []).length;
+  const zonaTxt = p => !nZonas(p) ? "En todas las zonas" : p.zonas.map(z => nom(L.sub(z) || L.est(z), z)).join(" · ");
+  S.aj.protAb ||= new Set();
+  $("#ajBody").innerHTML = `
+  <p class="muted small" style="margin:0 0 12px">Al aceptar un levantamiento con dron, gabinete ve marcados los protocolos de su zona (estructura o frente) y puede quitar o agregar.</p>
+  <div class="card section" id="prCod">
+    <div class="flabel" style="margin:0 0 8px">Códigos SKT-TOP</div>
+    <label class="check"><input type="radio" name="drnCod" value="porProtocolo" ${uno ? "" : "checked"}>Un código por protocolo <span class="muted small">(3 protocolos = 3 códigos seguidos)</span></label>
+    <label class="check"><input type="radio" name="drnCod" value="uno" ${uno ? "checked" : ""}>Un solo código para todo el levantamiento</label>
+  </div>
+  <div class="card section ed" id="prList">
+    <div class="flabel" style="margin:0 0 8px">Protocolos</div>
+    ${P.length ? P.map((p, i) => `<div class="prot-row ${p.activo === false ? "off-row" : ""}" data-i="${i}">
+      <div class="prot-h"><input value="${esc(p.nombre)}" data-k="nom" aria-label="Nombre del protocolo"><button type="button" class="mini" data-k="zonas" aria-expanded="${S.aj.protAb.has(p.id)}">${esc(nZonas(p) ? nZonas(p) + (nZonas(p) === 1 ? " zona" : " zonas") : "Todas las zonas")}</button><button type="button" class="mini" data-k="act">${p.activo === false ? "Activar" : "Desactivar"}</button></div>
+      <div class="muted small prot-z">${esc(zonaTxt(p))}</div>
+      ${S.aj.protAb.has(p.id) ? `<div class="prot-zonas">${ests.map(e => `<div class="prot-e"><button type="button" class="chip" data-z="${esc(e.id)}" aria-pressed="${(p.zonas || []).includes(e.id)}">${esc(e.nombre)}</button>${(e.subs || []).filter(x => x.activo !== false).map(x => `<button type="button" class="chip sub" data-z="${esc(x.id)}" aria-pressed="${(p.zonas || []).includes(x.id)}">${esc(x.nombre)}</button>`).join("")}</div>`).join("")}<p class="muted small" style="margin:6px 0 0">Marca la estructura completa o solo algunos frentes. Sin nada marcado aplica en todas.</p></div>` : ""}
+    </div>`).join("") : '<p class="muted" style="margin:0 0 8px">Aún no hay protocolos.</p>'}
+    <div class="trow" style="border-top:0;margin-top:8px"><input id="prNom" placeholder="Nombre del protocolo" maxlength="80"><button type="button" class="mini ok-btn" id="prAdd">Agregar</button></div>
+  </div>`;
+  $("#prCod").addEventListener("change", e => {
+    if (e.target.name !== "drnCod") return; const v = e.target.value;
+    S.config = { ...(S.config || {}), drnCodigos: v };
+    setDoc(doc(db, "config", "general"), { drnCodigos: v }, { merge: true }).then(() => toast(v === "uno" ? "Un solo código por levantamiento" : "Un código por protocolo")).catch(er => toast("No se guardó: " + er.message, "bad"));
+  });
+  const LP = $("#prList");
+  LP.addEventListener("change", e => { const r = e.target.closest("[data-i]"); if (r && e.target.dataset.k === "nom") { const v = capital(e.target.value); if (!v) { ajProtocolos(); return; } P[+r.dataset.i].nombre = v; guardarLista("protocolos", P, "Protocolo guardado"); } });
+  LP.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (e.target.id === "prNom") $("#prAdd").click(); else e.target.blur(); } });
+  LP.addEventListener("click", async e => {
+    const r = e.target.closest("[data-i]"), p = r && P[+r.dataset.i];
+    const k = e.target.closest("[data-k]")?.dataset.k;
+    if (p && k === "zonas") { S.aj.protAb.has(p.id) ? S.aj.protAb.delete(p.id) : S.aj.protAb.add(p.id); ajProtocolos(); return; }
+    if (p && k === "act") { p.activo = p.activo === false; if (guardarLista("protocolos", P, p.activo ? "Protocolo activado" : "Protocolo desactivado")) ajProtocolos(); return; }
+    const z = e.target.closest("[data-z]");
+    if (p && z) { const zs = new Set(p.zonas || []); zs.has(z.dataset.z) ? zs.delete(z.dataset.z) : zs.add(z.dataset.z); p.zonas = [...zs]; if (guardarLista("protocolos", P, "Zonas guardadas")) ajProtocolos(); return; }
+    if (e.target.id === "prAdd") {
+      const n = capital($("#prNom").value); if (n.length < 2) { $("#prNom").focus(); return; }
+      const par = parecidos(n, P, 0.8)[0];
+      if (par && !await confirmar("Protocolo parecido", `Ya existe «${esc(par.o.nombre)}». ¿Agregar «${esc(n)}» igual?`, "Agregar igual")) return;
+      const id = nuevoId(n, new Set(P.map(x => x.id))); P.push({ id, nombre: n, zonas: [] }); S.aj.protAb.add(id);
+      if (guardarLista("protocolos", P, "Protocolo agregado")) ajProtocolos();
+    }
+  });
+}
 function ajTopografos() {
   cuerpoAj();
   const B = S.aj.b;
@@ -4716,7 +4971,22 @@ function ajTipos() {
     <div class="flabel" style="margin:0 0 8px">Elementos</div>
     ${S.listas.elementos.map(e => `<div class="trow" data-e="${esc(e.id)}"><input value="${esc(e.nombre)}" data-k="enom" aria-label="Nombre del elemento">${e.nuevo ? '<span class="nuevo-tag">Nuevo</span>' : ""}<span class="muted small">${tiposActivos().filter(t => t.elementoId === e.id).length} tipos</span></div>`).join("")}
     <div class="trow" style="border-top:0"><input id="elNom" placeholder="Ej. Drenaje"><button type="button" class="mini ok-btn" id="elAdd">Agregar elemento</button></div>
+  </div>
+  <div class="card section ed" id="eqList">
+    <div class="flabel" style="margin:0 0 8px">Equipos <span class="muted small" style="text-transform:none;letter-spacing:0;font-weight:400">· con qué se hizo el levantamiento</span></div>
+    ${(S.listas.equipos || []).map((q, i) => `<div class="trow ${q.activo === false ? "off-row" : ""}" data-q="${i}"><input value="${esc(q.nombre)}" data-k="qnom" aria-label="Nombre del equipo"><button type="button" class="mini" data-k="qact">${q.activo === false ? "Activar" : "Desactivar"}</button></div>`).join("")}
+    <div class="trow" style="border-top:0"><input id="eqNom" placeholder="Ej. Escáner láser"><button type="button" class="mini ok-btn" id="eqAdd">Agregar equipo</button></div>
   </div>`;
+  const EQ = $("#eqList");
+  EQ.addEventListener("change", e => { if (e.target.dataset.k !== "qnom") return; const items = clon(S.listas.equipos || []), x = items[+e.target.closest("[data-q]").dataset.q], v = capital(e.target.value); if (!x || !v) { ajTipos(); return; } x.nombre = v; guardarLista("equipos", items, "Equipo guardado"); });
+  EQ.addEventListener("click", async e => {
+    const items = clon(S.listas.equipos || []);
+    if (e.target.dataset.k === "qact") { const x = items[+e.target.closest("[data-q]").dataset.q]; x.activo = x.activo === false; if (guardarLista("equipos", items, x.activo ? "Equipo activado" : "Equipo desactivado")) ajTipos(); return; }
+    if (e.target.id !== "eqAdd") return; const n = capital($("#eqNom").value); if (n.length < 2) { $("#eqNom").focus(); return; }
+    const par = parecidos(n, items, 0.8)[0];
+    if (par && !await confirmar("Equipo parecido", `Ya existe «${esc(par.o.nombre)}». ¿Agregar «${esc(n)}» igual?`, "Agregar igual")) return;
+    items.push({ id: nuevoId(n, new Set(items.map(o => o.id))).toUpperCase(), nombre: n }); if (guardarLista("equipos", items, "Equipo agregado")) ajTipos();
+  });
   $("#nvBox")?.addEventListener("click", e => {
     if (e.target.dataset.k !== "rev") return; const r = e.target.closest(".nv");
     const [lista, id] = r.dataset.nt ? ["tipos", r.dataset.nt] : ["elementos", r.dataset.ne];

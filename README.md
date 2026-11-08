@@ -16,6 +16,17 @@ Incluye: acceso con Google y roles (operario, topógrafo, gabinete, jefe, admini
 - Topógrafos, operarios y gabinete pueden **agregar** un tipo (y su elemento, si hace falta). Antes de crearlo la app muestra los nombres parecidos que ya existen y ofrece usar ese; si es el mismo nombre escrito distinto, no deja crearlo. Los números cuentan: «filtro 3» es distinto de «filtro 2». Hace falta señal.
 - Lo agregado desde campo se usa al instante y aparece en **Ajustes → Tipos → Agregados desde campo** (el menú lo avisa) para que administrador o jefe lo marquen como revisado o lo **unan** con otro: sus registros pasan al nombre correcto y el repetido se quita.
 
+## Equipo y levantamiento con dron
+
+- En «Nueva» se marca el **Equipo** con que se hizo (Estación total, GNSS o Dron; la lista se edita en Ajustes → Tipos). Es obligatorio al registrar y el siguiente registro ya viene con el mismo.
+- **Levantamiento con dron** es una actividad propia: el equipo queda en Dron y el registro llega a la Bandeja de gabinete como «Por aceptar».
+- Al aceptarlo, gabinete ve marcados los **protocolos de esa zona** y puede quitar o agregar. Los protocolos y las zonas (estructura completa o frentes) donde aplica cada uno se arman en **Ajustes → Protocolos**.
+- En Ajustes → Protocolos también se elige si se genera **un código SKT-TOP por protocolo** (por defecto) o **uno solo** para todo el levantamiento. Los códigos salen seguidos del mismo correlativo; en las listas se ve «+2» junto al código cuando hay más de uno.
+
+## Filtros de Registros
+
+Registros y Mis registros filtran por **fecha en campo** (hoy, ayer, últimos 7 días, este mes, un día o entre fechas), **tipo de liberación**, **frente** (o toda la estructura), **topógrafo**, **actividad** y **equipo**, además de la búsqueda y el estado. En computadora es una barra sobre la tabla; en el celular, un renglón que abre una hoja con «Aplicar» y chips con lo activo. Con fechas, Registros pide a Firebase justo ese rango, así encuentra también registros antiguos.
+
 ## Aspas para vuelo de dron
 
 Los levantamientos de aspas registrados en campo llegan a la **Bandeja → Aspas** del administrador y del jefe de área (el jefe ve la Bandeja solo con esa pestaña; gabinete no la ve). Desde la ficha se descargan el CSV y las fotos, y se marcan como procesados uno por uno o varios juntos; también se pueden devolver a «Por procesar». El número del menú cuenta los que faltan procesar.

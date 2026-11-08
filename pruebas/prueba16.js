@@ -1,6 +1,7 @@
 // «Qué se liberó»: un solo buscador (tolera tildes, plurales, errores y abreviaturas), el elemento se pone solo,
 // y desde campo se agregan tipos y elementos nuevos revisando antes los nombres parecidos. Administrador y jefe los revisan o unen.
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
+const { equipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba16'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -96,7 +97,7 @@ const lista = (p, k) => p.evaluate(k => (window.__fakeStore()['listas/' + k] || 
   await buscar(p, 'filtro 3'); await p.click('#tRes [data-tipo]:has-text("Relleno filtro 3")');
   await p.selectOption('#iTopo', 'GN'); await p.selectOption('#iEst', 'pp'); await p.waitForTimeout(80); await p.selectOption('#iSub', 'pp-oeste');
   await p.fill('#iPk1', '0+500'); await p.fill('#iPk2', '0+540'); await p.fill('#iDesc', 'Primera con filtro 3');
-  await p.click('#bGuardar'); await p.waitForTimeout(800);
+  await equipo(p); await p.click('#bGuardar'); await p.waitForTimeout(800);
   ok(await p.evaluate(id => Object.values(window.__fakeStore()).some(x => x && x.descripcion === 'Primera con filtro 3' && x.tipoId === id && x.elementoId === 'mt'), t3.id), 'la liberación se guarda con el tipo nuevo y su elemento');
   ok(/Relleno filtro 3/.test(await p.textContent('#tCambiar')), 'la siguiente liberación ya viene con el mismo tipo');
   await p.click('#tCambiar');

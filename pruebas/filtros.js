@@ -28,5 +28,13 @@ async function tipo(p, id) {
   if (await p.$('#tCambiar')) { if (await p.inputValue('#fLib [name="tipoId"]') === id) return; await p.click('#tCambiar'); }
   if (!(await p.$(`#tRes [data-tipo="${id}"]`))) await p.click('#tRes [data-todos]');
   await p.click(`#tRes [data-tipo="${id}"]`); await p.waitForSelector('#tCambiar');
+  await equipo(p);
 }
+// Marca el equipo (obligatorio al registrar) si aún no hay uno elegido
+async function equipo(p, id = 'GNSS') {
+  if (!(await p.$('#fEquipo [data-eq]'))) return;
+  if (await p.$('#fEquipo [data-eq][aria-pressed="true"]')) return;
+  await p.click(`#fEquipo [data-eq="${id}"]`); await p.waitForTimeout(60);
+}
+module.exports.equipo = equipo;
 module.exports.tipo = tipo;

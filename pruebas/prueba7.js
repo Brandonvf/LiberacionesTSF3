@@ -1,6 +1,6 @@
 // Repaso: resumen por frente, «Qué falta» en celular, registrar desde un faltante, siguiente tramo, capa pareja, atrás
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
-const { seccion, grupo, filtros, rangoPk, tipo } = require('./filtros');
+const { seccion, grupo, filtros, rangoPk, tipo, equipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba7'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -55,7 +55,7 @@ async function preparar(ctx) {
   // Ajustar el tramo (solo 40 m) y guardar
   await p.fill('#iPk1', '2+100'); await p.fill('#iPk2', '2+140'); await p.fill('#iCapa', 'capa 31'); await p.locator('#iCapa').blur();
   ok(await p.inputValue('#iCapa') === 'Capa 31', '«capa 31» se escribe como «Capa 31»');
-  await p.click('#bGuardar'); await p.waitForTimeout(200);
+  await equipo(p); await p.click('#bGuardar'); await p.waitForTimeout(200);
   ok((await p.textContent('#bGuardar')).includes('Guardado'), 'el botón confirma «Guardado ✓» y evita el doble toque');
   // Siguiente tramo
   await p.waitForSelector('#bSig');

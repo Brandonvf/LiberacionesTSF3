@@ -1,5 +1,5 @@
 const { chromium, devices } = require('playwright');
-const { tipo } = require('./filtros');
+const { tipo, equipo } = require('./filtros');
 const path = require('path'), fs = require('fs');
 const FAKE = path.join(__dirname, 'fake');
 const OUT = path.join(__dirname, 'capturas', 'prueba'); fs.mkdirSync(OUT, { recursive: true });
@@ -159,6 +159,9 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await page.selectOption('#iSub', 'cas-01');
   await page.check('#iSinPk');
   await page.fill('#iDesc', 'Levantamiento de ubicación final de caseta 01');
+  await page.click('#bGuardar'); await page.waitForTimeout(200);
+  ok(/Marca con qué equipo/.test(await page.textContent('#fEquipo')), 'el equipo es obligatorio al registrar');
+  await page.click('#fEquipo [data-eq="ET"]');
   await page.click('#bGuardar');
   await page.waitForTimeout(200);
   await page.click('[data-v="mis"]');

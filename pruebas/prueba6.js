@@ -25,7 +25,7 @@ const ok = (c, m) => { if (!c) { console.log('FALLA:', m); process.exitCode = 1;
   ok((await p.textContent('#nav [data-v="ajustes"]')).includes('1'), 'jefe ve el aviso de 1 solicitud');
   await p.click('[data-v="ajustes"]'); await p.waitForSelector('.tabs');
   const tabs = await p.$$eval('.tabs [data-tab]', t => t.map(x => x.dataset.tab));
-  ok(tabs.join() === 'usuarios,lugares,capas,topografos,tipos,historico,archivos,exportar', 'mismas pestañas que el administrador');
+  ok(tabs.join() === 'usuarios,lugares,capas,topografos,tipos,protocolos,historico,archivos,exportar', 'mismas pestañas que el administrador');
   await p.click('[data-tab="usuarios"]'); await p.waitForSelector('[data-uid]');
   await p.selectOption('[data-uid] [data-k="topo"]', 'AB'); await p.click('[data-ap]'); await p.waitForTimeout(200);
   ok((await p.textContent('#usr')).includes('Topógrafo Nuevo'), 'jefe aprueba una solicitud');

@@ -1,5 +1,6 @@
 // Aspas para vuelo de dron: llegan a la bandeja del administrador y del jefe de área para procesarlas
 const { chromium, devices } = require('playwright'); const path = require('path'), fs = require('fs');
+const { equipo } = require('./filtros');
 const OUT = path.join(__dirname, 'capturas', 'prueba15'); fs.mkdirSync(OUT, { recursive: true });
 const URL = 'http://127.0.0.1:8765/';
 const ADMIN = { uid: 'a1', email: 'brandonkluivertvillegasfranco@gmail.com', displayName: 'Brandon Villegas' };
@@ -44,7 +45,7 @@ const ext = (u, n) => ({ actividad: 'ASP', estado: 'NA', numero: '', creadoPor: 
   await p.check('#iSinPk'); await p.fill('#iDesc', 'Aspas zona norte para vuelo del lunes');
   await p.setInputFiles('#fCsv', { name: 'aspas.csv', mimeType: 'text/csv', buffer: Buffer.from('P,N,E,Z\n1,8300000,450000,780\n2,8300050,450050,781\n') });
   await p.waitForSelector('.archs .arch');
-  await p.click('#bGuardar'); await p.waitForTimeout(700);
+  await equipo(p); await p.click('#bGuardar'); await p.waitForTimeout(700);
   ok(await p.evaluate(() => Object.values(window.__fakeStore()).some(x => x && x.actividad === 'ASP' && x.descripcion === 'Aspas zona norte para vuelo del lunes')), 'el operario registra aspas con su CSV');
 
   // 2. Administrador: pestaña Aspas en la bandeja, con número en el menú
