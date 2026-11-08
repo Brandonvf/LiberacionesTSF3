@@ -1722,7 +1722,11 @@ function linkRow(l, k, i) { return `<div class="link"><a href="${esc(l)}" target
 function leerCampos() {
   const fm = $("#fLib"); if (!fm || !S.form) return;
   const f = S.form;
-  for (const el of fm.querySelectorAll("[name]")) f[el.name] = el.value;
+  for (const el of fm.querySelectorAll("[name]")) {
+    // Si la lista aún no había llegado, el desplegable no tiene la opción guardada y mostraría «Elegir…»: se conserva lo que había
+    if (el.tagName === "SELECT" && !el.value && f[el.name] && ![...el.options].some(o => o.value === f[el.name])) continue;
+    f[el.name] = el.value;
+  }
   f.sinPk = $("#iSinPk").checked;
 }
 function conectarForm() {
