@@ -103,9 +103,9 @@ const avisoInstalable = p => p.evaluate(() => {
   await q.evaluate(u => { localStorage.clear(); localStorage.setItem('__fakeUser', JSON.stringify(u)); }, ADMIN);
   await q.evaluate(() => navigator.serviceWorker.register('sw.js'));
   await q.evaluate(() => navigator.serviceWorker.ready);
-  await q.waitForFunction(async () => (await caches.keys()).includes('liberaciones-v18'));
+  await q.waitForFunction(async () => (await caches.keys()).includes('liberaciones-v19'));
   await q.waitForTimeout(800);
-  const guardado = await q.evaluate(async () => (await (await caches.open('liberaciones-v18')).keys()).map(r => r.url));
+  const guardado = await q.evaluate(async () => (await (await caches.open('liberaciones-v19')).keys()).map(r => r.url));
   const tiene = f => guardado.some(u => u.endsWith(f));
   ok(['/', 'manifest.webmanifest', 'logo.svg', 'icono-192.png', 'icono-512.png', 'apple-touch-icon.png'].every(tiene), 'al instalarse guarda la página, el manifiesto y el logo');
   ok(['firebase-app.js', 'firebase-auth.js', 'firebase-firestore.js'].every(tiene), 'y las librerías de Firebase (abre sin señal aunque nunca se usó sin internet)');

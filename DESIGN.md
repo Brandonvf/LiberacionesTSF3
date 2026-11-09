@@ -154,4 +154,7 @@ Se usan en campo, con sol y a veces con guantes. Toda pantalla nueva las cumple.
 - **Menú del celular:** como máximo 5 botones abajo; si sobran, «Ajustes» pasa a un engranaje en la cabecera.
 - **Palabras:** «Enterado» (no «Visto»), «Panel», «Mis registros» (corto: «Míos», solo en el menú del celular).
 - **Movimiento:** el punto de conexión solo late cuando hay algo por subir.
+- **Tablas de computadora:** caben a 1024 px sin desplazarse a los lados. Cada fila lleva solo su acción principal con texto corto (el largo en `title` y `aria-label`) y el «⋯»; fecha y topógrafo van en una línea pequeña bajo el nombre, y el frente en una línea con «…».
+- **Gráficos en celular:** el nombre va arriba (con el ojo y el %) y la franja a todo lo ancho debajo. Sin una elección guardada se ven las últimas 5 capas de cada tipo, con el aviso «Ver todas».
+- **Ejemplos de los campos:** empiezan con «Ej.:» y van en cursiva, para que no se confundan con algo ya escrito.
 

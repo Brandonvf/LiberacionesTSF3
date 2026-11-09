@@ -52,6 +52,10 @@ En Mis registros, «Resumen WhatsApp» arma el texto de hoy, ayer, ayer y hoy o 
 
 En un frente vacío se puede empezar subiendo la base (borde o superficie) de una capa: la capa se elige o se escribe al subirla, sin pasar por Ajustes. «Subir XML» reconoce un borde como base y, si es una superficie suelta, pregunta si es base o liberación. Después se suben las liberaciones poco a poco y el porcentaje se completa. En la lista de frentes se marcan los que ya tienen modelo (p. ej. «Presa Auxiliar Norte · 3 liberaciones + base»); un frente vacío dice dónde sí hay modelo; al abrir un frente se elige sola la capa con base para ver su porcentaje, y se recuerda la capa elegida en cada frente.
 
+## Panel: datos para corregir y celular
+
+El administrador y el jefe ven encima del gráfico un recuadro con los registros sin progresiva, fuera del rango del frente o de tipos que no se dibujan, cada uno con «Ver» (o el atajo a Ajustes); «Ocultar» lo esconde hasta que cambien los números. En el celular, el perfil pone el nombre de cada capa arriba y la franja a todo lo ancho, y sin una elección guardada muestra las últimas 5 capas de cada tipo («Ver todas» las muestra todas y se recuerda). Una capa escrita como «N/A», «-» o «sin capa» se toma como sin capa.
+
 ## Panel: filtros
 
 - **Computadora:** columna izquierda con el frente y un acordeón (Filtros, Progresiva, Capas); se abre una sección a la vez y cada una muestra su resumen cerrada. En Capas hay buscador y los tipos se despliegan solo al tocarlos. Los cambios se aplican al instante.
