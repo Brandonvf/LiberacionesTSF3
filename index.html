@@ -522,6 +522,9 @@ h1,h2,h3{text-wrap:balance}
 .act{font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
 .empty{text-align:center;padding:42px 20px;color:var(--muted)}
 .empty b{display:block;color:var(--ink);font-size:16px;font-weight:700;margin-bottom:4px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.m-otros-box{margin:16px auto 0;max-width:760px;padding:12px;border-radius:10px;background:var(--accent-soft);text-align:center}.m-otros-t{margin:0 0 8px;font-weight:600;color:var(--ink)}.m-otros{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.capl.resalta{box-shadow:0 0 0 3px var(--accent-soft);transition:box-shadow .3s}
 .m-inicio{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:18px auto 0;max-width:760px;text-align:left}
 .m-op{border:1px solid var(--line-strong);background:var(--surface);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:13px;line-height:1.4;cursor:pointer;text-align:left}
 .m-op:hover{border-color:var(--accent)}.empty .m-op b{font-size:14.5px;margin:0}
@@ -1195,7 +1198,7 @@ document.addEventListener("instalable", pintarInstalar);
 addEventListener("online", () => { if (S.dentro && enDirVieja()) mudarse(false); });
 addEventListener("appinstalled", () => { window.__inst = null; pintarInstalar(); });
 // Número de versión de la app (sube con cada publicación; es el mismo de la copia guardada en sw.js)
-const VERSION_APP = 16;
+const VERSION_APP = 17;
 // Versión nueva: si se acaba de abrir la app y aún no se escribió nada, se recarga sola;
 // si ya se está trabajando, se avisa y se actualiza cuando la persona quiera
 function hayAlgoEscrito() {
@@ -3211,7 +3214,36 @@ let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(
 /* ---------- Modelo 2D (solo gabinete): eje y secciones de Civil 3D + la superficie de cada liberación ----------
    Lecturas: 1 documento con las secciones de diseño del frente, 1 resumen de superficies (en vivo) y las
    superficies del frente una sola vez por sesión; después solo se leen las nuevas. */
-const MOD = { secc: {}, sup: {}, res: {}, bases: {}, med: {}, cargando: {}, supOk: {}, unsub: null, unsubB: null, resSub: "" };
+const MOD = { secc: {}, sup: {}, res: {}, bases: {}, med: {}, cargando: {}, supOk: {}, unsub: null, unsubB: null, resSub: "", hay: null, hayB: {}, haySub: null };
+// Qué frentes ya tienen modelo (liberaciones subidas o base), para marcarlos en la lista de frentes
+function suscribirHayModelo() {
+  if (MOD.haySub) return;
+  const cuenta = { sup: {}, base: {} }, listo = () => { MOD.hay = {}; new Set([...Object.keys(cuenta.sup), ...Object.keys(cuenta.base)]).forEach(k => { MOD.hay[k] = { n: cuenta.sup[k] || 0, b: cuenta.base[k] || 0 }; }); if (S.view === "panel" && S.panel.vista === "modelo") marcarFrentes(); };
+  const u1 = onSnapshot(collection(db, "superficiesRes"), snap => { cuenta.sup = {}; snap.docs.forEach(d => { const n = Object.keys(d.data().r || {}).length; if (n) cuenta.sup[d.id] = n; }); listo(); }, e => console.warn("modelos", e));
+  const u2 = onSnapshot(collection(db, "bases"), snap => { cuenta.base = {}; snap.docs.forEach(d => { const k = d.data().subId; if (k) cuenta.base[k] = (cuenta.base[k] || 0) + 1; }); listo(); }, e => console.warn("modelos", e));
+  MOD.haySub = () => { u1(); u2(); MOD.haySub = null; MOD.hay = null; };
+  S.subs.push(() => MOD.haySub?.());
+}
+const txtHay = h => [h.n ? `${h.n} ${h.n === 1 ? "liberación" : "liberaciones"}` : "", h.b ? (h.b === 1 ? "base" : `${h.b} bases`) : ""].filter(Boolean).join(" + ");
+function marcarFrentes() {
+  const sel = $("#pSub"); if (!sel || !MOD.hay) return;
+  [...sel.options].forEach(o => { const h = MOD.hay[o.value], n = L.sub(o.value)?.nombre || o.textContent; o.textContent = h ? `${n} · ${txtHay(h)}` : n; });
+  // Frente vacío: se dice dónde sí hay modelo
+  const ot = $("#mOtros"); if (!ot) return;
+  const otros = Object.entries(MOD.hay).filter(([k]) => k !== S.panel.subId && L.sub(k));
+  ot.innerHTML = otros.length ? `<div class="m-otros-box"><p class="m-otros-t">¿Buscas otro frente? Hay modelo en:</p><div class="m-otros">${otros.map(([k, h]) => `<button type="button" class="chip" data-irsub="${esc(k)}">${esc(L.sub(k).nombre)} <span class="c">${esc(txtHay(h))}</span></button>`).join("")}</div></div>` : "";
+}
+// Capa que se muestra al abrir un frente: la última que se eligió ahí o, si no, la que tiene base (la de más liberaciones)
+function capaInicial(subId, gs) {
+  const g0 = (ls.get("lib.mGrupoSub", {}) || {})[subId];
+  if (g0 !== undefined && (g0 === "" || gs.includes(g0))) return g0;
+  const res = Object.values(MOD.res[subId] || {}), n = g => res.filter(a => grupoDe(a[2], a[3]) === g).length;
+  const cand = gs.filter(g => MOD.bases[subId]?.has(g)).sort((a, b) => n(b) - n(a));
+  if (cand.length) return cand[0];
+  const conSup = gs.filter(g => n(g)).sort((a, b) => n(b) - n(a));
+  return conSup.length === 1 ? conSup[0] : "";
+}
+const guardarCapaSub = (subId, g) => { const m = ls.get("lib.mGrupoSub", {}) || {}; m[subId] = g; ls.set("lib.mGrupoSub", m); };
 const xHijos = (el, tag) => el ? [...el.children].filter(c => c.localName === tag) : [];
 const xUno = (el, tag) => xHijos(el, tag)[0];
 const xTodos = (el, tag) => [...el.getElementsByTagNameNS("*", tag)];
@@ -3919,7 +3951,7 @@ function dibujarCapasLista() {
   $("#cfT").addEventListener("change", e => { F.t = e.target.value; guardar(); dibujarCapasLista(); });
   $("#cfE").addEventListener("change", e => { F.e = e.target.value; guardar(); dibujarCapasLista(); });
   $("#cfO").addEventListener("change", e => { F.o = e.target.value; guardar(); dibujarCapasLista(); });
-  box.querySelector(".capr").addEventListener("click", e => { const b = e.target.closest("[data-capg]"); if (!b) return; P.mGrupo = b.dataset.capg; P.mModo = "real"; ls.set("lib.mModo", "real"); P.mSel = ""; P.mVB = null; irPrimera(); dibujarModelo(); if (!enPC()) $("#mBody")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
+  box.querySelector(".capr").addEventListener("click", e => { const b = e.target.closest("[data-capg]"); if (!b) return; P.mGrupo = b.dataset.capg; guardarCapaSub(P.subId, P.mGrupo); P.mModo = "real"; ls.set("lib.mModo", "real"); P.mSel = ""; P.mVB = null; irPrimera(); dibujarModelo(); if (!enPC()) $("#mBody")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
 }
 
 /* --- Vista --- */
@@ -3942,12 +3974,16 @@ function pintarModelo() {
   </div>
   ${enPC() ? "" : '<div id="mCapas"></div>'}
   <div id="mLista"></div>${enPC() ? "</div></div>" : ""}</div>`;
-  $("#pSub").addEventListener("change", e => { P.subId = e.target.value; P.mGrupo = ""; P.mSel = ""; P.mSta = null; P.mZoom = 1; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); pintarPanel(); });
-  $("#mGrupo").addEventListener("change", e => { P.mGrupo = e.target.value; P.mSel = ""; P.mVB = null; irPrimera(); dibujarModelo(); centrarSta(); });
+  const irFrente = id => { P.subId = id; P.mGrupo = ""; P.mInicial = ""; P.mSel = ""; P.mSta = null; P.mZoom = 1; ls.set("lib.panelSub", P.subId); suscribirPanel(estDeSub(P.subId).id); pintarPanel(); };
+  $("#pSub").addEventListener("change", e => irFrente(e.target.value));
+  $("#mGrupo").addEventListener("change", e => { P.mGrupo = e.target.value; guardarCapaSub(P.subId, P.mGrupo); P.mSel = ""; P.mVB = null; irPrimera(); dibujarModelo(); centrarSta(); });
+  suscribirHayModelo(); marcarFrentes();
   $("#mBaseFile").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) subirBase(f); });
   $(".chart-h .tabs").addEventListener("click", e => { const b = e.target.closest("[data-vista]"); if (b) { P.vista = b.dataset.vista; ls.set("lib.panelVista", P.vista); pintarPanel(); } });
   $("#mFile").addEventListener("change", e => { const f = [...e.target.files]; e.target.value = ""; if (f.length) subirXmlModelo(f); });
   $("#mRoot").addEventListener("click", e => {
+    const fr = e.target.closest("[data-irsub]"); if (fr) { irFrente(fr.dataset.irsub); return; }
+    if (e.target.closest("[data-vercapas]")) { const c = $("#mCapas .capl"); if (c) { c.scrollIntoView({ behavior: "smooth", block: "start" }); c.classList.add("resalta"); setTimeout(() => c.classList.remove("resalta"), 1400); } return; }
     const t = e.target.closest("[data-sid]"); if (t && !e.target.closest("#mPlan")) { editarSuperficie(t.dataset.sid); return; }
     const mo = e.target.closest("[data-modo]"); if (mo) { P.mModo = mo.dataset.modo; ls.set("lib.mModo", P.mModo); P.mVB = null; dibujarModelo(); return; }
     if (e.target.closest("[data-base]")) { $("#mBaseFile").click(); return; }
@@ -3979,7 +4015,9 @@ function dibujarModelo() {
   P.mModo ||= ls.get("lib.mModo", "real");
   const { todas, vis } = supsGrupo();
   // Capas: con superficies, con base o configuradas en Ajustes → Capas (agrupadas por tipo)
-  const gs = gruposFrente(subId), cuenta = new Map(); todas.forEach(x => cuenta.set(x.grupo, (cuenta.get(x.grupo) || 0) + 1));
+  let gs = gruposFrente(subId);
+  if (P.mInicial !== subId && MOD.bases[subId] != null) { P.mInicial = subId; const g = capaInicial(subId, gs); if (g && g !== P.mGrupo) { P.mGrupo = g; P.mSel = ""; P.mVB = null; return dibujarModelo(); } }
+  const cuenta = new Map(); supsGrupo().todas.forEach(x => cuenta.set(x.grupo, (cuenta.get(x.grupo) || 0) + 1));
   if (P.mGrupo && !gs.includes(P.mGrupo)) P.mGrupo = "";
   const porTipo = new Map(); gs.forEach(g => { const t = g.split("|")[0]; (porTipo.get(t) || porTipo.set(t, []).get(t)).push(g); });
   $("#mGrupo").innerHTML = `<option value="">Todas (${todas.length})</option>` + [...porTipo.entries()].sort((a, b) => natural(nom(L.tipo(a[0])) || "", nom(L.tipo(b[0])) || "")).map(([t, lst]) => `<optgroup label="${esc(t ? nom(L.tipo(t)) : "Sin tipo")}">${lst.sort((a, b) => natural(a, b)).map(g => `<option value="${esc(g)}" ${g === P.mGrupo ? "selected" : ""}>${esc(g.split("|")[1] || nom(L.tipo(t)) || "Sin capa")}${cuenta.get(g) ? ` (${cuenta.get(g)})` : ""}${MOD.bases[subId]?.has(g) ? " · base" : ""}</option>`).join("")}</optgroup>`).join("");
@@ -3987,11 +4025,13 @@ function dibujarModelo() {
   const eje = puntosEje(subId), hayBases = (MOD.bases[subId]?.size || 0) > 0;
   if (!mod && !eje && !todas.length && !hayBases && !gs.length) {
     body.innerHTML = `<div class="empty"><b>Aún no hay modelo de ${esc(sub?.nombre || "este frente")}</b>Empieza por lo que tengas de Civil 3D; lo demás se agrega después, poco a poco.
+      <div id="mOtros"></div>
       <div class="m-inicio">
         <button type="button" class="m-op" data-base><b>Subir base de una capa</b><span>El borde o la superficie del 100 % de la capa. Eliges o escribes la capa al subirla.</span></button>
         <button type="button" class="m-op" data-subir><b>Subir liberaciones</b><span>Las superficies de cada liberación; se suman al avance de su capa.</span></button>
         <button type="button" class="m-op" data-subir><b>Subir eje con secciones</b><span>Opcional: para ver la planta desarrollada y las secciones.</span></button>
       </div></div>`;
+    marcarFrentes();
     $("#mLista").innerHTML = ""; dibujarCapasLista(); return;
   }
   if (!eje) P.mModo = "real";
@@ -4007,7 +4047,7 @@ function dibujarModelo() {
       ${P.mGrupo ? (base && r ? `<div class="avc"><div class="avc-n"><b>${fmtPct(r.pct)}</b><span>liberado</span></div><div class="avc-d"><div class="avc-b"><i style="width:${(r.pct * 100).toFixed(2)}%"></i></div><p>${fmtM2(r.lib)} de ${fmtM2(base.area)} · faltan <b>${fmtM2(Math.max(0, base.area - r.lib))}</b> · ${m.n} ${m.n === 1 ? "tramo" : "tramos"}${zs.length ? ` · cota ${Math.min(...zs).toFixed(2)}${zs.length > 1 ? " a " + Math.max(...zs).toFixed(2) : ""}` : ""}</p></div></div>
         ${r.cruce > 0.5 || r.fuera > 0.5 || m.sinContorno ? `<p class="pinfo avc-w">${r.cruce > 0.5 ? `Hay <b>${fmtM2(r.cruce)}</b> donde dos liberaciones se cruzan (contadas una sola vez). ` : ""}${r.fuera > 0.5 ? `<b>${fmtM2(r.fuera)}</b> quedan fuera del borde de la base y no cuentan. ` : ""}${m.sinContorno ? `${m.sinContorno} ${m.sinContorno === 1 ? "liberación no tiene" : "liberaciones no tienen"} contorno real (súbela de nuevo).` : ""}</p>` : ""}`
         : `<div class="mres"><span><b>${m?.n || 0}</b> ${m?.n === 1 ? "liberación" : "liberaciones"}</span>${r ? `<span><b>${fmtM2(r.total)}</b> liberados</span>` : ""}<span class="muted">Sin base: sube el XML base para ver el porcentaje.</span></div>`)
-        : `<div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"} en el frente</span><span class="muted">Elige una capa para ver su avance.</span></div>`}
+        : `<div class="mres"><span><b>${vis.length}</b> ${vis.length === 1 ? "liberación" : "liberaciones"} en el frente</span><button type="button" class="linkbtn" data-vercapas>Ver el avance de cada capa</button></div>`}
       <div class="legend">${leyEst}${P.mGrupo && base ? '<span><i class="falta-i"></i>Falta liberar</span><span><i class="crz"></i>Cruce</span><span><i class="fue"></i>Fuera de la base</span>' : ""}${eje ? '<span><i style="background:${TOK.ink};height:2px"></i>Eje</span>' : ""}</div>
       <div class="mbar">${seg}<span class="mbar-sp"></span>${P.mGrupo ? `<button type="button" class="mini" data-base>${base ? "Reemplazar base" : "Subir base"}</button>${base ? '<button type="button" class="mini warn-mini" data-quitabase>Quitar base</button>' : ""}` : '<button type="button" class="mini" data-base>Subir base de una capa</button>'}</div>
       <div class="mreal" id="mPlanBox"><div id="mPlan"></div><div class="rzoom" role="group" aria-label="Acercar o alejar"><button type="button" data-rz="+" aria-label="Acercar">+</button><button type="button" data-rz="-" aria-label="Alejar">−</button><button type="button" data-rz="0" aria-label="Ver todo">Todo</button></div></div>

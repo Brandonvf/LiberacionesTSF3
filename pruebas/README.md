@@ -38,6 +38,7 @@ bash pruebas/correr.sh prueba5    # una sola
 | prueba19 | Fotos HEIC (Samsung con «alta eficiencia», iPhone): se convierten a JPG en el teléfono; si no se puede, explica qué hacer |
 | prueba20 | Actualizaciones: al abrir con una copia vieja guardada se pone sola la versión nueva (si aún no se escribió nada); si se está escribiendo, avisa «Actualizar». Lo nuevo (dron, equipos) aparece aunque la lista de Firebase sea vieja |
 | prueba21 | Capa al aceptar (uno y en grupo) con aviso de traslape, gabinete solo cambia la capa, levantamientos con «Enterado» (gabinete y jefe), resumen para WhatsApp en Mis registros y base de una capa en un frente vacío |
+| prueba22 | Modelo 2D fácil de encontrar: frentes con modelo marcados, un frente vacío dice dónde sí hay, la capa con base se elige sola con su porcentaje y se recuerda la capa elegida en cada frente |
 | prueba10 | Ficha en pantallas medianas, «atrás», búsqueda por capa, aceptar sin señal, gabinete sin «Editar» (solo cambiar capa), superposición, depuración de fotos, jefe en Modelo 2D |
 
 `capturas.js` toma fotos de las pantallas principales en celular y computadora (`node pruebas/capturas.js <carpeta>`), útil para comparar antes y después de un cambio de diseño. `filtros.js` reúne las ayudas que usan las pruebas para manejar los filtros del panel.
