@@ -26,7 +26,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await cargar(p);
 
   // 1. Progresiva inicial del frente 0+020
-  await p.click('[data-v="ajustes"]'); await p.click('[data-tab="lugares"]'); await p.waitForSelector('.est');
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="lugares"]'); await p.waitForSelector('.est');
   await p.fill('[data-e="0"] [data-s="0"] [data-k="smin"]', '0+020'); await p.press('[data-e="0"] [data-s="0"] [data-k="smin"]', 'Enter'); await p.waitForTimeout(200);
   await p.click('[data-v="panel"]'); await p.waitForSelector('#chart svg'); await p.waitForTimeout(400);
   const e1 = await ext(p);
@@ -72,7 +72,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await p.locator('#pFalta').screenshot({ path: OUT + '/03-que-falta.png' });
 
   // 5. Ajustes → Capas
-  await p.click('[data-v="ajustes"]'); await p.click('[data-tab="capas"]'); await p.waitForSelector('#cSub');
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="capas"]'); await p.waitForSelector('#cSub');
   await p.selectOption('#cSub', 'pp-oeste'); await p.selectOption('#cTipo', 'masivo');
   await p.click('#cDesdeReg'); await p.waitForSelector('.ct-row[data-i]', { timeout: 20000 });
   const nCap = await p.$$eval('.ct-row[data-i]', r => r.length);
@@ -112,7 +112,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await filtros(m, async () => { await seccion(m, 'cap'); await m.click('[data-cap="ultimas"]'); await seccion(m, 'pk'); await m.fill('#pPk1', '1+800'); await m.press('#pPk1', 'Enter'); await m.fill('#pPk2', '2+300'); await m.press('#pPk2', 'Enter'); }); await m.waitForTimeout(500);
   await m.screenshot({ path: OUT + '/05-panel-movil.png', fullPage: true });
   ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'celular sin desplazamiento horizontal');
-  await m.click('[data-v="ajustes"]'); await m.click('[data-tab="capas"]'); await m.waitForSelector('#cSub'); await m.selectOption('#cSub', 'pp-oeste'); await m.selectOption('#cTipo', 'masivo'); await m.waitForTimeout(200);
+  await m.click('[data-v="ajustes"]:not([hidden])'); await m.click('[data-tab="capas"]'); await m.waitForSelector('#cSub'); await m.selectOption('#cSub', 'pp-oeste'); await m.selectOption('#cTipo', 'masivo'); await m.waitForTimeout(200);
   await m.click('.ct-row[data-i="0"] [data-k="sel"]');
   await m.screenshot({ path: OUT + '/06-capas-movil.png', fullPage: true });
   ok(await m.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Ajustes → Capas sin desplazamiento horizontal');

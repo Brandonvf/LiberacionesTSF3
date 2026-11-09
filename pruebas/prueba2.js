@@ -44,8 +44,8 @@ async function registrar(page, o) {
   await page.waitForSelector('#gEntrar');
   await page.evaluate(u => { window.__fakeLogin = u; }, ADMIN); await page.click('#gEntrar');
   await page.waitForSelector('#nav button');
-  const navs = await page.$$eval('#nav button', bs => bs.map(b => b.dataset.v));
-  ok(navs.join() === 'nueva,mis,bandeja,todos,panel,ajustes', 'admin: ' + navs.join());
+  const navs = await page.$$eval('#nav button[data-v], #btnAjustes:not([hidden])', bs => bs.map(b => b.dataset.v));
+  ok(navs.join() === 'ajustes,nueva,mis,bandeja,todos,panel', 'admin: ' + navs.join());
 
   // Archivos
   await page.click('[data-v="nueva"]'); await page.waitForSelector('#fLib:not([hidden])');
@@ -112,7 +112,7 @@ async function registrar(page, o) {
   await page.screenshot({ path: OUT + '/10-planta-movil.png', fullPage: true });
   await page.$eval('#chart path.tramo', p => p.dispatchEvent(new MouseEvent('click', { bubbles: true }))); await page.waitForSelector('#sheet.on'); ok(true, 'tocar tramo en planta abre ficha');
   await page.click('#fCerrar'); await page.waitForTimeout(350);
-  await page.click('[data-v="ajustes"]'); await page.click('[data-tab="capas"]'); await page.waitForSelector('#cSub');
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="capas"]'); await page.waitForSelector('#cSub');
   await page.selectOption('#cSub', 'pp-oeste'); await page.selectOption('#cTipo', 'masivo');
   await page.fill('#cDe', '15'); await page.fill('#cA', '20'); await page.click('#cVarias'); await page.waitForTimeout(200);
   ok(await page.$$eval('#cCapas .ct-row[data-i]', r => r.length) === 6, 'capas 15 a 20 agregadas');
@@ -141,7 +141,7 @@ async function registrar(page, o) {
   await page.click('#fCerrar'); await page.waitForTimeout(350);
 
   // Ajustes: lugares
-  await page.click('[data-v="ajustes"]'); await page.waitForSelector('.tabs');
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.waitForSelector('.tabs');
   await page.click('[data-tab="lugares"]'); await page.waitForSelector('.est');
   await page.fill('[data-e="1"] [data-k="snew"]', 'Presa Auxiliar Norte Este');
   await page.click('[data-e="1"] [data-k="sadd"]');
@@ -159,7 +159,7 @@ async function registrar(page, o) {
   await page.click('#bLimpiar');
 
   // Ajustes: topógrafos
-  await page.click('[data-v="ajustes"]'); await page.click('[data-tab="topografos"]'); await page.waitForSelector('#tpList');
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="topografos"]'); await page.waitForSelector('#tpList');
   await page.fill('#tpId', 'hq'); await page.fill('#tpNom', 'Hugo Quispe'); await page.click('#tpAdd');
   await page.fill('#tpList [data-i="1"] [data-k="nom"]', 'Gregorio Navarro Huaraca'); await page.press('#tpList [data-i="1"] [data-k="nom"]', 'Enter');
   await page.screenshot({ path: OUT + '/06-topografos.png' });
@@ -169,11 +169,11 @@ async function registrar(page, o) {
   ok(topos.includes('Hugo Quispe') && topos.includes('Gregorio Navarro Huaraca'), 'topógrafo nuevo y nombre corregido');
 
   // Ajustes: tipos (ordenar) y descarte
-  await page.click('[data-v="ajustes"]'); await page.click('[data-tab="tipos"]'); await page.waitForSelector('#tyList');
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="tipos"]'); await page.waitForSelector('#tyList');
   await page.click('#tyList [data-i="1"] [data-k="up"]');
   ok((await page.inputValue('#tyList [data-i="0"] [data-k="nom"]')) === 'Superficie de terreno nivelado', 'subir tipo cambia el orden');
   await page.screenshot({ path: OUT + '/07-tipos.png' });
-  await page.reload(); await page.waitForSelector('#nav button'); await page.click('[data-v="ajustes"]'); await page.click('[data-tab="tipos"]'); await page.waitForSelector('#tyList');
+  await page.reload(); await page.waitForSelector('#nav button'); await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="tipos"]'); await page.waitForSelector('#tyList');
   ok((await page.inputValue('#tyList [data-i="0"] [data-k="nom"]')) === 'Superficie de terreno nivelado', 'el orden se guardó solo');
 
   // Escritorio

@@ -48,7 +48,7 @@ const cambiarDoc = (p, ruta, datos) => p.evaluate(async ([ruta, datos]) => { con
   await q.goto(URL);
   await q.evaluate(a => { localStorage.clear(); localStorage.setItem('__fakeDB', JSON.stringify({ 'solicitudes/s1': { email: 'otra@gmail.com', nombre: 'Otra Persona' } })); localStorage.setItem('__fakeUser', JSON.stringify(a)); }, ADMIN);
   await q.reload(); await q.waitForSelector('#nav button');
-  await q.click('#nav [data-v="ajustes"]'); await q.waitForSelector('#sol [data-uid="s1"]');
+  await q.click('[data-v="ajustes"]:not([hidden])'); await q.waitForSelector('#sol [data-uid="s1"]');
   await q.selectOption('#sol [data-uid="s1"] [data-k="rol"]', 'gabinete');
   await cambiarDoc(q, 'solicitudes/s2', { email: 'tercera@gmail.com', nombre: 'Tercera Persona' }); await q.waitForSelector('#sol [data-uid="s2"]');
   ok(await q.inputValue('#sol [data-uid="s1"] [data-k="rol"]') === 'gabinete', 'si llega otra solicitud mientras eliges, el rol elegido no vuelve a «Topógrafo»');

@@ -31,7 +31,7 @@ Variables en `:root`. No se usan colores sueltos en el CSS ni en el JS: siempre 
 | `--accent` | `#0b7d72` | Botón principal, enlaces, elemento activo, foco |
 | `--accent-strong` | `#06665d` | Botón principal presionado, texto sobre fondo claro de acento |
 | `--accent-soft` | `#dcefeb` | Fondo de lo seleccionado o activo |
-| `--pt` | `#6b7a86` | Estado Pendiente topografía |
+| `--pt` | `#56636e` | Estado Pendiente topografía |
 | `--ep` | `#9a5a00` | Estado En proceso |
 | `--ec` | `#1f7a45` | Estado Entregado a Calidad |
 | `--ob` | `#b8321a` | Estado Observado y acciones peligrosas |
@@ -55,7 +55,7 @@ Reglas:
 ## 4. Espacio, bordes y capas
 
 - Escala de espacio: 4 · 8 · 12 · 16 · 24 · 32 px. Nada fuera de la escala.
-- Radio único: **8 px**. Excepciones: etiquetas de estado y chips de filtro, 999 px; casillas, 4 px.
+- Radio único: **8 px** (6 px en chips y etiquetas que se tocan). La cápsula (999 px) solo para estados, globos y contadores; casillas, 4 px.
 - Bordes de 1 px `--line`. Las secciones dentro de un bloque se separan con una línea `--line` de lado a lado, no con otro bloque.
 - **Sombras:** ninguna en tarjetas, bloques, botones ni campos. Solo los elementos que flotan de verdad (menú contextual, diálogos, avisos, hoja inferior) llevan `0 8px 24px rgba(17,28,25,.16)`.
 - Sin degradados en ninguna parte (el logo en el ícono de la app es la única excepción, porque ya está publicado).
@@ -76,7 +76,7 @@ Altura 44 px (40 en tablas y barras densas), radio 8 px, texto 600, padding 0 16
 Altura 44 px, borde 1 px `--line`, radio 8, fondo `--surface`, texto 15/14 px. Al enfocar: borde `--accent` y anillo de 3 px `--accent-soft`. Etiqueta arriba en mayúsculas pequeñas (ver tipografía). Texto de ayuda debajo en 12 px `--muted`. Error: borde `--ob` y mensaje en 12 px `--ob`. En iPhone, los campos de fecha deben forzar `-webkit-appearance:none` y texto a la izquierda.
 
 ### Chips de filtro
-Altura 32 px, radio 999, borde 1 px `--line`, texto 13 px 600. Activo: fondo `--accent-soft`, borde `--accent`, texto `--accent-strong`. Con conteo: el número en `--muted` a la derecha. Un chip activo que se puede quitar muestra ✕ al final.
+Altura 32 px (44 px en celular y tableta), radio 6 px, borde 1 px `--line`, texto 13 px 600. Activo: fondo `--accent-soft`, borde `--accent`, texto `--accent-strong`. Con conteo: el número en `--muted` a la derecha. Un chip activo que se puede quitar muestra ✕ al final.
 
 ### Tablas (computadora)
 Cabecera con fondo `--surface-2` y texto en mayúsculas pequeñas; filas de 44 px separadas por líneas `--line`; al pasar el cursor, fondo `--surface-2`; fila seleccionada, fondo `--accent-soft` y borde izquierdo de 3 px `--accent`. Números y códigos en monoespaciada. Sin bordes verticales.
@@ -141,3 +141,17 @@ Trazo de 2 px, 20 px en el menú y 18 px en botones, color del texto que acompa�
 - `aria-pressed` en chips y pestañas, `aria-current="page"` en el menú, `role="dialog"` con `aria-labelledby` en diálogos.
 - Respetar `prefers-reduced-motion`: las animaciones pasan a 0 ms.
 - Área segura del iPhone (`env(safe-area-inset-*)`) en cabecera, menú inferior y hojas.
+
+## 10. Reglas para obra
+
+Se usan en campo, con sol y a veces con guantes. Toda pantalla nueva las cumple.
+
+- **Alturas.** En computadora: `--h-btn` 44 px (acción principal), `--h-mini` 40 px (secundaria) y `--h-tag` 32 px (etiqueta). En celular y tableta (hasta 1023 px), todo lo que se toca mide al menos 44 px; los botones cuadrados, 44 × 44 px.
+- **Letra mínima en celular:** 13 px; 12 px solo en el menú inferior. En los gráficos, 12 px para escalas y 13 px para nombres y porcentajes. Sin mayúsculas forzadas en las etiquetas de campo.
+- **Esquinas:** 6 a 8 px. La cápsula (999 px) solo para estados, globos y contadores.
+- **Estados:** cada uno con su color, y «Observado» además con rayado (patrón `obs`), para que se distinga en gris o con daltonismo.
+- **Acciones:** toda acción tiene un botón visible (por ejemplo «⋯» en filas y tarjetas, o el ojo para ocultar una capa); el clic derecho y la pulsación larga quedan solo como atajo.
+- **Menú del celular:** como máximo 5 botones abajo; si sobran, «Ajustes» pasa a un engranaje en la cabecera.
+- **Palabras:** «Enterado» (no «Visto»), «Panel», «Mis registros» (corto: «Míos», solo en el menú del celular).
+- **Movimiento:** el punto de conexión solo late cuando hay algo por subir.
+

@@ -25,7 +25,7 @@ async function preparar(ctx) {
   ok((await page.textContent('#nav')).includes('Míos'), 'barra inferior con etiqueta corta');
   const navH = await page.$eval('.nav .wrap', n => n.getBoundingClientRect().height);
   ok(navH < 80, 'barra inferior de una sola línea (' + Math.round(navH) + ' px)');
-  await page.click('[data-v="ajustes"]'); await page.click('[data-tab="historico"]'); await page.waitForSelector('#hFile', { state: 'attached' });
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="historico"]'); await page.waitForSelector('#hFile', { state: 'attached' });
   await page.setInputFiles('#hFile', JSONF);
   await page.waitForSelector('#hImp:not([disabled])');
   ok((await page.textContent('#hRes')).includes('2,669'), 'resumen del archivo: 2,669 registros');
@@ -47,7 +47,7 @@ async function preparar(ctx) {
   await page.click('[data-v="todos"]'); await page.waitForSelector('.item');
   ok((await page.textContent('.list')).includes('SKT-TOP-02684'), 'Registros muestra lo más reciente primero');
   // Lugares y capas en celular
-  await page.click('[data-v="ajustes"]'); await page.click('[data-tab="lugares"]'); await page.waitForSelector('.est');
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="lugares"]'); await page.waitForSelector('.est');
   await page.screenshot({ path: OUT + '/04-lugares-movil.png' });
   await page.click('[data-tab="topografos"]'); await page.waitForSelector('#tpList');
   ok((await page.textContent('#tpList')).includes('CCH'), 'claves nuevas agregadas a topógrafos');
@@ -64,7 +64,7 @@ async function preparar(ctx) {
   await p2.selectOption('#pSub', 'pan'); await p2.waitForTimeout(900);
   await p2.screenshot({ path: OUT + '/06-perfil-pan.png', fullPage: true });
   // Quitar importados
-  await p2.click('[data-v="ajustes"]'); await p2.click('[data-tab="historico"]'); await p2.click('#hBorrar'); await p2.click('#hBorrar');
+  await p2.click('[data-v="ajustes"]:not([hidden])'); await p2.click('[data-tab="historico"]'); await p2.click('#hBorrar'); await p2.click('#hBorrar');
   await p2.waitForFunction(() => !document.querySelector('#hBorrar').disabled && document.querySelector('#hBorrar').textContent.includes('Quitar'), null, { timeout: 30000 });
   ok(await p2.evaluate(() => Object.keys(window.__fakeStore()).filter(k => k.startsWith('liberaciones/')).length) === 0, 'quitar importados');
   console.log('Errores:', errores.length ? errores : 'ninguno');

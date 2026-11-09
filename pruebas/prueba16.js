@@ -110,8 +110,8 @@ const lista = (p, k) => p.evaluate(k => (window.__fakeStore()['listas/' + k] || 
 
   // 7. Jefe: ve los nuevos en Ajustes, los marca revisados o los une
   await entrarComo(p, JEFE);
-  ok(await p.$eval('#nav [data-v="ajustes"] .badge', b => b.textContent) === '3', 'el menú Ajustes avisa 3 nombres nuevos por revisar');
-  await p.click('#nav [data-v="ajustes"]'); await p.click('[data-tab="tipos"]'); await p.waitForSelector('#nvBox');
+  ok(await p.$eval('[data-v="ajustes"]:not([hidden]) .badge', b => b.textContent) === '3', 'el menú Ajustes avisa 3 nombres nuevos por revisar');
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="tipos"]'); await p.waitForSelector('#nvBox');
   ok(await p.$$eval('#nvBox .nv', r => r.length) === 3 && /Pedro Operario/.test(await p.textContent('#nvBox')), 'Ajustes → Tipos lista los agregados desde campo y quién los agregó');
   ok(/se parece a «Relleno filtro/.test(await p.textContent('#nvBox [data-nt="' + t3.id + '"]')), 'y dice a qué se parece');
   await p.screenshot({ path: path.join(OUT, '4-ajustes.png'), fullPage: true });

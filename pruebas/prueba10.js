@@ -72,7 +72,7 @@ const aceptarDlg = async p => { await p.waitForSelector('.dlg.on [type=submit]')
   ok(!(await p.$('.dlg')) && (await p.textContent('#toast')).includes('Se necesita señal'), 'aceptar sin señal avisa y no intenta generar el código');
   await ctx.setOffline(false); await p.waitForTimeout(300);
   // 5. Avance diario con la columna de rechazados
-  await p.click('[data-v="ajustes"]'); await p.click('[data-tab="exportar"]'); await p.waitForSelector('#xDia');
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="exportar"]'); await p.waitForSelector('#xDia');
   await p.click('[data-r="semana"]'); const dl = p.waitForEvent('download'); await p.click('#xDia'); const f = await dl;
   const csv = fs.readFileSync(await f.path(), 'utf8');
   ok(csv.split('\r\n')[0].includes('Rechazadas') && /Capa 11,1,40,0,0,1,1/.test(csv), 'avance diario: el rechazado va en su columna y no suma metros');

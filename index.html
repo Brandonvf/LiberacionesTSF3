@@ -957,7 +957,7 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
   <header class="top"><div class="wrap">
     <div class="title"><span id="dot" class="dot" title="Conectado"></span>Liberaciones <small>TSF3</small></div>
     <span id="sync" class="sync"></span>
-    <div class="me"><b id="meName"></b><span id="meRol" class="rol"></span><button id="btnAjustes" class="me-aj" type="button" data-ir="ajustes" aria-label="Ajustes" hidden></button><button id="btnInstalar" class="inst" type="button" hidden>Instalar</button><button id="btnSalir" type="button">Salir</button></div>
+    <div class="me"><b id="meName"></b><span id="meRol" class="rol"></span><button id="btnAjustes" class="me-aj" type="button" data-ir="ajustes" data-v="ajustes" aria-label="Ajustes" hidden></button><button id="btnInstalar" class="inst" type="button" hidden>Instalar</button><button id="btnSalir" type="button">Salir</button></div>
   </div></header>
   <nav class="nav" aria-label="Secciones"><div class="wrap" id="nav"></div></nav>
   <main class="wrap" id="view"></main>
@@ -1235,7 +1235,7 @@ document.addEventListener("instalable", pintarInstalar);
 addEventListener("online", () => { if (S.dentro && enDirVieja()) mudarse(false); });
 addEventListener("appinstalled", () => { window.__inst = null; pintarInstalar(); });
 // Número de versión de la app (sube con cada publicación; es el mismo de la copia guardada en sw.js)
-const VERSION_APP = 17;
+const VERSION_APP = 18;
 // Versión nueva: si se acaba de abrir la app y aún no se escribió nada, se recarga sola;
 // si ya se está trabajando, se avisa y se actualiza cuando la persona quiera
 function hayAlgoEscrito() {

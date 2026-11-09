@@ -36,8 +36,8 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await login(page, ADMIN);
   await page.waitForSelector('#fLib:not([hidden])');
   ok((await page.textContent('#meRol')).includes('Administrador'), 'admin entra con rol Administrador');
-  const navs = await page.$$eval('#nav button', bs => bs.map(b => b.dataset.v));
-  ok(navs.join() === 'nueva,mis,bandeja,todos,panel,ajustes', 'admin ve 4 secciones: ' + navs.join());
+  const navs = await page.$$eval('#nav button[data-v], #btnAjustes:not([hidden])', bs => bs.map(b => b.dataset.v));
+  ok(navs.join() === 'ajustes,nueva,mis,bandeja,todos,panel', 'admin ve 5 botones abajo y el engranaje de Ajustes arriba: ' + navs.join());
   ok(await page.$$eval('#iEst option', o => o.length) === 7, 'estructuras precargadas');
 
   // Validación
@@ -130,7 +130,7 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   // Admin aprueba
   await login(page, ADMIN);
   await page.waitForSelector('#nav');
-  await page.click('[data-v="ajustes"]'); await page.click('[data-tab="usuarios"]');
+  await page.click('[data-v="ajustes"]:not([hidden])'); await page.click('[data-tab="usuarios"]');
   await page.waitForSelector('[data-uid]');
   await page.selectOption('[data-uid] [data-k="topo"]', 'AB');
   await page.screenshot({ path: OUT + '/07-usuarios.png', fullPage: true });

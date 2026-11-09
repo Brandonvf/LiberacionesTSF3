@@ -36,7 +36,7 @@ const cuenta = p => p.$$eval('#lista [data-id]', x => x.length);
   await p.reload(); await p.waitForSelector('#nav button'); await p.waitForTimeout(700);
 
   // 1. Ajustes → Protocolos: tres protocolos, dos para la Presa Principal y uno solo para el frente Este
-  await p.click('#nav [data-v="ajustes"]'); await p.click('[data-tab="protocolos"]'); await p.waitForSelector('#prList');
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="protocolos"]'); await p.waitForSelector('#prList');
   for (const n of ['Protocolo topográfico de superficie', 'Protocolo de volumen', 'Protocolo de taludes']) { await p.fill('#prNom', n); await p.click('#prAdd'); await p.waitForTimeout(150); }
   await p.waitForTimeout(200);
   const prot = await p.evaluate(() => window.__fakeStore()['listas/protocolos'].items);
@@ -144,7 +144,7 @@ const cuenta = p => p.$$eval('#lista [data-id]', x => x.length);
 
   // 5. Otro frente (Oeste) sin «taludes»; ajuste «un solo código»
   await entrarComo(p, ADMIN);
-  await p.click('#nav [data-v="ajustes"]'); await p.click('[data-tab="protocolos"]'); await p.waitForSelector('#prCod');
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="protocolos"]'); await p.waitForSelector('#prCod');
   await p.check('#prCod input[value="uno"]'); await p.waitForTimeout(300);
   ok(await p.evaluate(() => window.__fakeStore()['config/general']?.drnCodigos) === 'uno', 'se puede cambiar a «un solo código por levantamiento»');
   await p.evaluate(async () => { const fs = await import('https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js');

@@ -28,9 +28,9 @@ async function registrar(p, o) {
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForSelector('#gEntrar');
   // Admin crea usuarios
   await login(p, ADMIN); await p.waitForSelector('#nav button');
-  const navA = await p.$$eval('#nav button', bs => bs.map(b => b.dataset.v));
-  ok(navA.join() === 'nueva,mis,bandeja,todos,panel,ajustes', 'admin ve Bandeja: ' + navA.join());
-  await p.click('[data-v="ajustes"]'); await p.click('[data-tab="usuarios"]'); await p.waitForSelector('#uMail');
+  const navA = await p.$$eval('#nav button[data-v], #btnAjustes:not([hidden])', bs => bs.map(b => b.dataset.v));
+  ok(navA.join() === 'ajustes,nueva,mis,bandeja,todos,panel', 'admin ve Bandeja: ' + navA.join());
+  await p.click('[data-v="ajustes"]:not([hidden])'); await p.click('[data-tab="usuarios"]'); await p.waitForSelector('#uMail');
   await p.fill('#uMail', OPER.email); await p.fill('#uNom', OPER.displayName); await p.selectOption('#uRol', 'operario'); await p.selectOption('#uTopo', 'GN'); await p.click('#uAdd'); await p.waitForTimeout(150);
   await p.fill('#uMail', GAB.email); await p.fill('#uNom', GAB.displayName); await p.selectOption('#uRol', 'gabinete'); await p.click('#uAdd'); await p.waitForTimeout(150);
   ok((await p.textContent('#usr')).includes('Pedro Operario'), 'operario creado con rol Operario');
@@ -98,7 +98,7 @@ async function registrar(p, o) {
   await p2.goto(URL); await p2.evaluate(([s, u]) => { localStorage.setItem('__fakeDB', s); localStorage.setItem('__fakeUser', JSON.stringify(u)); }, [await p.evaluate(() => localStorage.getItem('__fakeDB')), ADMIN]);
   await p2.reload(); await p2.waitForSelector('#nav button');
   await p2.click('[data-v="bandeja"]'); await p2.waitForSelector('.tabs'); await p2.screenshot({ path: OUT + '/05-bandeja-escritorio.png' });
-  await p2.click('[data-v="ajustes"]'); await p2.click('[data-tab="exportar"]'); await p2.waitForSelector('#xReg');
+  await p2.click('[data-v="ajustes"]:not([hidden])'); await p2.click('[data-tab="exportar"]'); await p2.waitForSelector('#xReg');
   await p2.click('[data-r="semana"]');
   const [d1] = await Promise.all([p2.waitForEvent('download'), p2.click('#xReg')]);
   const t1 = fs.readFileSync(await d1.path(), 'utf8');
