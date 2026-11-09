@@ -65,7 +65,7 @@ const salir = async (page) => { await page.click('#btnSalir'); await page.waitFo
   await page.click('#bGuardar');
   await page.waitForTimeout(300);
   ok((await page.textContent('#toast')).includes('guardada'), 'aviso de guardado');
-  ok(await page.inputValue('#iEst') === 'pp' && await page.inputValue('#iDesc') === '', 'recuerda estructura y limpia descripción');
+  { const d = await page.inputValue('#iDesc'); ok(await page.inputValue('#iEst') === 'pp' && /^Liberación de /.test(d), 'recuerda estructura y la descripción vuelve a llenarse sola: ' + d); }
 
   // PK final menor que inicio
   await page.fill('#iPk1', '2+200'); await page.fill('#iPk2', '2+100'); await page.fill('#iDesc', 'x');

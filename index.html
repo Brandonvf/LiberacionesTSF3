@@ -189,7 +189,8 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 .nav button{min-width:0;position:relative}
 @media (max-width:859px){.nav .badge{position:absolute;top:5px;left:calc(50% + 5px);margin:0;min-width:17px;text-align:center}}
 /* En celular la línea de explicación bajo el título se oculta (salvo la que dice qué se está editando) */
-@media (max-width:759px){.lead:not(.keep){display:none}}
+@media (max-width:759px){.lead:not(.keep){display:none}.solo-pc{display:none}}
+@media (min-width:760px){.solo-cel{display:none}}
 /* Ficha: la acción principal ocupa todo el ancho y las demás van en fila debajo */
 .sheet .actions .btn.block{flex:1 1 100%}
 .sheet .actions .btn{flex:1 1 auto}
@@ -849,7 +850,9 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
 @media (min-width:1024px){.pgrid{grid-template-columns:280px minmax(0,1fr)}}
 
 /* «Qué se liberó»: buscador único, letra grande para leer en campo */
-.tsel .flabel{margin-bottom:8px}
+.tsel .flabel{margin-bottom:8px;font-size:15px;font-weight:700;text-transform:none;letter-spacing:0;color:var(--ink)}
+.seg-act{display:flex;flex-wrap:wrap;width:100%}.seg-act button{flex:1 1 auto;min-height:38px;font-size:13.5px;padding:0 12px}
+@media (max-width:759px){.seg-act button{flex:1 1 calc(50% - 2px);padding:4px 8px;line-height:1.2}}
 .tsel-sub{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px}
 .tsel-sub:first-of-type{margin-top:0}
 .tsel-chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -1642,6 +1645,32 @@ function descargar(nombre, contenido, tipo) {
 function opciones(lista, sel, vacio) {
   return `<option value="">${esc(vacio)}</option>` + lista.filter(o => o.activo !== false || o.id === sel).map(o => `<option value="${esc(o.id)}" ${o.id === sel ? "selected" : ""}>${esc(o.nombre)}</option>`).join("");
 }
+// Nombre de la actividad para títulos y botones, con su género: «Nueva liberación», «Nuevo levantamiento», «Nuevas aspas»
+function nombreAct(a) {
+  const k = { LIB: ["liberación", "f"], LEV: ["levantamiento", "m"], DRN: ["levantamiento con dron", "m"], ASP: ["aspas", "fp"] }[a];
+  if (k) return { n: k[0], g: k[1] };
+  const n = (nom(L.act(a), "registro") || "registro").toLowerCase();
+  return { n, g: /a$|ón$/.test(n.split(" ")[0]) ? "f" : "m" };
+}
+const tituloNuevo = a => { const { n, g } = nombreAct(a); return (g === "fp" ? "Nuevas " : g === "f" ? "Nueva " : "Nuevo ") + n; };
+const btnGuardar = a => "Guardar " + nombreAct(a).n;
+const avisoGuardado = a => { const { n, g } = nombreAct(a); return n.charAt(0).toUpperCase() + n.slice(1) + (g === "fp" ? " guardadas" : g === "f" ? " guardada" : " guardado"); };
+// Descripción que se llena sola con lo elegido; si la persona la corrige, ya no se toca
+function descAuto(f) {
+  const sub = L.sub(f.subestructuraId)?.nombre || "";
+  if (f.actividad === "LIB") {
+    const t = L.tipo(f.tipoId); if (!t || !sub) return "";
+    const capa = normCapa(f.capa || "", f.subestructuraId, f.tipoId);
+    return `Liberación de ${t.nombre.toLowerCase()}${capa ? " " + capa.toLowerCase() : ""} ${sub}`;
+  }
+  const a = nom(L.act(f.actividad)); return a && sub ? `${a} ${sub}` : "";
+}
+function refrescarDesc(f) {
+  const d = (f.descripcion || "").trim();
+  if (d && d !== f._descAuto) return false;
+  const n = descAuto(f); if (n === d) return false;
+  f.descripcion = n; f._descAuto = n; return true;
+}
 function pintarForm() {
   if (!S.form) { S.form = S.editando ? formDesde(S.editando) : (ls.get(BORR(), null) || formVacio()); if (!S.editando && !S.form.topografoId) S.form.topografoId = S.perfil?.topografoId || ""; }
   const f = S.form, E = S.editando;
@@ -1652,15 +1681,16 @@ function pintarForm() {
   if (subs.length === 1 && !f.subestructuraId) f.subestructuraId = subs[0].id;
   const esLib = f.actividad === "LIB";
   const listo = S.listas.estructuras.length > 0;
+  if (listo) refrescarDesc(f);
   $("#view").innerHTML = `
-  <h1 class="view-title">${E ? "Editar registro" : "Nueva liberación"}</h1>
-  <p class="lead${E ? " keep" : ""}">${E ? `${E.numero ? `<span class="mono">${esc(E.numero)}</span> · ` : ""}<span class="st ${E.estado}">${ESTADOS[E.estado] || E.estado}</span>` : "Se guarda en el teléfono aunque no haya señal y se sube sola al recuperarla."}</p>
+  <h1 class="view-title">${E ? "Editar registro" : tituloNuevo(f.actividad)}</h1>
+  <p class="lead keep">${E ? `${E.numero ? `<span class="mono">${esc(E.numero)}</span> · ` : ""}<span class="st ${E.estado}">${ESTADOS[E.estado] || E.estado}</span>` : '<span class="solo-pc">Se guarda en el teléfono aunque no haya señal y se sube sola al recuperarla.</span><span class="solo-cel">Se guarda sin señal y se sube sola al recuperarla.</span>'}</p>
   ${!listo ? '<div class="card section"><p class="muted">Cargando listas…</p></div>' : ""}
   <form id="fLib" novalidate ${!listo ? "hidden" : ""}>
     <div class="card section">
       <h2><span class="n">1</span>Qué se hizo</h2>
-      <div class="f" style="margin-bottom:14px"><span class="flabel">Actividad</span><div class="pills" id="pAct">
-        ${S.listas.actividades.map(a => `<button type="button" class="pill" data-act="${esc(a.id)}" aria-pressed="${f.actividad === a.id}">${esc(a.nombre)}</button>`).join("")}
+      <div class="f" style="margin-bottom:14px"><span class="flabel">Actividad</span><div class="seg seg-act" id="pAct" role="group" aria-label="Actividad">
+        ${S.listas.actividades.map(a => `<button type="button" data-act="${esc(a.id)}" aria-pressed="${f.actividad === a.id}">${esc(a.nombre)}</button>`).join("")}
       </div></div>
       <div class="grid">
         <div class="f"><label for="iFecha">Fecha y hora en campo</label><input id="iFecha" name="fechaCampo" type="datetime-local" value="${esc(f.fechaCampo)}" required></div>
@@ -1695,7 +1725,7 @@ function pintarForm() {
     <div class="card section">
       <h2><span class="n">4</span>Detalle y archivos</h2>
       <div class="grid">
-        <div class="f full"><label for="iDesc">Descripción</label><textarea id="iDesc" name="descripcion" placeholder="Liberación de relleno filtro 2 para acondicionamiento de geomembrana" required>${esc(f.descripcion)}</textarea></div>
+        <div class="f full"><label for="iDesc">Descripción <span class="opt">(se llena sola; puedes corregirla)</span></label><textarea id="iDesc" name="descripcion" placeholder="Liberación de relleno filtro 2 para acondicionamiento de geomembrana" required>${esc(f.descripcion)}</textarea></div>
         <div class="f full"><label for="iObs">Observaciones <span class="opt">(opcional)</span></label><textarea id="iObs" name="observaciones" style="min-height:60px">${esc(f.observaciones)}</textarea></div>
         <div class="f full"><span class="flabel">Archivos del levantamiento</span>
           <div class="up">
@@ -1707,7 +1737,7 @@ function pintarForm() {
       </div>
     </div>
     <div class="actions">
-      <button type="submit" class="btn pri block" id="bGuardar">${E ? "Guardar cambios" : "Guardar liberación"}</button>
+      <button type="submit" class="btn pri block" id="bGuardar">${E ? "Guardar cambios" : btnGuardar(f.actividad)}</button>
       <button type="button" class="btn sec" id="bLimpiar">${E ? "Cancelar" : "Limpiar"}</button>
     </div>
   </form>`;
@@ -1836,7 +1866,6 @@ function agregarTipo(nombre0) {
     }
   }
 }
-function linkRow(l, k, i) { return `<div class="link"><a href="${esc(l)}" target="_blank" rel="noopener">${esc(l.replace(/^https?:\/\//, ""))}</a><button type="button" data-del="${k}" data-i="${i}" aria-label="Quitar enlace">×</button></div>`; }
 
 function leerCampos() {
   const fm = $("#fLib"); if (!fm || !S.form) return;
@@ -1858,16 +1887,20 @@ function conectarForm() {
   conectarSelectorTipo(f);
   $("#iSinPk").addEventListener("change", e => { $("#gPk").hidden = e.target.checked; });
   $("#bSig")?.addEventListener("click", () => { const u = ls.get(ULT(), {}); leerCampos(); f.pkInicio = fmtPk(u.pkFin); f.pkFin = fmtPk(u.pkFin + u.largo); if (!f.capa && u.capa) f.capa = u.capa; pintarForm(); $("#iDesc")?.focus(); });
-  $("#iCapa").addEventListener("blur", e => { const v = normCapa(e.target.value, f.subestructuraId, f.tipoId); if (v !== e.target.value.trim()) e.target.value = v; });
+  const descDesdeCampos = () => { leerCampos(); if (refrescarDesc(f)) { $("#iDesc").value = f.descripcion; guardarBorrador(); } };
+  $("#iCapa").addEventListener("blur", e => { const v = normCapa(e.target.value, f.subestructuraId, f.tipoId); if (v !== e.target.value.trim()) e.target.value = v; descDesdeCampos(); });
+  $("#iCapa").addEventListener("input", descDesdeCampos);
   $("#bVar").addEventListener("click", () => { $("#iCota").value = "Variable"; });
-  for (const id of ["iPk1", "iPk2"]) $("#" + id).addEventListener("blur", e => { const v = leerPk(e.target.value); if (v != null && !isNaN(v)) e.target.value = fmtPk(v); });
+  // Al salir del PK se avisa si no se entiende o si el final queda antes que el inicio (sin bloquear lo que se escribe)
+  const revisarPk = () => {
+    const p1 = leerPk($("#iPk1").value), p2 = leerPk($("#iPk2").value);
+    if (Number.isNaN(p1)) errCampo("pkInicio", "Escríbelo como 2+140 o 2140."); else limpiarErr("pkInicio");
+    if (Number.isNaN(p2)) errCampo("pkFin", "Escríbelo como 2+180 o 2180.");
+    else if (p1 != null && p2 != null && !isNaN(p1) && p2 < p1) errCampo("pkFin", "El PK final no puede ser menor que el inicio.");
+    else limpiarErr("pkFin");
+  };
+  for (const id of ["iPk1", "iPk2"]) $("#" + id).addEventListener("blur", e => { const v = leerPk(e.target.value); if (v != null && !isNaN(v)) e.target.value = fmtPk(v); revisarPk(); });
   fm.addEventListener("click", async e => {
-    const a = e.target.closest("[data-add]");
-    if (a) { const inp = a.previousElementSibling; const v = inp.value.trim(); if (!v) { inp.focus(); return; }
-      if (!/^https?:\/\//i.test(v)) { toast("El enlace debe empezar con https://", "bad"); inp.focus(); return; }
-      leerCampos(); f[a.dataset.add].push(v); pintarForm(); $("#" + (a.dataset.add === "linksCsv" ? "iCsv" : "iFot")).focus(); return; }
-    const d = e.target.closest("[data-del]");
-    if (d) { leerCampos(); f[d.dataset.del].splice(+d.dataset.i, 1); pintarForm(); return; }
     const da = e.target.closest("[data-delarch]");
     if (da) { leerCampos(); const a0 = f.archivos[+da.dataset.delarch]; if (a0 && !a0.nuevo && !await confirmar("Quitar archivo", `«${esc(a0.nombre || "archivo")}» se borra al guardar el registro.`, "Quitar", true)) return; const [a] = f.archivos.splice(+da.dataset.delarch, 1); if (a && !a.nuevo) f.borrarArchivos.push(a.id); pintarForm(); }
   });
@@ -1905,9 +1938,16 @@ function validar(f) {
   }
   const area = String(f.area).trim() === "" ? null : Number(String(f.area).replace(",", "."));
   if (area !== null && (isNaN(area) || area < 0)) err.area = "Solo números (m²).";
+  if (!f.descripcion.trim()) { const d = descAuto(f); if (d) { f.descripcion = d; f._descAuto = d; const t = $("#iDesc"); if (t) t.value = d; } }
   if (!f.descripcion.trim()) err.descripcion = "Describe lo que se liberó o levantó.";
   return { err, p1, p2, area };
 }
+// Error de un solo campo (mismo estilo que al guardar)
+function errCampo(name, msg) {
+  const el = $(`#fLib [name="${name}"]`); if (!el) return; const box = el.closest(".f");
+  box.classList.add("err"); let m = box.querySelector(".err-msg"); if (!m) { m = document.createElement("div"); m.className = "err-msg"; box.appendChild(m); } m.textContent = msg;
+}
+function limpiarErr(name) { const box = $(`#fLib [name="${name}"]`)?.closest(".f"); if (!box) return; box.classList.remove("err"); box.querySelector(".err-msg")?.remove(); }
 function marcarErrores(err) {
   const fm = $("#fLib");
   fm.querySelectorAll(".f.err").forEach(x => { x.classList.remove("err"); x.querySelector(".err-msg")?.remove(); });
@@ -1984,18 +2024,18 @@ function guardar() {
   const listo = () => {
     ls.set(ULT(), { actividad: f.actividad, topografoId: f.topografoId, equipo: f.actividad === "DRN" ? (ls.get(ULT(), {}).equipo || "") : f.equipo, estructuraId: f.estructuraId, subestructuraId: f.subestructuraId, elementoId: f.elementoId, tipoId: f.tipoId,
       capa: datos.capa, pkFin: datos.pkFin, largo: datos.pkFin != null ? Math.round((datos.pkFin - datos.pkInicio) * 100) / 100 : null });
-    toast(navigator.onLine ? (E ? "Cambios guardados" : "Liberación guardada") : "Guardado en el teléfono. Se subirá cuando haya señal.", navigator.onLine ? "" : "pend");
+    toast(navigator.onLine ? (E ? "Cambios guardados" : avisoGuardado(f.actividad)) : "Guardado en el teléfono. Se subirá cuando haya señal.", navigator.onLine ? "" : "pend");
     if (E) { S.editando = null; S.form = null; if (S.view === "nueva") ir(E.creadoPor === S.email ? "mis" : "todos"); return; }
     ls.set(BORR(), null);
     // La siguiente liberación toma la hora actual (no la de la anterior)
     S.form = formVacio(); if (S.view === "nueva") { pintarForm(); scrollTo({ top: 0, behavior: "smooth" }); }
     // Un segundo toque rápido no debe caer sobre el formulario nuevo
-    const nb = $("#bGuardar"); if (nb) { nb.disabled = true; nb.textContent = "Guardado ✓"; setTimeout(() => { if (nb.isConnected) { nb.disabled = false; nb.textContent = "Guardar liberación"; } }, 700); }
+    const nb = $("#bGuardar"); if (nb) { nb.disabled = true; nb.textContent = "Guardado ✓"; setTimeout(() => { if (nb.isConnected) { nb.disabled = false; nb.textContent = btnGuardar(S.form?.actividad || f.actividad); } }, 700); }
   };
   const fallo = async e => {
     console.error(e);
     const msg = "No se pudo guardar: " + (e.code === "permission-denied" ? "sin permiso para este cambio." : e.message);
-    const bgx = $("#bGuardar"); if (bgx && bgx.textContent === "Guardando…") { bgx.disabled = false; bgx.textContent = E ? "Guardar cambios" : "Guardar liberación"; }
+    const bgx = $("#bGuardar"); if (bgx && bgx.textContent === "Guardando…") { bgx.disabled = false; bgx.textContent = E ? "Guardar cambios" : btnGuardar(f.actividad); }
     // Si ya se empezó a escribir otra cosa, se pregunta antes de reemplazarla
     const actual = S.view === "nueva" && S.form && !S.editando ? (leerCampos(), S.form) : null;
     const escrito = actual && (["pkInicio", "pkFin", "cota", "capa", "area", "descripcion", "observaciones"].some(k => String(actual[k] || "").trim()) || actual.archivos.length);
@@ -2686,8 +2726,8 @@ document.addEventListener("menu-hueco", e => {
 function irNuevaCon(sub, t, capa, a, b) {
   const est = estDeSub(sub.id);
   S.editando = null; S.form = formVacio();
-  Object.assign(S.form, { actividad: "LIB", estructuraId: est.id, subestructuraId: sub.id, elementoId: t.elementoId || "", tipoId: t.id, capa: capa || "", pkInicio: fmtPk(a), pkFin: fmtPk(b), sinPk: false,
-    descripcion: `Liberación de ${t.nombre.toLowerCase()}${capa ? " " + capa.toLowerCase() : ""} ${sub.nombre}` });
+  Object.assign(S.form, { actividad: "LIB", estructuraId: est.id, subestructuraId: sub.id, elementoId: t.elementoId || "", tipoId: t.id, capa: capa || "", pkInicio: fmtPk(a), pkFin: fmtPk(b), sinPk: false, descripcion: "" });
+  S.form.descripcion = S.form._descAuto = descAuto(S.form);
   ir("nueva"); toast("Tramo cargado: revisa y guarda");
 }
 
