@@ -22,12 +22,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
+  --h-btn:44px; --h-mini:40px; --h-tag:32px;
   color-scheme:light;
   /* Cuaderno de obra (ver DESIGN.md) */
   --bg:#f4f6f5; --surface:#ffffff; --surface-2:#eaefed; --ink:#111c19; --muted:#5b6966;
   --line:#cfd9d6; --line-strong:#9fb0ab;
   --accent:#0b7d72; --accent-ink:#ffffff; --accent-soft:#dcefeb; --accent-strong:#06665d;
-  --pt:#6b7a86; --pt-bg:#e9edf0;
+  --pt:#56636e; --pt-bg:#e9edf0;
   --ep:#9a5a00; --ep-bg:#f8ecd9;
   --ec:#1f7a45; --ec-bg:#e1f0e6;
   --ob:#b8321a; --ob-bg:#f8e3de;
@@ -136,7 +137,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 .pill[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong)}
 .inrow{display:flex;gap:8px}
 .inrow input{flex:1;min-width:0}
-.mini{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;min-height:40px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.mini{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:8px;padding:0 12px;font-weight:600;font-size:13px;min-height:var(--h-mini);white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .mini:hover{background:var(--surface-2)}
 .check{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14px;padding:6px 0;cursor:pointer}
 .check input{width:20px;height:20px;accent-color:var(--accent)}
@@ -145,7 +146,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 .link a{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent-strong);font-weight:600}
 .link button{border:0;background:var(--surface);border-radius:8px;width:30px;height:30px;font-weight:700;color:var(--muted)}
 .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:6px 0 18px}
-.btn{border:1px solid transparent;border-radius:8px;padding:0 16px;font-weight:600;font-family:var(--f-body);font-size:15px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:transform .12s,background .15s,border-color .15s}
+.btn{border:1px solid transparent;border-radius:8px;padding:0 16px;font-weight:600;font-family:var(--f-body);font-size:15px;min-height:var(--h-btn);display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:transform .12s,background .15s,border-color .15s}
 .btn:active{transform:scale(.97)}
 .btn.pri{background:var(--accent);color:var(--accent-ink)}
 .btn.pri:hover{background:var(--accent-strong)}
@@ -194,7 +195,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 /* Ficha: la acción principal ocupa todo el ancho y las demás van en fila debajo */
 .sheet .actions .btn.block{flex:1 1 100%}
 .sheet .actions .btn{flex:1 1 auto}
-@media (max-width:380px){.nav .wrap{gap:0;padding-left:4px;padding-right:4px}.nav button{font-size:10.5px;padding:8px 0;letter-spacing:-.01em}}
+@media (max-width:380px){.nav .wrap{gap:0;padding-left:4px;padding-right:4px}}
 .lb{position:fixed;inset:0;z-index:70;background:rgba(12,24,21,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px;opacity:0;transition:opacity .25s}
 .lb.on{opacity:1}
 .lb img{max-width:100%;max-height:calc(100vh - 120px);border-radius:8px;box-shadow:var(--flota)}
@@ -234,7 +235,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 .ct-row input:not([type=checkbox]){min-height:36px;padding:6px 10px;font-size:14px}
 .ck{display:grid;place-items:center}
 .ck input{width:19px;height:19px;accent-color:var(--accent)}
-.vis-t{border:1px solid var(--line);background:var(--surface);border-radius:999px;font-size:12px;font-weight:700;min-height:30px;color:var(--muted)}
+.vis-t{border:1px solid var(--line);background:var(--surface);border-radius:6px;font-size:12px;font-weight:700;min-height:30px;color:var(--muted)}
 .vis-t[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong)}
 .x-btn{border:0;background:var(--surface-2);border-radius:8px;width:30px;height:30px;font-weight:700;color:var(--muted)}
 .x-btn:hover{background:var(--ob-bg);color:var(--ob)}
@@ -342,7 +343,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 .cgrp-t[aria-pressed="false"]::before{background:transparent;border-color:var(--line)}
 .cgrp-t span{color:var(--muted);font-weight:700;font-size:12px}
 .cchips{display:flex;flex-wrap:wrap;gap:5px;padding-left:22px}
-.cchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600;color:var(--muted);position:relative}
+.cchip{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:3px 10px;font-size:12.5px;font-weight:600;color:var(--muted);position:relative}
 .cchip.con::after{content:"";position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--ec)}
 .cchip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong)}
 .legend i.falta-i{background:repeating-linear-gradient(45deg,var(--falta-a) 0 3px,var(--falta-b) 3px 5px);border:1px dashed var(--falta-borde)}
@@ -362,7 +363,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 .fcap span{font-size:12px;color:var(--muted)}
 .fm{font-weight:500;color:var(--ob);font-size:14px;padding-top:1px}
 .fpills{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
-.fpill{border:1px dashed var(--falta-borde);background:var(--falta-a);color:var(--falta-txt);border-radius:999px;padding:3px 10px;font-size:12px}
+.fpill{border:1px dashed var(--falta-borde);background:var(--falta-a);color:var(--falta-txt);border-radius:6px;padding:3px 10px;font-size:12px}
 .fpill span{color:var(--ob);opacity:.75;margin-left:2px}
 .fpill:hover{background:var(--ob-bg)}
 @media (max-width:560px){.frow{grid-template-columns:1fr auto}.fpills{grid-column:1/-1}}
@@ -494,7 +495,7 @@ h1,h2,h3{text-wrap:balance}
 .wsp-per{margin:0 0 10px}.wsp-txt{min-height:220px;font-size:14px;line-height:1.45;white-space:pre-wrap}
 .search:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;margin-bottom:12px}
-.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 12px;min-height:32px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;white-space:nowrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:0 12px;min-height:var(--h-tag);display:inline-flex;align-items:center;font-size:13px;font-weight:600;white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-strong)}
 .chip .c{color:var(--muted);font-weight:600;margin-left:4px}
 .chip[aria-pressed="true"] .c{color:var(--accent-strong)}
@@ -915,6 +916,31 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
 .rf-hoja select{min-height:48px;font-size:16px}
 .rf-nota{font-size:12.5px;color:var(--muted);margin:0 0 10px}
 .ver-app{font-size:12px;color:var(--muted);white-space:nowrap}
+/* ===== Reglas para obra (DESIGN.md): en celular y tableta todo lo que se toca mide al menos 44 px; letra mínima 13 px (12 px en el menú) =====
+   Van al final y con !important solo en los mínimos de alto: muchas pantallas achican sus botones para computadora. */
+@media (max-width:1023px){
+  :is(.mini,.chip,.cchip,.pill,.fpill,.vis-t,.tabs button,.seg button,.btn-txt,.cgrp-x,.rzoom button,.me button,.qf-mas,.ctx-i,.vernueva button){min-height:44px !important}
+  :is(input:not([type=checkbox],[type=radio],[type=range],[type=hidden],[type=file]),select){min-height:44px !important}
+  :is(.x-btn,.ord button,.link button,.arch>button){width:44px !important;height:44px !important}
+  /* Los que ya eran más grandes se quedan como estaban */
+  .pills.eq .pill,.rf-hoja select{min-height:48px !important}
+  .f .tsel-q,.tsel-q{min-height:52px !important}
+  .cchip{padding:0 12px;display:inline-flex;align-items:center}
+  .fpill,.vis-t{display:inline-flex;align-items:center}
+}
+@media (max-width:759px){
+  .flabel,.f label:not([class]),.f .hint,.hint,.f .err-msg,.err-msg,.legend,.stat span,.kv dt,.sub,.st,.act,.pend-tag,.cchip,.nota-g,
+  .rtab th,.mtab th,.ftab2 th,.srow.head,.ct-row.head,.crow.head,.nrow.head,.mleg,
+  .sync,.section h2 .n,.arch .ext,.cnt,.vis-t,.cgrp-t span,.cgrp-x,.fcap span,.ftab2 .fcap span,.fpill,.qf .fpill,.mprev-n small,.mex,
+  .mtab .st,.rtab .st,.rtab .tdesc span,.ctx-head span,.ctx-head .st,.ctx-body .f label,.solapa,.solist .st,.cmdk-i .st,.cmdk-i .ct small,.cmdk-i>small,.cmdk-pie,
+  .mini,.bact .mini,.btab .bact .mini,.ed .mini,.urow .mini,.rango .mini,.rango .tog,.cap-acc .mini,.qf-res .mini,.qf-mas,.mini.eje,
+  .fchips .chip,.acc .cap-acc .chip,.prot-e .chip.sub,.qf-h .t,.qf-ej,.me .rol,.rzoom button[data-rz="0"],.avc-n span,.capn small,.capv small,.capw,
+  .acc-r,.tsel-sub,.ver-app,.tip,.check.opc small{font-size:13px}
+  .flabel,.f label:not([class]),.tsel-sub,.stat span,.kv dt,.sub,.avc-n span{text-transform:none;letter-spacing:0}
+  .nav button,.nav .badge,.acc-b{font-size:12px}
+  #chart .tick,.mlab,#chart .pk-ext,#chart .nolib-t,#mReal .rlab,.norte text{font-size:12px}
+  #chart .lab2,#chart .pct,#chart .sum,#chart .grp,#chart .lab-pl{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -2647,10 +2673,10 @@ function dibujarLista(sub, recs, bandas, totalBandas) {
   const conFalta = filas.filter(f => f.gs.length), completas = filas.length - conFalta.length;
   const vis = P.verCompletas ? filas : conFalta;
   const totalFalta = conFalta.reduce((t, f) => t + f.falta, 0);
-  const tira = f => `<svg class="tira" viewBox="0 0 1000 20" preserveAspectRatio="none" aria-hidden="true">
+  const tira = f => `<svg class="tira" viewBox="0 0 1000 20" preserveAspectRatio="none" aria-hidden="true"><defs>${PAT_OBS}</defs>
     ${f.gs.map(k => { const g = huecosT[k], xa = X(g.a), w = Math.max(10, X(g.b) - xa); return `<rect x="${(w === 10 ? xa - 4 : xa).toFixed(1)}" y="1" width="${w.toFixed(1)}" height="18" fill="${TOK.faltaA}" stroke="${TOK.faltaBorde}" stroke-width="1.3" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>`; }).join("")}
     ${f.b.na.map(x => { const a = Math.max(x0, x.pkInicio), e = Math.min(x1, x.pkFin); return e > a ? `<rect x="${X(a).toFixed(1)}" y="0" width="${(X(e) - X(a)).toFixed(1)}" height="20" fill="${TOK.nolibA}"/>` : ""; }).join("")}
-    ${f.b.rs.map(r => { const a = Math.max(x0, r.pkInicio), e = Math.min(x1, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)); if (e < x0 || a > x1) return ""; const xa = X(a), w = Math.max(6, X(e) - xa); return `<rect x="${xa.toFixed(1)}" y="0" width="${w.toFixed(1)}" height="20" fill="${COLOR[r.estado] || COLOR.PT}" stroke="#fff" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }).join("")}
+    ${f.b.rs.map(r => { const a = Math.max(x0, r.pkInicio), e = Math.min(x1, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)); if (e < x0 || a > x1) return ""; const xa = X(a), w = Math.max(6, X(e) - xa); return `<rect x="${xa.toFixed(1)}" y="0" width="${w.toFixed(1)}" height="20" fill="${relleno(r.estado)}" stroke="#fff" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }).join("")}
   </svg>`;
   const pill = k => { const g = huecosT[k]; return `<button type="button" class="fpill mono" data-falta="${k}">${esc(rangoPk(g.a, g.b))} <span>${mts(g.b - g.a)}</span></button>`; };
   box.innerHTML = `<div class="qf-res">${conFalta.length ? `<b>Falta liberar ${mts(totalFalta)}</b> en ${conFalta.length} ${conFalta.length === 1 ? "capa" : "capas"}` : "<b>Todo liberado</b> en las capas visibles"} <span class="muted">· PK ${fmtPk(x0)} a ${fmtPk(x1)}</span>${completas ? `<button type="button" class="mini" id="qfComp">${P.verCompletas ? "Ocultar" : "Ver"} ${completas} ${completas === 1 ? "completa" : "completas"}</button>` : ""}</div>
@@ -2796,7 +2822,7 @@ function pintarPanel() {
     </div>
     <div class="fchips" id="pActivos" hidden></div>
     <h2 class="chart-t" id="pTit"></h2>
-    <div class="legend"><span><i class="falta-i"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]}</span>`).join("")}</div>
+    <div class="legend"><span><i class="falta-i"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${fondoLey(k)}"></i>${ESTADOS[k]}</span>`).join("")}</div>
     <div id="chart"></div>
     <div class="pinfo" id="pInfo" hidden></div>
     <p class="nota-g" id="pNota"></p>
@@ -3050,7 +3076,11 @@ function huecos(iv, a, b) {
   for (const [s, e] of u) { if (s - c > 0.05) out.push([c, s]); c = Math.max(c, e); }
   if (b - c > 0.05) out.push([c, b]); return out;
 }
-const HATCH = `<defs><pattern id="falta" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="${TOK.faltaA}"/><line x1="0" y1="0" x2="0" y2="7" stroke="${TOK.faltaB}" stroke-width="2.2"/></pattern><pattern id="nolib" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${TOK.nolibA}"/><path d="M0 0L8 8M8 0L0 8" stroke="${TOK.nolibB}" stroke-width="1"/></pattern></defs>`;
+// «Observado» rayado (no solo color): se distingue también en gris o con daltonismo
+const PAT_OBS = `<pattern id="obs" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="${TOK.gOb}"/><line x1="0" y1="0" x2="0" y2="6" stroke="#fff" stroke-width="2"/></pattern>`;
+const relleno = e => e === "OB" ? "url(#obs)" : COLOR[e] || COLOR.PT;
+const fondoLey = e => e === "OB" ? `repeating-linear-gradient(45deg,${TOK.gOb} 0 4px,#fff 4px 6px)` : COLOR[e];
+const HATCH = `<defs>${PAT_OBS}<pattern id="falta" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="${TOK.faltaA}"/><line x1="0" y1="0" x2="0" y2="7" stroke="${TOK.faltaB}" stroke-width="2.2"/></pattern><pattern id="nolib" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${TOK.nolibA}"/><path d="M0 0L8 8M8 0L0 8" stroke="${TOK.nolibB}" stroke-width="1"/></pattern></defs>`;
 function cfgTipo(subId, tipoId) { const t = S.capasCfg[subId]?.tipos?.[tipoId]; return { capas: t?.capas || [], noAplica: t?.noAplica || [] }; }
 function corta(t, n) { return t.length > n ? t.slice(0, n - 1) + "…" : t; }
 const mts = v => (Math.round(v * 10) / 10).toLocaleString("es-PE") + " m";
@@ -3138,7 +3168,7 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
     b.rs.slice().sort((p, q) => (toDate(p.fechaCampo)?.getTime() || 0) - (toDate(q.fechaCampo)?.getTime() || 0)).forEach(r => {
       const a = Math.max(x0, r.pkInicio), e = Math.min(x1, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)); if (e < x0 || a > x1) return;
       const xa = X(a), w = Math.max(4, X(e) - xa), esHoy = toDate(r.fechaCampo)?.toDateString() === hoy;
-      out.push(`<rect class="seg${animar ? " seg-anim" : ""}" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${COLOR[r.estado] || COLOR.PT}" stroke="${esHoy ? TOK.ink : "#fff"}" stroke-width="${esHoy ? 1.8 : 1.2}" style="animation-delay:${Math.min(i * 25, 400)}ms"/>`);
+      out.push(`<rect class="seg${animar ? " seg-anim" : ""}" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${relleno(r.estado) || COLOR.PT}" stroke="${esHoy ? TOK.ink : "#fff"}" stroke-width="${esHoy ? 1.8 : 1.2}" style="animation-delay:${Math.min(i * 25, 400)}ms"/>`);
     });
     out.push(`<g class="lab-hit" data-oculta="${esc(b.key)}"><rect x="0" y="${y}" width="${gx0 - 4}" height="${bh}" fill="transparent"/><text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)} · toca para ocultar</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 16 : 34))}</text></g>`);
     out.push(`<text class="pct ${pct >= 100 ? "full" : ""}" x="${W - 2}" y="${y + bh / 2 + 4}" text-anchor="end">${b.rs.length || lib ? pct + "%" : baseLen <= 0.2 ? "N/A" : "0%"}</text>`);
@@ -3231,7 +3261,7 @@ function dibujarPlanta(est, recs) {
   }));
   recs.filter(r => r.pkInicio != null && porSub.has(r.subestructuraId)).sort((a, b) => (toDate(a.fechaCampo)?.getTime() || 0) - (toDate(b.fechaCampo)?.getTime() || 0)).forEach(r => {
     const p = porSub.get(r.subestructuraId), a = r.pkInicio, b = Math.max(r.pkFin ?? a, a + 0.5);
-    out.push(`<path class="tramo" data-id="${esc(r.id)}" d="${linea(tramoEje(p, a, b))}" fill="none" stroke="${COLOR[r.estado] || COLOR.PT}" stroke-width="${sw - 2}" stroke-linecap="butt" stroke-linejoin="round"/>`);
+    out.push(`<path class="tramo" data-id="${esc(r.id)}" d="${linea(tramoEje(p, a, b))}" fill="none" stroke="${relleno(r.estado)}" stroke-width="${sw - 2}" stroke-linecap="butt" stroke-linejoin="round"/>`);
   });
   // progresivas y nombres
   subs.forEach(({ s: sb, p }) => {
@@ -3894,7 +3924,7 @@ function dibujarPlantaReal() {
     out.push(`<path d="${dBase}" fill="url(#hFal)" fill-rule="evenodd" stroke="${TOK.faltaBorde}" stroke-width="1.6" ${ve}/>`);
   }
   // Liberaciones: dentro del borde con el color de su estado; fuera, rayadas en ámbar
-  const cuerpo = libs.map(o => `<path class="rlib" data-sid="${esc(o.x.id)}" d="${pth(o.b)}" fill="${colorSup(o.x)}" fill-opacity="${P.mSel === o.x.id ? 1 : .92}" stroke="${P.mSel === o.x.id ? TOK.ink : "#fff"}" stroke-width="${P.mSel === o.x.id ? 2.4 : 1}" ${ve}><title>${esc(o.x.codigo || o.x.nombre)} · ${fmtM2(o.x.area)}</title></path>`).join("");
+  const cuerpo = libs.map(o => `<path class="rlib" data-sid="${esc(o.x.id)}" d="${pth(o.b)}" fill="${rellenoSup(o.x)}" fill-opacity="${P.mSel === o.x.id ? 1 : .92}" stroke="${P.mSel === o.x.id ? TOK.ink : "#fff"}" stroke-width="${P.mSel === o.x.id ? 2.4 : 1}" ${ve}><title>${esc(o.x.codigo || o.x.nombre)} · ${fmtM2(o.x.area)}</title></path>`).join("");
   if (an.length) out.push(`<g clip-path="url(#cBase)">${cuerpo}</g><g mask="url(#mFue)">${libs.map(o => `<path class="rlib" data-sid="${esc(o.x.id)}" d="${pth(o.b)}" fill="url(#hFue)" stroke="${TOK.fueraBorde}" stroke-width="1" stroke-dasharray="4 3" ${ve}/>`).join("")}</g>`);
   else out.push(cuerpo);
   // Cruces entre liberaciones de la misma capa
@@ -3924,7 +3954,7 @@ function dibujarPlantaReal() {
   // Flecha del norte
   const nx = Math.sin(rot.ang), ny = -Math.cos(rot.ang) * ex, nl = Math.hypot(nx, ny) || 1;
   const vb = P.mVB || [0, 0, W, H];
-  box.innerHTML = `<svg id="mReal" viewBox="${vb.join(" ")}" width="100%" height="${H}" role="img" aria-label="Planta real de la capa"><defs>${defs.join("")}</defs>${out.join("")}</svg>
+  box.innerHTML = `<svg id="mReal" viewBox="${vb.join(" ")}" width="100%" height="${H}" role="img" aria-label="Planta real de la capa"><defs>${PAT_OBS}${defs.join("")}</defs>${out.join("")}</svg>
     <svg class="norte" viewBox="-20 -20 40 46" aria-label="Norte"><g transform="rotate(${(Math.atan2(nx / nl, -ny / nl) * 180 / Math.PI).toFixed(1)})"><path d="M0,-15 L6,6 L0,2 L-6,6Z" fill="${TOK.ink}"/></g><text x="0" y="22" text-anchor="middle">N</text></svg>
     ${ex > 1.05 ? `<span class="mex">Ancho ×${ex.toFixed(1)}</span>` : ""}`;
   box._t = { W, H, rot, X, Y, k, ex, ox, oy, x0, y0 };
@@ -3997,6 +4027,8 @@ function dibujarCapasLista() {
 /* --- Vista --- */
 const COL_DIS = [TOK.muted, "#a8875f", "#5f84ad", "#8d73ab", "#4f9187", "#b06f6f", "#7f9655", "#5a6b66", "#c08a3e", "#6e7fb8"];
 function colorSup(x) { const r = registroDe(x.codigo); return r ? COLOR[r.estado] || COLOR.PT : TOK.sinreg; }
+// Relleno de una superficie: como colorSup, pero «Observado» rayado
+function rellenoSup(x) { const r = registroDe(x.codigo); return r?.estado === "OB" ? "url(#obs)" : colorSup(x); }
 function pintarModelo() {
   const P = S.panel, lista = subsConDatos();
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
@@ -4077,7 +4109,7 @@ function dibujarModelo() {
   if (!eje) P.mModo = "real";
   const real = P.mModo === "real";
   const estados = {}; vis.forEach(x => { const r = registroDe(x.codigo); const k = r ? r.estado : "SR"; estados[k] = (estados[k] || 0) + 1; });
-  const leyEst = ["PT", "EP", "EC", "OB"].filter(k => estados[k]).map(k => `<span><i style="background:${COLOR[k]}"></i>${ESTADOS[k]} (${estados[k]})</span>`).join("") + (estados.SR ? `<span><i style="background:${TOK.sinreg}"></i>Sin registro (${estados.SR})</span>` : "");
+  const leyEst = ["PT", "EP", "EC", "OB"].filter(k => estados[k]).map(k => `<span><i style="background:${fondoLey(k)}"></i>${ESTADOS[k]} (${estados[k]})</span>`).join("") + (estados.SR ? `<span><i style="background:${TOK.sinreg}"></i>Sin registro (${estados.SR})</span>` : "");
   const seg = `<div class="seg" role="group" aria-label="Tipo de planta"><button type="button" data-modo="real" aria-pressed="${real}">Planta real</button><button type="button" data-modo="des" aria-pressed="${!real}" ${eje ? "" : 'disabled title="Necesita el XML del eje"'}>Desarrollada</button></div>`;
   let cab;
   if (real) {
@@ -4147,13 +4179,13 @@ function dibujarPlanModelo(mod, eje, vis, todas, lim) {
   vis.slice().sort((a, b) => a.pk0 - b.pk0).forEach(x => {
     const d = mapa.get(x.id), c = colorSup(x), sel = P.mSel === x.id;
     const forma = d && d.borde.length > 2 ? `<path d="M${d.borde.map(q => X(q[0]) + "," + Y(q[1])).join("L")}Z"` : `<rect x="${X(x.pk0)}" y="${Y(x.oMin)}" width="${Math.max(1.5, (x.pk1 - x.pk0) * kx).toFixed(1)}" height="${Math.max(1.5, (x.oMax - x.oMin) * ky).toFixed(1)}"`;
-    out.push(`<g class="msup" data-sid="${esc(x.id)}">${forma} fill="${c}" fill-opacity="${sel ? .95 : .72}" stroke="${sel ? TOK.ink : c}" stroke-width="${sel ? 2 : 1}" stroke-linejoin="round"/><title>${esc(x.codigo || x.nombre)} · ${esc(rangoPk(x.pk0, x.pk1))}</title></g>`);
+    out.push(`<g class="msup" data-sid="${esc(x.id)}">${forma} fill="${rellenoSup(x)}" fill-opacity="${sel ? .95 : .72}" stroke="${sel ? TOK.ink : c}" stroke-width="${sel ? 2 : 1}" stroke-linejoin="round"/><title>${esc(x.codigo || x.nombre)} · ${esc(rangoPk(x.pk0, x.pk1))}</title></g>`);
   });
   // Progresivas
   const st = paso(lim[1] - lim[0], W);
   for (let v = Math.ceil(lim[0] / st) * st; v <= lim[1] + 1e-6; v += st) { const xv = +X(v), an = xv < 30 ? "start" : xv > W - 30 ? "end" : "middle"; out.push(`<line x1="${xv}" x2="${xv}" y1="${H - padB}" y2="${H - padB + 4}" stroke="${TOK.muted}"/><text class="mlab" x="${xv}" y="${H - 8}" text-anchor="${an}">${fmtPk(v)}</text>`); }
   out.push(`<line id="mStaL" x1="0" x2="0" y1="${padT - 6}" y2="${H - padB}" stroke="var(--accent)" stroke-width="2.5" ${P.mSta == null ? 'visibility="hidden"' : ""}/>`);
-  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Planta desarrollada del modelo"><defs><pattern id="hDis" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="${TOK.pista}"/><line x1="0" y1="0" x2="0" y2="7" stroke="${TOK.line}" stroke-width="2"/></pattern></defs>${out.join("")}</svg>`;
+  box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Planta desarrollada del modelo"><defs>${PAT_OBS}<pattern id="hDis" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" fill="${TOK.pista}"/><line x1="0" y1="0" x2="0" y2="7" stroke="${TOK.line}" stroke-width="2"/></pattern></defs>${out.join("")}</svg>`;
   box._esc = { X, kx, lim, padL };
   marcarStaPlan();
   const svg = box.querySelector("svg");

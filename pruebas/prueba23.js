@@ -84,7 +84,52 @@ const CEL = { viewport: { width: 380, height: 800 }, deviceScaleFactor: 2, isMob
   ok((await p.textContent('#sheet')).includes('drive.google.com/archivo-csv'), 'T5: una ficha vieja con enlaces de Drive los sigue mostrando');
   await ctx.close();
 
-  // __GRUPO_B__
+  // ===== Grupo B · Uso en obra (administrador en celular de 380 px) =====
+  [ctx, p] = await abrir(b, ADMIN, CEL);
+  const sonda = () => p.evaluate(() => {
+    const chico = [], bajo = [];
+    for (const el of document.querySelectorAll('body *')) {
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height) continue;
+      const cs = getComputedStyle(el); if (cs.visibility === 'hidden' || el.closest('[hidden],.dlg:not(.on)')) continue;
+      const txt = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()), fz = parseFloat(cs.fontSize), menu = !!el.closest('#nav');
+      if (txt && !el.closest('svg') && fz < (menu ? 12 : 13)) chico.push(el.className + ' ' + cs.fontSize);
+      if (txt && el.closest('svg') && fz < 12) chico.push('svg ' + el.getAttribute('class') + ' ' + cs.fontSize);
+      if (el.matches('button,select,input:not([type=hidden]):not([type=checkbox]):not([type=radio]):not([type=file])') && !el.closest('svg') && r.height < 43.5) bajo.push((el.id || el.className) + ' ' + Math.round(r.height));
+    }
+    return { chico: [...new Set(chico)], bajo: [...new Set(bajo)] };
+  });
+  for (const [v, extra] of [['nueva'], ['mis'], ['bandeja'], ['todos'], ['panel'], ['panel', 'planta'], ['panel', 'modelo'], ['ajustes', 'capas'], ['ajustes', 'tipos']]) {
+    await p.click(`#nav [data-v="${v}"], .me [data-ir="${v}"]`).catch(() => {}); await p.waitForTimeout(500);
+    if (extra === 'planta' || extra === 'modelo') { await p.click(`[data-vista="${extra}"]`); await p.waitForTimeout(600); }
+    if (v === 'ajustes') { await p.click(`[data-tab="${extra}"]`); await p.waitForTimeout(500); }
+    const r = await sonda();
+    ok(!r.bajo.length, `T7: ${v}${extra ? ' · ' + extra : ''}: todo lo que se toca mide ≥ 44 px` + (r.bajo.length ? ' — ' + r.bajo.slice(0, 6).join(' | ') : ''));
+    ok(!r.chico.length, `T8: ${v}${extra ? ' · ' + extra : ''}: ningún texto bajo 13 px (12 px en el menú)` + (r.chico.length ? ' — ' + r.chico.slice(0, 6).join(' | ') : ''));
+    if (v === 'panel' && !extra) await p.screenshot({ path: path.join(OUT, 'B1-panel-celular.png') });
+  }
+  ok(await p.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--h-btn').trim() === '44px' && getComputedStyle(document.documentElement).getPropertyValue('--h-tag').trim() === '32px'), 'T7: alturas como variables (--h-btn, --h-mini, --h-tag)');
+  // T9
+  const ratio = await p.evaluate(() => {
+    const L = h => { const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+    const cs = getComputedStyle(document.documentElement), a = cs.getPropertyValue('--pt').trim(), b0 = cs.getPropertyValue('--pt-bg').trim();
+    const r = (x, y) => (Math.max(L(x), L(y)) + 0.05) / (Math.min(L(x), L(y)) + 0.05); return [r(a, b0), r(a, '#ffffff')];
+  });
+  ok(ratio[0] >= 4.5 && ratio[1] >= 4.5, `T9: «Pendiente topografía» pasa 4,5:1 (${ratio.map(x => x.toFixed(2)).join(' y ')})`);
+  // T10: «Observado» rayado en el perfil, la lista y la planta, y en la leyenda
+  await p.click('#nav [data-v="panel"]'); await p.waitForTimeout(300); await p.click('[data-vista="perfil"]'); await p.waitForTimeout(700);
+  ok(await p.$('#chart rect.seg[fill="url(#obs)"]') && await p.$('#chart pattern#obs'), 'T10: en el perfil «Observado» va rayado');
+  ok(await p.$eval('.legend', l => [...l.querySelectorAll('span')].some(s => /Observado/.test(s.textContent) && /repeating-linear-gradient/.test(s.querySelector('i').style.background))), 'T10: la leyenda muestra el rayado');
+  await p.screenshot({ path: path.join(OUT, 'B2-perfil-obs.png') });
+  await p.click('[data-vista="lista"]'); await p.waitForTimeout(600);
+  ok(await p.$('svg.tira rect[fill="url(#obs)"]') && await p.$('svg.tira pattern#obs'), 'T10: en la lista «Qué falta» también (con su propio patrón)');
+  // La planta necesita el eje del frente (no hay en esta prueba): se revisa que pinte con el mismo relleno
+  ok(/class="tramo"[^`]*stroke="\$\{relleno\(r\.estado\)\}"/.test(HTML) && /fill="\$\{rellenoSup\(/.test(HTML), 'T10: la planta y el modelo 2D usan el mismo relleno rayado');
+  // T11
+  const caps = (HTML.match(/999px/g) || []).length;
+  ok(caps === 8 && !/\.(chip|cchip|fpill|vis-t)\{[^}]*999px/.test(HTML), `T11: la cápsula queda solo para estados, globos y contadores (${caps} casos)`);
+  await ctx.close();
+
+  // __GRUPO_C__
 
   await b.close();
   ok(errores.length === 0, 'sin errores en la consola' + (errores.length ? ': ' + errores.join(' | ') : ''));
