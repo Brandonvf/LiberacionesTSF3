@@ -126,7 +126,7 @@ const cerrado = p => p.waitForSelector('.dlg', { state: 'detached', timeout: 300
       await p.click('#pFilBtn'); await p.waitForSelector('.dlg-fil.on'); await seccion(p, 'fil'); await p.click('[data-st=""]'); await p.click('.dlg-fil .dlg-x'); await cerrado(p); await p.waitForTimeout(200);
       ok(/Entregado a Calidad/.test(await p.textContent('#pActivos')), 'cerrar la hoja con ✕ descarta los cambios');
       await p.click('#pActivos [data-quitar="st"]'); await p.waitForTimeout(300);
-      ok(await p.$eval('#pActivos', e => e.hidden) && /^\s*Filtros/.test(await p.textContent('#pFilBtn')), 'la ✕ del chip quita el filtro');
+      ok(!(await p.$('#pActivos [data-quitar="st"]')) && /^\s*Filtros/.test(await p.textContent('#pFilBtn')), 'la ✕ del chip quita el filtro');
       ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'sin desplazamiento horizontal');
     }
 

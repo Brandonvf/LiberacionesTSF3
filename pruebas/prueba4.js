@@ -31,7 +31,7 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await p.click('[data-v="panel"]'); await p.waitForSelector('#chart svg'); await p.waitForTimeout(400);
   const e1 = await ext(p);
   ok(e1[0] === 'PK 0+020', 'el eje empieza en el PK del frente: ' + e1.join(' → '));
-  ok((await p.textContent('#pNota')).includes('fuera del rango del frente'), 'avisa registros fuera del rango');
+  ok(/fuera del rango/.test((await p.textContent('#pAvisos')) + (await p.textContent('#pNota'))), 'avisa registros fuera del rango');
 
   // 2. Rango visible
   await rangoPk(p, '1800', '2+200');

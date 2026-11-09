@@ -92,7 +92,7 @@ const cuenta = p => p.$$eval('#lista [data-id]', x => x.length);
   const m = p; await m.setViewportSize({ width: 390, height: 844 });
   await m.click('#nav [data-v="nueva"]'); await m.waitForSelector('#fEquipo');
   ok((await m.$$eval('#fEquipo [data-eq]', x => x.map(e => e.textContent))).join() === 'Estación total,GNSS,Dron', 'Nueva: Equipo con Estación total, GNSS y Dron');
-  ok((await m.$$eval('#pAct [data-act]', x => x.map(e => e.textContent))).includes('Levantamiento con dron'), 'aparece la actividad «Levantamiento con dron»');
+  ok((await m.$$eval('#pAct [data-act]', x => x.map(e => e.title))).includes('Levantamiento con dron'), 'aparece la actividad «Levantamiento con dron»');
   await m.click('[data-act="DRN"]'); await m.waitForTimeout(150);
   ok(/Dron/.test(await m.textContent('#fEquipo')) && !(await m.$('#fEquipo [data-eq]')), 'con dron el equipo queda en «Dron» solo');
   await m.selectOption('#iEst', 'pp'); await m.waitForTimeout(80); await m.selectOption('#iSub', 'pp-este');

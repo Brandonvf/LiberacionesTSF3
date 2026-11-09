@@ -531,6 +531,10 @@ h1,h2,h3{text-wrap:balance}
 .empty b{display:block;color:var(--ink);font-size:16px;font-weight:700;margin-bottom:4px}
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .m-otros-box{margin:16px auto 0;max-width:760px;padding:12px;border-radius:10px;background:var(--accent-soft);text-align:center}.m-otros-t{margin:0 0 8px;font-weight:600;color:var(--ink)}.m-otros{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pavisos{margin:0 0 10px;display:flex;flex-direction:column;gap:4px}.pavisos ul{margin:2px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
+.pavisos li{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pavisos .linkbtn{min-height:32px}.pavisos .btn-txt{align-self:flex-start;padding:0}
+.plist{display:flex;flex-direction:column;gap:6px;max-height:55vh;overflow:auto}
+.pult{margin:4px 0 8px;font-size:13px;color:var(--muted)}.pult .linkbtn{min-height:32px}
 .capl.resalta{box-shadow:0 0 0 3px var(--accent-soft);transition:box-shadow .3s}
 .m-inicio{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:18px auto 0;max-width:760px;text-align:left}
 .m-op{border:1px solid var(--line-strong);background:var(--surface);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:13px;line-height:1.4;cursor:pointer;text-align:left}
@@ -553,13 +557,23 @@ h1,h2,h3{text-wrap:balance}
 .rtab .ck input,.rtab th.ck input{width:18px;height:18px;accent-color:var(--accent);cursor:pointer}
 .rtab .nw,.rtab td.mono{white-space:nowrap}
 .rtab .tdesc b{display:block;font-weight:600}
-.rtab .tdesc span{display:block;color:var(--muted);font-size:12.5px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rtab .tdesc>span:not(.tmarcas){display:block;color:var(--muted);font-size:12.5px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rtab .tdesc .tn{color:var(--ob);font-weight:700;white-space:normal}
 .rtab .tdesc .tn.re{color:var(--re)}
 .rtab .st{font-size:11.5px;white-space:nowrap}
 .btab .bact{padding:0;flex-wrap:nowrap}
 .btab .bact .mini{min-height:32px;padding:0 10px;font-size:12px}
 .btab td:last-child{white-space:nowrap}
+.rtab .tq{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;white-space:nowrap}
+.rtab .tmarcas{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:4px}.rtab .tmarcas .pend-tag{margin:0}
+.rtab td.tquien{max-width:190px;overflow:hidden;text-overflow:ellipsis}
+/* La columna Liberación toma lo que sobra y recorta con «…»: así la tabla cabe sin desplazarse a los lados */
+.rtab td.tdesc{width:100%;max-width:0}.rtab td.tdesc>b{overflow-wrap:anywhere}
+.rtab td.tdesc>span:not(.tmarcas),.rtab .tq{max-width:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rtab td.tfr{max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtab th.tacc,.rtab td.tacc{width:1%;white-space:nowrap}
+.rtab td.tcod{white-space:nowrap}.rtab td.tcod>*{display:block;width:max-content}.rtab td.tcod .st,.rtab td.tcod .pend-tag{margin:5px 0 0}
+@media (max-width:1279px){.rtab td.tfr{max-width:110px}.rtab td,.rtab th{padding-left:7px;padding-right:7px}}
 
 
 /* Computadora: menú lateral claro, ficha a un costado, menú de acciones y buscador */
@@ -860,7 +874,8 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
 
 /* «Qué se liberó»: buscador único, letra grande para leer en campo */
 .tsel .flabel{margin-bottom:8px;font-size:15px;font-weight:700;text-transform:none;letter-spacing:0;color:var(--ink)}
-.seg-act{display:flex;flex-wrap:wrap;width:100%}.seg-act button{flex:1 1 auto;min-height:38px;font-size:13.5px;padding:0 12px}
+.seg-act{display:flex;flex-wrap:wrap;width:100%}.seg-act button{flex:1 1 auto;min-height:38px;font-size:13.5px;padding:0 12px;white-space:nowrap}
+::placeholder{font-style:italic}
 @media (max-width:759px){.seg-act button{flex:1 1 calc(50% - 2px);padding:4px 8px;line-height:1.2}}
 .tsel-sub{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:10px 0 6px}
 .tsel-sub:first-of-type{margin-top:0}
@@ -1235,7 +1250,7 @@ document.addEventListener("instalable", pintarInstalar);
 addEventListener("online", () => { if (S.dentro && enDirVieja()) mudarse(false); });
 addEventListener("appinstalled", () => { window.__inst = null; pintarInstalar(); });
 // Número de versión de la app (sube con cada publicación; es el mismo de la copia guardada en sw.js)
-const VERSION_APP = 18;
+const VERSION_APP = 19;
 // Versión nueva: si se acaba de abrir la app y aún no se escribió nada, se recarga sola;
 // si ya se está trabajando, se avisa y se actualiza cuando la persona quiera
 function hayAlgoEscrito() {
@@ -1585,7 +1600,7 @@ const ULT = () => "lib.ultimo." + S.email;
 const BORR = () => "lib.borrador." + S.email;
 function formVacio() {
   const u = ls.get(ULT(), {});
-  return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "", equipo: u.actividad === "DRN" ? "DRN" : u.equipo || "",
+  return { actividad: u.actividad || "LIB", fechaCampo: localInput(new Date()), topografoId: S.perfil?.topografoId || u.topografoId || "", equipo: u.actividad === "DRN" ? "DRN" : u.equipo === "DRN" ? "" : u.equipo || "",
     estructuraId: u.estructuraId || "", subestructuraId: u.subestructuraId || "", elementoId: u.elementoId || "", tipoId: u.tipoId || "",
     pkInicio: "", pkFin: "", sinPk: false, cota: "", capa: "", area: "", descripcion: "", observaciones: "", linksCsv: [], linksFotos: [], archivos: [], borrarArchivos: [] };
 }
@@ -1687,6 +1702,8 @@ function descargar(nombre, contenido, tipo) {
 function opciones(lista, sel, vacio) {
   return `<option value="">${esc(vacio)}</option>` + lista.filter(o => o.activo !== false || o.id === sel).map(o => `<option value="${esc(o.id)}" ${o.id === sel ? "selected" : ""}>${esc(o.nombre)}</option>`).join("");
 }
+// Nombres cortos para los botones de actividad (el completo va en title y aria-label)
+const ACT_CORTO = { LIB: "Liberación", LEV: "Levantamiento", DRN: "Dron", ASP: "Aspas" };
 // Nombre de la actividad para títulos y botones, con su género: «Nueva liberación», «Nuevo levantamiento», «Nuevas aspas»
 function nombreAct(a) {
   const k = { LIB: ["liberación", "f"], LEV: ["levantamiento", "m"], DRN: ["levantamiento con dron", "m"], ASP: ["aspas", "fp"] }[a];
@@ -1732,7 +1749,7 @@ function pintarForm() {
     <div class="card section">
       <h2><span class="n">1</span>Qué se hizo</h2>
       <div class="f" style="margin-bottom:14px"><span class="flabel">Actividad</span><div class="seg seg-act" id="pAct" role="group" aria-label="Actividad">
-        ${S.listas.actividades.map(a => `<button type="button" data-act="${esc(a.id)}" aria-pressed="${f.actividad === a.id}">${esc(a.nombre)}</button>`).join("")}
+        ${S.listas.actividades.map(a => `<button type="button" data-act="${esc(a.id)}" aria-pressed="${f.actividad === a.id}" title="${esc(a.nombre)}" aria-label="${esc(a.nombre)}">${esc(ACT_CORTO[a.id] || a.nombre)}</button>`).join("")}
       </div></div>
       <div class="grid">
         <div class="f"><label for="iFecha">Fecha y hora en campo</label><input id="iFecha" name="fechaCampo" type="datetime-local" value="${esc(f.fechaCampo)}" required></div>
@@ -1755,19 +1772,19 @@ function pintarForm() {
       ${(() => { const u = ls.get(ULT(), {}); return !E && !f.sinPk && !f.pkInicio && u.pkFin != null && u.largo > 0 && u.subestructuraId === f.subestructuraId && u.tipoId === f.tipoId ? `<button type="button" class="sig" id="bSig"><span>Siguiente tramo</span><b class="mono">${fmtPk(u.pkFin)} – ${fmtPk(u.pkFin + u.largo)}</b>${u.capa ? `<span>${esc(u.capa)}</span>` : ""}</button>` : ""; })()}
       <label class="check"><input type="checkbox" id="iSinPk" ${f.sinPk ? "checked" : ""}> No aplica progresiva (caseta, punto, ubicación)</label>
       <div class="grid" id="gPk" ${f.sinPk ? "hidden" : ""}>
-        <div class="f"><label for="iPk1">PK inicio</label><input id="iPk1" name="pkInicio" class="mono" inputmode="decimal" placeholder="2+140" value="${esc(f.pkInicio)}" autocomplete="off"></div>
-        <div class="f"><label for="iPk2">PK final</label><input id="iPk2" name="pkFin" class="mono" inputmode="decimal" placeholder="2+180" value="${esc(f.pkFin)}" autocomplete="off"></div>
+        <div class="f"><label for="iPk1">PK inicio</label><input id="iPk1" name="pkInicio" class="mono" inputmode="decimal" placeholder="Ej.: 2+140" value="${esc(f.pkInicio)}" autocomplete="off"></div>
+        <div class="f"><label for="iPk2">PK final</label><input id="iPk2" name="pkFin" class="mono" inputmode="decimal" placeholder="Ej.: 2+180" value="${esc(f.pkFin)}" autocomplete="off"></div>
       </div>
       <div class="grid">
-        <div class="f"><label for="iCota">Cota <span class="opt">(opcional)</span></label><div class="inrow"><input id="iCota" name="cota" inputmode="decimal" placeholder="769.63" value="${esc(f.cota)}"><button type="button" class="mini" id="bVar">Variable</button></div></div>
-        <div class="f"><label for="iCapa">Capa <span class="opt">(opcional)</span></label><input id="iCapa" name="capa" placeholder="Capa 15" value="${esc(f.capa)}" list="dlCapas" autocomplete="off"><datalist id="dlCapas">${cfgTipo(f.subestructuraId, f.tipoId).capas.map(c => `<option value="${esc(c.nombre)}">${c.cota ? "cota " + esc(c.cota) : ""}</option>`).join("")}</datalist></div>
-        <div class="f"><label for="iArea">Área m² <span class="opt">(opcional)</span></label><input id="iArea" name="area" inputmode="decimal" placeholder="811.55" value="${esc(f.area)}"></div>
+        <div class="f"><label for="iCota">Cota <span class="opt">(opcional)</span></label><div class="inrow"><input id="iCota" name="cota" inputmode="decimal" placeholder="Ej.: 769.63" value="${esc(f.cota)}"><button type="button" class="mini" id="bVar">Variable</button></div></div>
+        <div class="f"><label for="iCapa">Capa <span class="opt">(opcional)</span></label><input id="iCapa" name="capa" placeholder="Ej.: Capa 15" value="${esc(f.capa)}" list="dlCapas" autocomplete="off"><datalist id="dlCapas">${cfgTipo(f.subestructuraId, f.tipoId).capas.map(c => `<option value="${esc(c.nombre)}">${c.cota ? "cota " + esc(c.cota) : ""}</option>`).join("")}</datalist></div>
+        <div class="f"><label for="iArea">Área m² <span class="opt">(opcional)</span></label><input id="iArea" name="area" inputmode="decimal" placeholder="Ej.: 811.55" value="${esc(f.area)}"></div>
       </div>
     </div>
     <div class="card section">
       <h2><span class="n">4</span>Detalle y archivos</h2>
       <div class="grid">
-        <div class="f full"><label for="iDesc">Descripción <span class="opt">(se llena sola; puedes corregirla)</span></label><textarea id="iDesc" name="descripcion" placeholder="Liberación de relleno filtro 2 para acondicionamiento de geomembrana" required>${esc(f.descripcion)}</textarea></div>
+        <div class="f full"><label for="iDesc">Descripción <span class="opt">(se llena sola; puedes corregirla)</span></label><textarea id="iDesc" name="descripcion" placeholder="Se completa al elegir el frente y qué se liberó" required>${esc(f.descripcion)}</textarea></div>
         <div class="f full"><label for="iObs">Observaciones <span class="opt">(opcional)</span></label><textarea id="iObs" name="observaciones" style="min-height:60px">${esc(f.observaciones)}</textarea></div>
         <div class="f full"><span class="flabel">Archivos del levantamiento</span>
           <div class="up">
@@ -1922,7 +1939,14 @@ function leerCampos() {
 function conectarForm() {
   const fm = $("#fLib"); if (!fm) return;
   const f = S.form;
-  $("#pAct").addEventListener("click", e => { const b = e.target.closest("[data-act]"); if (!b) return; leerCampos(); if (f.actividad !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act; if (f.actividad === "DRN") f.equipo = "DRN"; pintarForm(); });
+  $("#pAct").addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b) return; leerCampos();
+    const antes = f.actividad; if (antes !== b.dataset.act) f.tipoId = ""; f.actividad = b.dataset.act;
+    if (f.actividad === "DRN") f.equipo = "DRN";
+    // Al salir de «Levantamiento con dron» el dron no se queda marcado solo: vuelve el último equipo que no sea dron, o ninguno
+    else if (antes === "DRN" && f.equipo === "DRN") { const u = ls.get(ULT(), {}).equipo; f.equipo = u && u !== "DRN" ? u : ""; }
+    pintarForm();
+  });
   $("#fEquipo")?.addEventListener("click", e => { const b = e.target.closest("[data-eq]"); if (!b) return; leerCampos(); f.equipo = b.dataset.eq; pintarForm(); guardarBorrador(); });
   $("#iEst").addEventListener("change", () => { leerCampos(); f.subestructuraId = ""; pintarForm(); $("#iSub")?.focus(); });
   $("#iSub").addEventListener("change", () => { leerCampos(); pintarForm(); });
@@ -2103,7 +2127,7 @@ function precargarFrente(subId) {
 function solapados(subId, tipoId, capa, a, b, propio) {
   const datos = S.panelDatos.some(r => r.subestructuraId === subId) ? S.panelDatos.filter(r => r.subestructuraId === subId) : RESF[subId] || [];
   const extra = [...S.mis, ...S.todos].filter(r => r.subestructuraId === subId && vivo(r) && !datos.some(x => x.id === r.id));
-  return [...datos, ...extra].filter(r => r.id !== propio && r.tipoId === tipoId && (r.capa || "").trim() === (capa || "") && r.actividad === "LIB" && !["RE", "X", "NA"].includes(r.estado) && r.pkInicio != null
+  return [...datos, ...extra].filter(r => r.id !== propio && r.tipoId === tipoId && capaDe(r) === (capa || "") && r.actividad === "LIB" && !["RE", "X", "NA"].includes(r.estado) && r.pkInicio != null
     && Math.min(b, r.pkFin ?? r.pkInicio) - Math.max(a, r.pkInicio) > 0.5);
 }
 
@@ -2122,7 +2146,7 @@ function textoResumen(regs) {
   const linea = r => {
     const largo = r.pkInicio != null && r.pkFin != null ? r.pkFin - r.pkInicio : 0;
     const est = r.numero ? r.numero + masCodigos(r).replace(/<[^>]+>/g, "") + (r.estado === "EC" ? " entregado" : r.estado === "OB" ? " observado" : "") : ESTADOS[r.estado] || r.estado;
-    if (r.actividad === "LIB") return `• ${[nom(L.tipo(r.tipoId)) || "Liberación", r.capa, r.pkInicio != null ? rangoPk(r.pkInicio, r.pkFin) + (largo > 0 ? ` (${mts(largo)})` : "") : "", est].filter(Boolean).join(" · ")}`;
+    if (r.actividad === "LIB") return `• ${[nom(L.tipo(r.tipoId)) || "Liberación", capaDe(r), r.pkInicio != null ? rangoPk(r.pkInicio, r.pkFin) + (largo > 0 ? ` (${mts(largo)})` : "") : "", est].filter(Boolean).join(" · ")}`;
     const d = (r.descripcion || "").replace(/\s+/g, " ").trim();
     return `• ${[nom(L.act(r.actividad), r.actividad), d.length > 70 ? d.slice(0, 68) + "…" : d, r.pkInicio != null ? rangoPk(r.pkInicio, r.pkFin) : "", r.numero ? est : ""].filter(Boolean).join(" · ")}`;
   };
@@ -2275,9 +2299,9 @@ function pintarLista(cual) {
     ? `${selRegs.some(puedeRestaurar) ? '<button type="button" class="mini ok-btn" data-rk="restaurar">Restaurar</button>' : ""}${puedeAjustes() ? '<button type="button" class="mini warn-mini" data-rk="siempre">Borrar para siempre</button>' : ""}`
     : `${esGab() && ns && selRegs.every(r => r.actividad === "LIB" && ["PT", "OB"].includes(r.estado)) ? '<button type="button" class="mini ok-btn" data-rk="aceptar">Aceptar y generar códigos</button>' : ""}${esGab() && ns && selRegs.every(r => r.estado === "EP") ? '<button type="button" class="mini ok-btn" data-rk="entregar">Entregar a Calidad</button>' : ""}<button type="button" class="mini" data-rk="exportar">Exportar CSV</button>${selRegs.some(puedeBorrar) ? '<button type="button" class="mini warn-mini" data-rk="papelera">Mandar a la papelera</button>' : ""}`}<button type="button" class="mini" data-rk="limpiar">Deseleccionar</button></div>`;
   const filaT = r => `<tr data-id="${esc(r.id)}" class="${sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-ck ${sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar ${esc(r.numero || r.descripcion || "")}"></td>
-    <td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}</td>
-    <td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || r.descripcion || "")}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}${r.estado === "RE" && r.notaRechazo ? `<span class="tn re">Rechazo: ${esc(r.notaRechazo)}</span>` : ""}</td>
-    <td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(pap ? r.borradoEn : r.fechaCampo))}</td><td>${esc(pap ? r.borradoNombre || r.borradoPor || "" : nom(L.topo(r.topografoId), r.topografoId))}</td>${tdMas(r)}</tr>`;
+    <td class="tcod"><span class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</span><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}</td>
+    <td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || r.descripcion || "")}${capaDe(r) ? " · " + esc(capaDe(r)) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}${r.estado === "RE" && r.notaRechazo ? `<span class="tn re">Rechazo: ${esc(r.notaRechazo)}</span>` : ""}${pap ? `<small class="tq">${esc(["Borrado " + fechaCorta(r.borradoEn), r.borradoNombre || r.borradoPor || ""].filter(Boolean).join(" · "))}</small>` : lineaQuien(r, r.fechaCampo)}</td>
+    ${tdFrente(r)}<td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td>${tdMas(r)}</tr>`;
   $("#view").innerHTML = `
   <h1 class="view-title">${cual === "mis" ? "Mis registros" : pap ? "Papelera" : "Registros"}</h1>
   <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado, y mandar a la papelera lo que aún no tiene código." : pap ? `Lo borrado no sale en las listas ni en el panel. ${puedeAjustes() ? "Restaura o borra para siempre." : "Puedes restaurar lo que no tiene código."}` : porFecha ? `${datos.length} ${datos.length === 1 ? "registro" : "registros"} · ${esc(textoFecha(fl))}.` : `${activos.length ? datos.length + " de los" : "Los"} últimos ${base.length} registros de todos. Para ver más antiguos filtra por fechas.${poder() ? " Busca en todo el histórico con Ctrl+K." : ""}`}</p>
@@ -2288,7 +2312,7 @@ function pintarLista(cual) {
   ${cargandoFecha ? '<p class="rf-nota">Buscando los registros de esas fechas…</p>' : porFecha && S.todosFechaLleno ? '<p class="rf-nota">Hay muchos registros en esas fechas; se muestran los 3000 más recientes. Acorta el rango para verlos todos.</p>' : ""}
   ${pap ? "" : `<div class="chips" role="group" aria-label="Filtrar por estado">${chips.map(([k, t, n]) => `<button type="button" class="chip" data-st="${k}" aria-pressed="${fl.st === k}">${esc(t)}<span class="c">${n}</span></button>`).join("")}</div>`}
   ${bulk}
-  ${!vis.length ? vacio : tabla ? `<div class="card twrap"><table class="rtab" id="lista"><thead><tr><th class="ck"><input type="checkbox" id="rAll" ${vis.slice(0, lim).every(r => sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todos"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${pap ? "Borrado" : "Fecha en campo"}</th><th>${pap ? "Por" : "Topógrafo"}</th>${thMas()}</tr></thead><tbody>${vis.slice(0, lim).map(filaT).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver sus acciones. Marca varias para trabajarlas juntas.</p>`
+  ${!vis.length ? vacio : tabla ? `<div class="card twrap"><table class="rtab" id="lista"><thead><tr><th class="ck"><input type="checkbox" id="rAll" ${vis.slice(0, lim).every(r => sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todos"></th><th>Código y estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th>${thMas()}</tr></thead><tbody>${vis.slice(0, lim).map(filaT).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver sus acciones. Marca varias para trabajarlas juntas.</p>`
     : `<div class="list" id="lista">${vis.slice(0, lim).map((r, i) => conMas(tarjeta(r, i), r)).join("")}</div>`}
   ${cual === "mis" ? `<p class="ver-app" style="text-align:center;margin:18px 0 0">Versión ${VERSION_APP}</p>` : ""}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && !pap && !porFecha && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
@@ -2327,6 +2351,12 @@ function resumenArch(r) {
   const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c;
   return a.length ? `<span>${[c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ")}</span>` : "";
 }
+// Filas de tabla compactas: fecha y topógrafo en una línea pequeña, frente en una línea con su nombre completo al pasar
+const fechaCorta = v => { const d = toDate(v); if (!d) return ""; const z = n => String(n).padStart(2, "0"); return `${z(d.getDate())}/${z(d.getMonth() + 1)} ${z(d.getHours())}:${z(d.getMinutes())}`; };
+const topoCorto = id => { const n = String(nom(L.topo(id), id) || "").trim(), p = n.split(/\s+/); return p.length > 1 ? `${p[0][0]}. ${p[1]}` : n; };
+const lineaQuien = (r, f, conTopo = true) => { const t = [fechaCorta(f), conTopo ? topoCorto(r.topografoId) : ""].filter(Boolean).join(" · "); return t ? `<small class="tq">${esc(t)}</small>` : ""; };
+const marcasFila = r => r._pend || (r.solapaCon || []).length ? `<span class="tmarcas">${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length ? '<span class="solapa">Se superpone</span>' : ""}</span>` : "";
+const tdFrente = r => { const f = nom(L.sub(r.subestructuraId)); return `<td class="tfr" title="${esc(f)}">${esc(f)}</td>`; };
 // Botón «⋯» con las mismas acciones del clic derecho o la pulsación larga (gabinete, jefe y administrador)
 const btnMas = r => poder() ? `<button type="button" class="mas" data-mas="${esc(r.id)}" aria-label="Más acciones">⋯</button>` : "";
 const tdMas = r => poder() ? `<td class="mas-td">${btnMas(r)}</td>` : "";
@@ -2372,7 +2402,7 @@ function abrirFicha(r) {
       ${fila("Tipo", esc(nom(L.tipo(r.tipoId))))}
       ${fila("Progresiva", r.pkInicio != null ? `<span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : "")}
       ${fila("Cota", esc(r.cota))}
-      ${fila("Capa", esc(r.capa))}
+      ${fila("Capa", esc(capaDe(r)))}
       ${fila("Área", r.area != null ? esc(r.area.toLocaleString("es-PE")) + " m²" : "")}
       ${fila("Fecha en campo", esc(fmtFecha(r.fechaCampo)))}
       ${fila("Topógrafo", esc(nom(L.topo(r.topografoId), r.topografoId)))}
@@ -2397,7 +2427,7 @@ function abrirFicha(r) {
       ${(esGab() || puedeAjustes()) && r.estado === "NA" && r.actividad !== "ASP" && !r.borrado ? (r.visto ? '<button type="button" class="btn sec" id="fNoVisto">Quitar «Enterado»</button>' : '<button type="button" class="btn pri block" id="fVisto">Enterado</button>') : ""}
       ${puedeAjustes() && r.actividad === "ASP" ? (r.procesado ? '<button type="button" class="btn sec" id="fDesprocesar">Devolver a por procesar</button>' : '<button type="button" class="btn pri block" id="fProcesar">Marcar procesado</button>') : ""}
       ${puedeEditar(r) && r.estado !== "RE" ? `<button type="button" class="btn ${esGab() && ["PT", "OB", "EP"].includes(r.estado) && r.actividad === "LIB" ? "sec" : "pri block"}" id="fEditar">Editar</button>` : ""}
-      ${puedeCapa(r) ? `<button type="button" class="btn sec" id="fCapa">${r.capa ? "Cambiar capa" : "Poner capa"}</button>` : ""}
+      ${puedeCapa(r) ? `<button type="button" class="btn sec" id="fCapa">${capaDe(r) ? "Cambiar capa" : "Poner capa"}</button>` : ""}
       <button type="button" class="btn sec ${puedeEditar(r) ? "" : "block"}" id="fCerrar">Cerrar</button>`}
     </div>
     ${puedeBorrar(r) ? `<button type="button" class="linkdel" id="fBorrar">Mandar a la papelera</button>` : ""}
@@ -2519,18 +2549,19 @@ function accionesReg(r) {
     return it;
   }
   if (esGab() && lib && ["PT", "OB"].includes(r.estado)) it.push({ sep: 1 }, { t: "Aceptar y generar código", fn: () => aceptarUno(r) }, ...(r.estado === "PT" ? [{ t: "Observar", fn: () => observar(r) }] : []), { t: "Rechazar", fn: () => rechazar(r) });
-  if (esGab() && r.estado === "EP") it.push({ sep: 1 }, { t: "Entregar a Calidad", fn: () => entregar([r.id]) });
+  if (esGab() && r.estado === "EP") it.push({ sep: 1 }, { t: "Entregar a Calidad", fn: () => entregar([r.id]) }, { t: "Observar", fn: () => observar(r) });
   if (esGab() && ["OB", "EP", "RE"].includes(r.estado)) it.push({ t: "Devolver a pendientes", fn: () => reabrir(r) });
+  if ((esGab() || puedeAjustes()) && r.estado === "NA" && r.actividad !== "ASP" && !r.borrado) it.push({ sep: 1 }, r.visto ? { t: "Quitar «Enterado»", fn: () => marcarVisto([r], false) } : { t: "Marcar enterado", fn: () => marcarVisto([r], true) });
   if (puedeAjustes() && r.actividad === "ASP") it.push({ sep: 1 }, r.procesado ? { t: "Devolver a por procesar", fn: () => marcarProcesado([r], false) } : { t: "Marcar procesado", fn: () => marcarProcesado([r], true) });
   if (puedeEditar(r) && r.estado !== "RE") it.push({ t: "Editar", fn: () => { S.editando = r; S.form = null; S.view = "nueva"; pintarNav(); pintarForm(); scrollTo({ top: 0 }); } });
-  if (puedeCapa(r)) it.push({ t: r.capa ? "Cambiar capa" : "Poner capa", fn: () => ponerCapa(r) });
+  if (puedeCapa(r)) it.push({ t: capaDe(r) ? "Cambiar capa" : "Poner capa", fn: () => ponerCapa(r) });
   if (puedeBorrar(r)) it.push({ sep: 1 }, { t: "Mandar a la papelera", fn: () => aPapelera([r]), peligro: true });
   return it;
 }
 async function menuRegistro(id, x, y, fila) {
   let r = regsDe([id])[0];
   if (!r) { try { const d = await getDoc(doc(db, "liberaciones", id)); if (!d.exists()) { toast("Ese registro ya no existe.", "bad"); return; } r = fila0(d); } catch (e) { toast("No se pudo leer: " + e.message, "bad"); return; } }
-  abrirMenu({ titulo: esc(r.numero || "Sin número"), sub: `<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span> ${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""} · <span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>`, items: accionesReg(r), x, y, fila });
+  abrirMenu({ titulo: esc(r.numero || "Sin número"), sub: `<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span> ${esc(nom(L.tipo(r.tipoId)))}${capaDe(r) ? " · " + esc(capaDe(r)) : ""} · <span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>`, items: accionesReg(r), x, y, fila });
 }
 const fila0 = d => fila(d);
 function objetivoMenu(t) {
@@ -2656,10 +2687,45 @@ function abrirFichaId(id) {
   getDoc(doc(db, "liberaciones", id)).then(d => { if (d.exists()) abrirFicha(fila(d)); else toast("Ese registro ya no existe.", "bad"); }).catch(e => toast("No se pudo abrir: " + e.message, "bad"));
 }
 function filaPanel(r) {
-  return `<button type="button" class="pfila" data-id="${esc(r.id)}"><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span><span class="pf-n mono">${esc(r.numero || "Sin número")}</span><span class="pf-t">${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}</span><span class="pf-k mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><span class="pf-f">${esc(fmtFecha(r.fechaCampo, false))}</span></button>`;
+  return `<button type="button" class="pfila" data-id="${esc(r.id)}"><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span><span class="pf-n mono">${esc(r.numero || "Sin número")}</span><span class="pf-t">${esc(nom(L.tipo(r.tipoId)))}${capaDe(r) ? " · " + esc(capaDe(r)) : ""}</span><span class="pf-k mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><span class="pf-f">${esc(fmtFecha(r.fechaCampo, false))}</span></button>`;
 }
 
 /* ---------- Rango visible de progresiva (compartido por el perfil y la lista) ---------- */
+// Datos del frente que hay que corregir: sin progresiva, fuera del rango del frente y de tipos que no se dibujan
+function problemasFrente(sub, recs) {
+  const conPk = recs.filter(r => r.pkInicio != null), { fr0, fr1 } = rangoPanel(sub, conPk, conPk);
+  return { fr0, fr1, sinPk: recs.filter(r => r.pkInicio == null), fuera: conPk.filter(r => (r.pkFin ?? r.pkInicio) < fr0 || r.pkInicio > fr1),
+    ocultos: conPk.filter(r => !S.listas.tipos.some(t => t.id === r.tipoId && t.enGrafico)) };
+}
+const claveProb = pr => [pr.sinPk.length, pr.fuera.length, pr.ocultos.length].join("|");
+// Administrador y jefe: recuadro con cada problema y su botón (se puede ocultar hasta que cambien los números)
+function pintarAvisos(sub, recs) {
+  const box = $("#pAvisos"); if (!box) return false;
+  const pr = problemasFrente(sub, recs), k = claveProb(pr), hay = pr.sinPk.length + pr.fuera.length + pr.ocultos.length > 0;
+  const oculto = (ls.get("lib.avisosOcultos", {}) || {})[sub.id] === k;
+  if (!puedeAjustes() || !hay || oculto) { box.innerHTML = ""; return false; }
+  const n = (x, u, v) => x === 1 ? u : v;
+  box.innerHTML = `<div class="pinfo aviso pavisos"><b>Datos para corregir en ${esc(sub.nombre)}</b><ul>
+    ${pr.sinPk.length ? `<li><span>${pr.sinPk.length} ${n(pr.sinPk.length, "registro", "registros")} sin progresiva</span><button type="button" class="linkbtn" data-prob="sinPk">Ver</button></li>` : ""}
+    ${pr.fuera.length ? `<li><span>${pr.fuera.length} fuera del rango ${esc(fmtPk(pr.fr0))} a ${esc(fmtPk(pr.fr1))}</span><button type="button" class="linkbtn" data-prob="fuera">Ver</button></li>` : ""}
+    ${pr.ocultos.length ? `<li><span>${pr.ocultos.length} de tipos que no se dibujan</span><button type="button" class="linkbtn" data-prob="tipos">Ajustes → Tipos</button></li>` : ""}
+    </ul><button type="button" class="btn-txt" data-prob="ocultar">Ocultar</button></div>`;
+  box.onclick = e => {
+    const b = e.target.closest("[data-prob]"); if (!b) return; const q = b.dataset.prob;
+    if (q === "ocultar") { const m = ls.get("lib.avisosOcultos", {}) || {}; m[sub.id] = k; ls.set("lib.avisosOcultos", m); actualizarPanel(); return; }
+    if (q === "tipos") { S.aj.tab = "tipos"; ir("ajustes"); return; }
+    const lista = q === "sinPk" ? pr.sinPk : pr.fuera;
+    const d = dialogo(q === "sinPk" ? `${lista.length} sin progresiva` : `${lista.length} fuera del rango del frente`,
+      `${q === "fuera" ? `<p class="dlg-p muted small">El frente va de ${esc(fmtPk(pr.fr0))} a ${esc(fmtPk(pr.fr1))}. Corrige el PK del registro o ajusta el rango.</p>` : '<p class="dlg-p muted small">Toca uno para abrir su ficha y corregirlo.</p>'}
+      <div class="plist">${lista.slice().sort((a, c) => (toDate(c.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0)).map(filaPanel).join("")}</div>
+      ${q === "fuera" ? '<button type="button" class="btn sec" id="dRango" style="margin-top:12px">Ajustar el rango</button>' : ""}`, () => {}, "Cerrar", { ancho: "medio", sinFoco: true, soloCerrar: true });
+    d.addEventListener("click", ev => {
+      const f = ev.target.closest(".pfila[data-id]"); if (f) { d.cerrar?.(true); abrirFichaId(f.dataset.id); return; }
+      if (ev.target.closest("#dRango")) { d.cerrar?.(true); S.aj.tab = "lugares"; ir("ajustes"); }
+    });
+  };
+  return true;
+}
 function rangoPanel(sub, conPk, visRecs) {
   const P = S.panel, vals = conPk.flatMap(r => [r.pkInicio, r.pkFin ?? r.pkInicio]);
   let fr0 = sub.pkMin, fr1 = sub.pkMax;
@@ -2715,7 +2781,7 @@ function dibujarLista(sub, recs, bandas, totalBandas) {
       <div class="qf-ej"><span>${fmtPk(x0)}</span><span>${fmtPk(x1)}</span></div>
       ${f.gs.length ? `<div class="qf-f"><span class="qf-ft">Falta ${mts(f.falta)}:</span>${f.gs.slice(0, lim).map(pill).join("")}${f.gs.length > lim ? `<button type="button" class="mini qf-mas" data-exp="${esc(f.b.key)}">+${f.gs.length - lim} más</button>` : ""}</div>` : `<div class="qf-ok">Completa en este tramo</div>`}
     </div>`; }).join("")}</div>`;
-  $("#pNota").textContent = (sinPk ? `+${sinPk} sin progresiva · ` : "") + (escribe() ? "Toca un tramo que falta para registrarlo con los datos ya llenos." : "Toca un tramo que falta para verlo en el perfil.");
+  $("#pNota").textContent = (sinPk && !$("#pAvisos")?.firstElementChild ? `+${sinPk} sin progresiva · ` : "") + (escribe() ? "Toca un tramo que falta para registrarlo con los datos ya llenos." : "Toca un tramo que falta para verlo en el perfil.");
   $("#qfComp")?.addEventListener("click", () => { P.verCompletas = !P.verCompletas; actualizarPanel(); });
   box.querySelector(".qflist").addEventListener("click", e => {
     const m = e.target.closest("[data-exp]"); if (m) { P._exp.add(m.dataset.exp); actualizarPanel(); return; }
@@ -2785,8 +2851,11 @@ function irNuevaCon(sub, t, capa, a, b) {
 }
 
 /* ---------- Capas escritas de forma pareja («capa 15», «15» → «Capa 15») ---------- */
+// «N/A», «-», «sin capa»… no son una capa: no se guardan y, en los registros que ya los tienen, se leen como sin capa
+const sinCapa = t => /^(n\/?a|-+|—|sin capa|no aplica|ninguna?)$/i.test(String(t || "").trim());
+const capaDe = r => sinCapa(r?.capa) ? "" : String(r?.capa || "").trim();
 function normCapa(t, subId, tipoId) {
-  let s = String(t || "").trim().replace(/\s+/g, " "); if (!s) return "";
+  let s = String(t || "").trim().replace(/\s+/g, " "); if (!s || sinCapa(s)) return "";
   const m = s.match(/^(?:c(?:apa)?\.?\s*(?:n[°º.]?\s*)?)?(\d+)$/i); if (m) s = "Capa " + parseInt(m[1], 10);
   const c = cfgTipo(subId, tipoId).capas.find(x => x.nombre.toLowerCase() === s.toLowerCase());
   return c ? c.nombre : s;
@@ -2850,6 +2919,7 @@ function pintarPanel() {
     <div class="fchips" id="pActivos" hidden></div>
     <h2 class="chart-t" id="pTit"></h2>
     <div class="legend"><span><i class="falta-i"></i>Falta liberar</span><span><i class="nolib"></i>No se libera</span>${["PT", "EP", "EC", "OB"].map(k => `<span><i style="background:${fondoLey(k)}"></i>${ESTADOS[k]}</span>`).join("")}</div>
+    <div id="pAvisos"></div><div id="pUlt"></div>
     <div id="chart"></div>
     <div class="pinfo" id="pInfo" hidden></div>
     <p class="nota-g" id="pNota"></p>
@@ -2882,7 +2952,7 @@ function pintarPanel() {
    Un mismo acordeón sirve en la computadora (columna izquierda, se aplica al instante) y en el celular
    (dentro de una hoja que se abre desde abajo; se aplica al tocar «Aplicar», para no redibujar con cada toque). */
 const CAMPOS_FIL = ["desde", "hasta", "st", "topo", "hoy", "pkDesde", "pkHasta", "zoom"];
-function filtrosDe() { const P = S.panel, F = { vis: { ...visCapas() } }; CAMPOS_FIL.forEach(k => { F[k] = P[k]; }); return F; }
+function filtrosDe() { const P = S.panel, F = { vis: ultimasPorDefecto() ? Object.fromEntries((P._bandas || []).map(b => [b.key, esVisible(b)])) : { ...visCapas() } }; CAMPOS_FIL.forEach(k => { F[k] = P[k]; }); return F; }
 function aplicarFiltros(F) {
   const P = S.panel; CAMPOS_FIL.forEach(k => { P[k] = F[k]; });
   P._vis = { ...F.vis }; guardarVis(); ls.set("lib.panelZoom", !!F.zoom);
@@ -3019,7 +3089,15 @@ function quitarFiltro(k) {
 const bandaKey = (tipoId, capa) => tipoId + "|" + (capa || "");
 function visCapas() { const P = S.panel; if (!P._vis || P._visSub !== P.subId) { P._vis = ls.get("lib.vis." + P.subId, {}); P._visSub = P.subId; } return P._vis; }
 function guardarVis() { ls.set("lib.vis." + S.panel.subId, S.panel._vis || {}); }
-function esVisible(b) { const v = visCapas(); return b.key in v ? v[b.key] : !b.oculta; }
+// En el celular, si la persona no eligió capas en ese frente, se ven solo las últimas 5 de cada tipo (en computadora, todas)
+const ultimasPorDefecto = () => innerWidth < 760 && !Object.keys(visCapas()).length;
+function ultimas5() {
+  const P = S.panel, bs = P._bandas || [];
+  if (P._ult?.bs === bs) return P._ult.set;
+  const v = {}; accionCapasEn(v, "ultimas"); const set = new Set(Object.keys(v).filter(k => v[k]));
+  P._ult = { bs, set }; return set;
+}
+function esVisible(b) { const v = visCapas(); if (b.key in v) return v[b.key]; if (ultimasPorDefecto()) return !b.oculta && ultimas5().has(b.key); return !b.oculta; }
 function alternarCapa(key) { const b = (S.panel._bandas || []).find(x => x.key === key); if (!b) return; visCapas()[key] = !esVisible(b); guardarVis(); actualizarPanel(); }
 function alternarGrupo(tipoId) {
   const bs = (S.panel._bandas || []).filter(b => b.t.id === tipoId); const alguno = bs.some(esVisible);
@@ -3034,12 +3112,12 @@ function construirBandas(sub, recs) {
   S.listas.tipos.filter(t => t.enGrafico).forEach(t => {
     const rs = porTipo.get(t.id) || [], cfg = cfgTipo(sub.id, t.id);
     if (!(rs.length || cfg.capas.length || cfg.noAplica.length || S.panel.todas)) return;
-    const capas = [...new Set([...cfg.capas.map(c => c.nombre.trim()), ...rs.map(r => (r.capa || "").trim())].filter(Boolean))].sort(natural);
-    const sinCapa = rs.filter(r => !(r.capa || "").trim());
+    const capas = [...new Set([...cfg.capas.map(c => c.nombre.trim()), ...rs.map(r => capaDe(r))].filter(Boolean))].sort(natural);
+    const sinCapa = rs.filter(r => !capaDe(r));
     if (sinCapa.length || !capas.length) bandas.push({ key: bandaKey(t.id, ""), t, capa: "", nombre: capas.length ? `${t.nombre} · sin capa` : t.nombre, corto: capas.length ? "Sin capa" : t.nombre, rs: sinCapa, na: capas.length ? cfg.noAplica.filter(x => !x.capa) : cfg.noAplica });
     capas.forEach(c => {
       const cc = cfg.capas.find(x => x.nombre.trim() === c);
-      bandas.push({ key: bandaKey(t.id, c), t, capa: c, oculta: !!(cc && cc.oculta), cota: cc?.cota || "", nombre: `${t.nombre} · ${c}${cc && cc.cota ? ` (cota ${cc.cota})` : ""}`, corto: c + (cc && cc.cota ? ` · ${cc.cota}` : ""), rs: rs.filter(r => (r.capa || "").trim() === c), na: cfg.noAplica.filter(x => !x.capa || x.capa === c) });
+      bandas.push({ key: bandaKey(t.id, c), t, capa: c, oculta: !!(cc && cc.oculta), cota: cc?.cota || "", nombre: `${t.nombre} · ${c}${cc && cc.cota ? ` (cota ${cc.cota})` : ""}`, corto: c + (cc && cc.cota ? ` · ${cc.cota}` : ""), rs: rs.filter(r => capaDe(r) === c), na: cfg.noAplica.filter(x => !x.capa || x.capa === c) });
     });
   });
   return bandas;
@@ -3067,20 +3145,24 @@ function actualizarPanel() {
     if (!P.tipoPl || !tipos.some(t => t.id === P.tipoPl)) P.tipoPl = (conDatos[0] || tipos[0] || {}).id || "";
     $("#pTipoPl").innerHTML = tipos.map(t => `<option value="${esc(t.id)}" ${t.id === P.tipoPl ? "selected" : ""}>${esc(t.nombre)}${recs.some(r => r.tipoId === t.id) ? "" : " (sin registros)"}</option>`).join("");
     const delTipo = recs.filter(r => r.tipoId === P.tipoPl);
-    const capas = [...new Set([...delTipo.map(r => (r.capa || "").trim()), ...(est.subs || []).flatMap(s => cfgTipo(s.id, P.tipoPl).capas.map(c => c.nombre.trim()))].filter(Boolean))].sort(natural);
+    const capas = [...new Set([...delTipo.map(r => capaDe(r)), ...(est.subs || []).flatMap(s => cfgTipo(s.id, P.tipoPl).capas.map(c => c.nombre.trim()))].filter(Boolean))].sort(natural);
     if (P.capa && !capas.includes(P.capa)) P.capa = "";
     $("#pCapaPl").innerHTML = `<option value="">Todas las capas</option>` + capas.map(c => `<option ${c === P.capa ? "selected" : ""}>${esc(c)}</option>`).join("");
     $("#pCapaPl").hidden = !capas.length;
     $("#pTit").textContent = `${est.nombre} · ${nom(L.tipo(P.tipoPl))}${P.capa ? " · " + P.capa : ""}`;
-    lst = delTipo.filter(r => !P.capa || (r.capa || "").trim() === P.capa);
+    lst = delTipo.filter(r => !P.capa || capaDe(r) === P.capa);
     dibujarPlanta(est, lst);
   } else {
     const bandas = construirBandas(sub, recs); P._bandas = bandas;
+    pintarAvisos(sub, recs);
     $("#pTit").textContent = sub.nombre;
     const visibles = bandas.filter(esVisible);
+    const ocultasUlt = ultimasPorDefecto() ? bandas.filter(b => !b.oculta && !ultimas5().has(b.key)).length : 0;
+    $("#pUlt").innerHTML = ocultasUlt ? `<p class="pult">Se ven las últimas 5 capas de cada tipo · <button type="button" class="linkbtn" id="pVerTodas">Ver todas (${bandas.filter(b => !b.oculta).length})</button></p>` : "";
+    $("#pVerTodas")?.addEventListener("click", () => accionCapas("todas"));
     if (P.vista === "lista") dibujarLista(sub, recs, visibles, bandas.length); else dibujarPerfil(sub, recs, visibles, bandas.length);
     const claves = new Set(visibles.map(b => b.key));
-    lst = recs.filter(r => r.pkInicio == null || claves.has(bandaKey(r.tipoId, (r.capa || "").trim())) || claves.has(bandaKey(r.tipoId, "")) && !(r.capa || "").trim());
+    lst = recs.filter(r => r.pkInicio == null || claves.has(bandaKey(r.tipoId, capaDe(r))) || claves.has(bandaKey(r.tipoId, "")) && !capaDe(r));
   }
   pintarChips();
   lst = lst.slice().sort((a, b) => (toDate(b.fechaCampo)?.getTime() || 0) - (toDate(a.fechaCampo)?.getTime() || 0));
@@ -3126,7 +3208,7 @@ function conectarTramos(svg, attr) {
     if (h) { const g = (S.panel._huecos || [])[+h.dataset.gap]; if (g) { tip.innerHTML = textoHueco(g); tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on"); } return; }
     const s = e.target.closest(attr); if (!s) { tip.classList.remove("on"); return; }
     const r = S.panelDatos.find(x => x.id === s.dataset.id); if (!r) return;
-    tip.innerHTML = `<b>${esc(r.numero || "Sin número")}</b> · ${esc(ESTADOS[r.estado] || r.estado)}<br>${esc(nom(L.tipo(r.tipoId)))}${r.capa ? " · " + esc(r.capa) : ""}<br><span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><br>${esc(fmtFecha(r.fechaCampo))} · ${esc(nom(L.topo(r.topografoId), r.topografoId))}`;
+    tip.innerHTML = `<b>${esc(r.numero || "Sin número")}</b> · ${esc(ESTADOS[r.estado] || r.estado)}<br>${esc(nom(L.tipo(r.tipoId)))}${capaDe(r) ? " · " + esc(capaDe(r)) : ""}<br><span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span><br>${esc(fmtFecha(r.fechaCampo))} · ${esc(nom(L.topo(r.topografoId), r.topografoId))}`;
     tip.style.left = Math.min(innerWidth - 270, e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px"; tip.classList.add("on");
   });
   svg.addEventListener("pointerleave", () => tip.classList.remove("on"));
@@ -3152,7 +3234,8 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
     box.innerHTML = `<div class="empty"><b>${S.panelCargando ? "Cargando…" : totalBandas ? "Todas las capas están ocultas" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : totalBandas ? "Elige qué capas ver en «Capas visibles»." : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
     $("#pNota").textContent = sinPk ? `+${sinPk} sin progresiva.` : ""; if (fueraInfo) fueraInfo.hidden = true; $("#pInfo").hidden = true; return;
   }
-  const OJO = 28, labW = (movil ? 112 : 230) + OJO, pctW = movil ? 40 : 54, top = 34, bh = movil ? 24 : 28, gap = 5;
+  // En el celular cada capa va en dos líneas: arriba el ojo, el nombre y el %; abajo la franja a todo lo ancho
+  const OJO = 28, LH = movil ? 22 : 0, labW = movil ? 4 : 230 + OJO, pctW = movil ? 4 : 54, top = 34, bh = movil ? 22 : 28, gap = movil ? 8 : 5;
   const gx0 = labW, gx1 = W - pctW, X = v => gx0 + (v - x0) / (x1 - x0) * (gx1 - gx0);
   const largoVis = x1 - x0;
   // filas de arriba hacia abajo (la última capa construida arriba); un encabezado por tipo con varias capas
@@ -3160,26 +3243,27 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
   bandas.slice().reverse().forEach(b => {
     const grupo = bandas.filter(x => x.t.id === b.t.id).length > 1 || !!b.capa;
     if (grupo && prevT !== b.t.id) { filasP.push({ head: true, t: b.t, y: yy }); yy += 20; }
-    filasP.push({ b, y: yy, grupo }); yy += bh + gap; prevT = b.t.id;
+    filasP.push({ b, y: yy, grupo }); yy += LH + bh + gap; prevT = b.t.id;
   });
   const fondo = yy, H = fondo + 26;
   const hoy = hoyStr(), out = [HATCH], huecosT = [];
   const animar = P._animado !== sub.id; P._animado = sub.id;
   const st = paso(largoVis, gx1 - gx0), ticks = []; for (let v = Math.ceil(x0 / st) * st; v <= x1 + 1e-6; v += st) ticks.push(v);
-  ticks.forEach(v => out.push(`<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 4}" y2="${fondo}"/><text class="tick" x="${X(v).toFixed(1)}" y="${top - 10}" text-anchor="middle">${fmtPk(v)}</text>`));
+  ticks.forEach(v => out.push(`${movil ? "" : `<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${top - 4}" y2="${fondo}"/>`}<text class="tick" x="${X(v).toFixed(1)}" y="${top - 10}" text-anchor="middle">${fmtPk(v)}</text>`));
   out.push(`<text class="pk-ext" x="${gx0}" y="${H - 6}">PK ${fmtPk(x0)}</text><text class="pk-ext" x="${gx1}" y="${H - 6}" text-anchor="end">PK ${fmtPk(x1)}</text>`);
   filasP.forEach((fp, i) => {
     if (fp.head) {
       out.push(`<rect x="0" y="${fp.y}" width="${W}" height="18" rx="6" fill="${TOK.surface2}"/><text class="grp" x="8" y="${fp.y + 13}">${esc(fp.t.nombre)}</text>`);
       return;
     }
-    const b = fp.b, y = fp.y;
+    const b = fp.b, y0 = fp.y, y = y0 + LH;
     const iv = b.rs.map(r => [r.pkInicio, Math.max(r.pkFin ?? r.pkInicio, r.pkInicio)]);
     const naIv = b.na.map(x => [x.pkInicio, x.pkFin]);
     const clip = q => [Math.max(x0, q[0]), Math.min(x1, q[1])];
     const lib = unionLen(iv.map(clip)), baseLen = Math.max(0.1, largoVis - unionLen(naIv.map(clip)));
     const pct = Math.min(100, Math.round(lib / baseLen * 100));
-    out.push(`<rect x="${gx0}" y="${y}" width="${gx1 - gx0}" height="${bh}" rx="4" fill="${TOK.pista}" stroke="${TOK.line}"/>`);
+    out.push(`<rect class="pista" x="${gx0}" y="${y}" width="${gx1 - gx0}" height="${bh}" rx="4" fill="${TOK.pista}" stroke="${TOK.line}"/>`);
+    if (movil) ticks.forEach(v => out.push(`<line class="grid" x1="${X(v).toFixed(1)}" x2="${X(v).toFixed(1)}" y1="${y}" y2="${y + bh}"/>`));
     // lo que falta: cada hueco con borde rojo punteado y ancho mínimo para que no se pierda
     huecos([...iv, ...naIv], x0, x1).forEach(([a, e]) => {
       const k = huecosT.length; huecosT.push({ a, b: e, nombre: b.nombre, key: b.key, banda: b });
@@ -3198,17 +3282,17 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
       out.push(`<rect class="seg${animar ? " seg-anim" : ""}" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${relleno(r.estado) || COLOR.PT}" stroke="${esHoy ? TOK.ink : "#fff"}" stroke-width="${esHoy ? 1.8 : 1.2}" style="animation-delay:${Math.min(i * 25, 400)}ms"/>`);
     });
     // El nombre solo se lee; para ocultar la capa está el ojo a su izquierda
-    out.push(`<g class="ojo" data-oculta="${esc(b.key)}" role="button" aria-label="Ocultar ${esc(b.nombre)}"><title>Ocultar esta capa</title><rect x="0" y="${y}" width="${OJO}" height="${bh}" fill="transparent"/><g transform="translate(4 ${y + bh / 2 - 8})"><path d="M1 8s3.2-5.5 9-5.5S19 8 19 8s-3.2 5.5-9 5.5S1 8 1 8z" fill="none" stroke-width="1.6"/><circle cx="10" cy="8" r="2.6" fill="none" stroke-width="1.6"/></g></g><text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)}</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 16 : 34))}</text>`);
-    out.push(`<text class="pct ${pct >= 100 ? "full" : ""}" x="${W - 2}" y="${y + bh / 2 + 4}" text-anchor="end">${b.rs.length || lib ? pct + "%" : baseLen <= 0.2 ? "N/A" : "0%"}</text>`);
+    out.push(`<g class="ojo" data-oculta="${esc(b.key)}" role="button" aria-label="Ocultar ${esc(b.nombre)}"><title>Ocultar esta capa</title><rect x="0" y="${movil ? y0 - 4 : y}" width="${OJO}" height="${movil ? LH + 2 : bh}" fill="transparent"/><g transform="translate(4 ${movil ? y0 + LH / 2 - 9 : y + bh / 2 - 8})"><path d="M1 8s3.2-5.5 9-5.5S19 8 19 8s-3.2 5.5-9 5.5S1 8 1 8z" fill="none" stroke-width="1.6"/><circle cx="10" cy="8" r="2.6" fill="none" stroke-width="1.6"/></g></g>${movil ? `<text class="lab2" x="${OJO + 2}" y="${y0 + LH / 2 + 3}"><title>${esc(b.nombre)}</title>${esc(corta(fp.grupo ? b.corto : b.nombre, Math.floor((W - OJO - 60) / 7.5)))}</text>` : `<text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)}</title>${esc(corta(fp.grupo ? b.corto : b.nombre, 34))}</text>`}`);
+    out.push(`<text class="pct ${pct >= 100 ? "full" : ""}" x="${W - 2}" y="${movil ? y0 + LH / 2 + 3 : y + bh / 2 + 4}" text-anchor="end">${b.rs.length || lib ? pct + "%" : baseLen <= 0.2 ? "N/A" : "0%"}</text>`);
   });
-  out.push(`<line x1="${gx0}" x2="${gx0}" y1="${top}" y2="${fondo - gap}" stroke="${TOK.ink}" stroke-width="1.8"/><line x1="${gx1}" x2="${gx1}" y1="${top}" y2="${fondo - gap}" stroke="${TOK.ink}" stroke-width="1.8"/>`);
+  if (!movil) out.push(`<line x1="${gx0}" x2="${gx0}" y1="${top}" y2="${fondo - gap}" stroke="${TOK.ink}" stroke-width="1.8"/><line x1="${gx1}" x2="${gx1}" y1="${top}" y2="${fondo - gap}" stroke="${TOK.ink}" stroke-width="1.8"/>`);
   box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Perfil de capas liberadas en ${esc(sub.nombre)}">${out.join("")}</svg>`;
   P._huecos = huecosT;
   $("#pInfo").hidden = true;
-  const notas = [];
-  if (sinPk) notas.push(`+${sinPk} sin progresiva`);
-  if (fueraFrente) notas.push(`${fueraFrente} ${fueraFrente === 1 ? "registro queda" : "registros quedan"} fuera del rango del frente (${fmtPk(fr0)} a ${fmtPk(fr1)}); ajústalo en Ajustes → Lugares si hace falta`);
-  if (ocultosTipo) notas.push(`${ocultosTipo} de tipos que no se dibujan (Ajustes → Tipos)`);
+  const notas = [], enRecuadro = !!$("#pAvisos")?.firstElementChild;
+  if (sinPk && !enRecuadro) notas.push(`+${sinPk} sin progresiva`);
+  if (fueraFrente && !enRecuadro) notas.push(`${fueraFrente} ${fueraFrente === 1 ? "registro queda" : "registros quedan"} fuera del rango del frente (${fmtPk(fr0)} a ${fmtPk(fr1)}); ajústalo en Ajustes → Lugares si hace falta`);
+  if (ocultosTipo && !enRecuadro) notas.push(`${ocultosTipo} de tipos que no se dibujan (Ajustes → Tipos)`);
   notas.push(`El % es lo liberado entre PK ${fmtPk(x0)} y ${fmtPk(x1)}, sin contar lo que no se libera. Toca el ojo junto a una capa para ocultarla y un tramo para ver su ficha.`);
   $("#pNota").textContent = notas.join(" · ");
   conectarTramos(box.querySelector("svg"), "rect.seg");
@@ -3712,7 +3796,7 @@ async function guardarModelo(file, al, eje, secs, lista, subId) {
 function prevSuperficies(nuevas, subId) {
   const res = MOD.res[subId] || {};
   const tipos = S.listas.tipos.filter(t => t.enGrafico);
-  const capasDe = new Set(); Object.values(res).forEach(a => a[3] && capasDe.add(a[3])); S.panelDatos.forEach(r => r.capa && capasDe.add(r.capa)); Object.values(S.capasCfg[subId]?.tipos || {}).forEach(t => (t.capas || []).forEach(c => capasDe.add(c.nombre)));
+  const capasDe = new Set(); Object.values(res).forEach(a => a[3] && capasDe.add(a[3])); S.panelDatos.forEach(r => capaDe(r) && capasDe.add(capaDe(r))); Object.values(S.capasCfg[subId]?.tipos || {}).forEach(t => (t.capas || []).forEach(c => capasDe.add(c.nombre)));
   const filas = nuevas.map((x, i) => {
     const [gt, gc] = (S.panel.mGrupo || "|").split("|");
     const r = registroDe(x.codigo), t = r?.tipoId || (S.panel.mGrupo ? gt : tipoSugerido(x.nombre)), c = r?.capa || (S.panel.mGrupo ? gc : ls.get("lib.modCapa", ""));
@@ -3722,7 +3806,7 @@ function prevSuperficies(nuevas, subId) {
       <div class="muted small">${x.codigo ? (r ? `${esc(x.codigo)}: registro ${esc(ESTADOS[r.estado] || r.estado)}` : `${esc(x.codigo)}: no hay registro con ese código en este frente`) : "Sin código SKT-TOP en el nombre"}</div>
       <div class="grid g3"><div class="f"><label for="pk${i}">Código</label><input id="pk${i}" name="k${i}" class="mono" value="${esc(x.codigo)}" placeholder="SKT-TOP-…"></div>
       <div class="f"><label for="pt${i}">Tipo</label><select id="pt${i}" name="t${i}"><option value="">Sin tipo</option>${tipos.map(y => `<option value="${esc(y.id)}" ${y.id === t ? "selected" : ""}>${esc(y.nombre)}</option>`).join("")}</select></div>
-      <div class="f"><label for="pc${i}">Capa <span class="opt">(opcional)</span></label><input id="pc${i}" name="c${i}" value="${esc(c)}" list="dlModCapa" autocomplete="off" placeholder="Capa 11"></div></div></div>`;
+      <div class="f"><label for="pc${i}">Capa <span class="opt">(opcional)</span></label><input id="pc${i}" name="c${i}" value="${esc(c)}" list="dlModCapa" autocomplete="off" placeholder="Ej.: Capa 11"></div></div></div>`;
   }).join("");
   dialogo(nuevas.length === 1 ? "Subir superficie de liberación" : `Subir ${nuevas.length} superficies`, `<datalist id="dlModCapa">${[...capasDe].sort(natural).map(c => `<option value="${esc(c)}">`).join("")}</datalist>${filas}`, o => {
     const lst = nuevas.map((x, i) => { const codigo = (o["k" + i] || "").toUpperCase(); return { ...x, codigo, tipoId: o["t" + i] || "", capa: normCapa(o["c" + i] || "", subId, o["t" + i] || "") }; });
@@ -3836,7 +3920,7 @@ async function subirBase(file, xml) {
   const d = dialogo("Subir base de la capa", `<p class="dlg-p">${esc(file.name)} en <b>${esc(L.sub(subId)?.nombre || "")}</b>.</p>
     <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px">
       <div class="f"><label for="dBTipo">Tipo</label><select id="dBTipo" name="tipo">${tiposG.map(t => `<option value="${esc(t.id)}" ${t.id === tipoIni ? "selected" : ""}>${esc(t.nombre)}</option>`).join("")}</select></div>
-      <div class="f"><label for="dBCapa">Capa</label><input id="dBCapa" name="capa" placeholder="Capa 15" value="${esc(c0 || "")}" list="dlBCapa" autocomplete="off" maxlength="40" required><datalist id="dlBCapa"></datalist></div>
+      <div class="f"><label for="dBCapa">Capa</label><input id="dBCapa" name="capa" placeholder="Ej.: Capa 15" value="${esc(c0 || "")}" list="dlBCapa" autocomplete="off" maxlength="40" required><datalist id="dlBCapa"></datalist></div>
     </div>
     <dl class="kv" style="margin:0 0 8px"><dt>Área (100 %)</dt><dd class="mono">${Math.round(area).toLocaleString("es-PE")} m²</dd><dt>Borde</dt><dd>${an[0].length} vértices${an.length > 1 ? ` · ${an.length - 1} ${an.length === 2 ? "hueco" : "huecos"}` : ""}</dd></dl>
     ${lejos ? `<p class="dlg-p aviso">Está a más de 300 m del eje del frente: revisa que sea el frente correcto.</p>` : ""}
@@ -4323,7 +4407,7 @@ const ICON_X = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stro
 function dialogo(titulo, html, onOk, okTxt = "Aceptar", op = {}) {
   const d = document.createElement("div"); d.className = "dlg";
   const tam = op.ancho === true ? "ancho" : op.ancho || "medio", tid = "dT" + Math.random().toString(36).slice(2, 8);
-  d.innerHTML = `<form class="dlg-box ${tam}" role="dialog" aria-modal="true" aria-labelledby="${tid}" novalidate><span class="dlg-grip" aria-hidden="true"></span><div class="dlg-h"><h3 id="${tid}">${esc(titulo)}</h3><button type="button" class="dlg-x" data-x aria-label="Cerrar">${ICON_X}</button></div><div class="dlg-c">${html}</div><div class="dlg-a"><button type="button" class="btn sec" data-x>${esc(op.cancelar || "Cancelar")}</button><button type="submit" class="btn ${op.peligro ? "warn lleno" : "pri"}">${esc(okTxt)}</button></div></form>`;
+  d.innerHTML = `<form class="dlg-box ${tam}" role="dialog" aria-modal="true" aria-labelledby="${tid}" novalidate><span class="dlg-grip" aria-hidden="true"></span><div class="dlg-h"><h3 id="${tid}">${esc(titulo)}</h3><button type="button" class="dlg-x" data-x aria-label="Cerrar">${ICON_X}</button></div><div class="dlg-c">${html}</div><div class="dlg-a">${op.soloCerrar ? "" : `<button type="button" class="btn sec" data-x>${esc(op.cancelar || "Cancelar")}</button>`}<button type="submit" class="btn ${op.peligro ? "warn lleno" : "pri"}">${esc(okTxt)}</button></div></form>`;
   document.body.appendChild(d); requestAnimationFrame(() => d.classList.add("on"));
   let hecho = false;
   const tecla = e => { if (e.key === "Escape" && esCapaTope(capa)) { e.preventDefault(); e.stopPropagation(); cerrar(false); } };
@@ -4377,7 +4461,7 @@ function cambiarEstado(ids, datos, a, nota) {
 }
 // Gabinete pone o corrige la capa al aceptar (en campo es opcional) y ve al instante si el tramo se cruza con otra liberación de esa capa
 const capasSug = regs => { const m = new Map(); regs.forEach(r => cfgTipo(r.subestructuraId, r.tipoId).capas.forEach(c => { if (!m.has(c.nombre)) m.set(c.nombre, c.cota); })); return [...m].map(([n, c]) => `<option value="${esc(n)}">${c ? "cota " + esc(c) : ""}</option>`).join(""); };
-const campoCapa = (regs, valor, lote) => `<div class="f" style="margin-top:10px"><label for="dCapa">Capa <span class="opt">(${lote ? "opcional · vacío deja la de cada una" : "opcional"})</span></label><input id="dCapa" name="capa" placeholder="Capa 15" value="${esc(valor)}" list="dlCapaAc" autocomplete="off" maxlength="40"><datalist id="dlCapaAc">${capasSug(regs)}</datalist></div><div id="dSolape" aria-live="polite"></div>`;
+const campoCapa = (regs, valor, lote) => `<div class="f" style="margin-top:10px"><label for="dCapa">Capa <span class="opt">(${lote ? "opcional · vacío deja la de cada una" : "opcional"})</span></label><input id="dCapa" name="capa" placeholder="Ej.: Capa 15" value="${esc(valor)}" list="dlCapaAc" autocomplete="off" maxlength="40"><datalist id="dlCapaAc">${capasSug(regs)}</datalist></div><div id="dSolape" aria-live="polite"></div>`;
 // Cruces de un grupo de registros con lo ya liberado y entre ellos mismos, con la capa que tendrían
 function crucesLote(regs, capaDe) {
   const ids = new Set(regs.map(r => r.id)), out = [];
@@ -4398,7 +4482,7 @@ function avisoCruces(cr, lote) {
 function vigilarCruces(d, regs, lote, txtOk) {
   const inp = d.querySelector("#dCapa"), box = d.querySelector("#dSolape"), sub = d.querySelector("[type=submit]");
   const revisar = () => {
-    const v = inp.value.trim(), capaDe = r => v ? normCapa(v, r.subestructuraId, r.tipoId) : (r.capa || "").trim();
+    const v = inp.value.trim(), capaDe = r => v ? normCapa(v, r.subestructuraId, r.tipoId) : (sinCapa(r.capa) ? "" : String(r.capa || "").trim());
     const cr = crucesLote(regs, capaDe);
     box.innerHTML = avisoCruces(cr, lote); sub.textContent = cr.length ? txtOk + " igual" : txtOk;
   };
@@ -4413,7 +4497,7 @@ function aceptarUno(r) {
   if (r.actividad === "DRN") return aceptarDron(r);
   const d = dialogo("Aceptar y generar código", `<p class="muted small" style="margin:0 0 10px">Se asigna el siguiente ${esc((S.config || {}).prefijo || "SKT-TOP-")}… libre. El nombre es el que va en el protocolo.</p>
     <div class="f"><label for="dNom">Nombre de la liberación</label><textarea id="dNom" name="nombre" style="min-height:70px">${esc(r.nombreLiberacion || r.descripcion || "")}</textarea></div>
-    ${campoCapa([r], r.capa || "", false)}`,
+    ${campoCapa([r], capaDe(r), false)}`,
     async o => { const capa = normCapa(o.capa, r.subestructuraId, r.tipoId); const n = await generarCodigo(r, o.nombre, capa); if (n) { toast(`Código ${n} generado`); if (!$("#sheet").hidden) cerrarFicha(); } }, "Generar código");
   vigilarCruces(d, [r], false, "Generar código");
 }
@@ -4436,7 +4520,7 @@ async function aceptarVarios(ids) {
 const puedeCapa = r => esGab() && !esAdmin() && r.actividad === "LIB" && !r.borrado && !["RE", "X"].includes(r.estado) && !puedeEditar(r);
 function ponerCapa(r) {
   if (!navigator.onLine) { toast("Se necesita señal para cambiar la capa.", "bad"); return; }
-  const d = dialogo(r.capa ? "Cambiar capa" : "Poner capa", `<p class="muted small" style="margin:0">${esc(r.numero || "Sin número")} · ${esc(nom(L.tipo(r.tipoId)))} · <span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span> · ${esc(nom(L.sub(r.subestructuraId)))}</p>${campoCapa([r], r.capa || "", false)}`,
+  const d = dialogo(capaDe(r) ? "Cambiar capa" : "Poner capa", `<p class="muted small" style="margin:0">${esc(r.numero || "Sin número")} · ${esc(nom(L.tipo(r.tipoId)))} · <span class="mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</span> · ${esc(nom(L.sub(r.subestructuraId)))}</p>${campoCapa([r], capaDe(r), false)}`,
     o => {
       const capa = normCapa(o.capa, r.subestructuraId, r.tipoId); if (capa === (r.capa || "")) return;
       const sol = r.pkInicio != null ? solapados(r.subestructuraId, r.tipoId, capa, r.pkInicio, r.pkFin ?? r.pkInicio, r.id).map(x => x.id) : [];
@@ -4630,8 +4714,8 @@ async function marcarProcesado(regs0, si = true) {
 }
 // Listas de seguimiento de la bandeja: aspas (se procesan) y levantamientos (gabinete y jefe se dan por enterados)
 const SEG = {
-  ASP: { kOk: "procesar", kDes: "desprocesar", campo: "procesado", chip: "asp", por: "Por procesar", hechas: "Procesadas", hechoPor: "Procesado", ok: "Marcar procesado", oks: "Marcar procesados", des: "Devolver a por procesar", lead: "Levantamientos de aspas para vuelo de dron. Descarga el CSV y las fotos desde la ficha y márcalos como procesados.", vacioPor: "No hay aspas por procesar", vacioHechas: "Aún no hay aspas procesadas", vacioTxt: "Los levantamientos de aspas para vuelo de dron que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha y descargar el CSV y las fotos.", fuente: () => S.bandeja.aspas, marcar: (r, si) => marcarProcesado(r, si) },
-  LEV: { kOk: "enterado", kDes: "quitar", campo: "visto", chip: "lev", por: "Por ver", hechas: "Enterados", hechoPor: "Enterado", ok: "Enterado", oks: "Marcar enterados", des: "Quitar enterado", lead: "Levantamientos topográficos de campo (sin código). Revísalos y marca «Enterado»; quien lo registró ve que ya llegó.", vacioPor: "No hay levantamientos por ver", vacioHechas: "Aún no hay levantamientos marcados como enterados", vacioTxt: "Los levantamientos que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha con sus archivos.", fuente: () => S.bandeja.levs, marcar: (r, si) => marcarVisto(r, si) }
+  ASP: { kOk: "procesar", kDes: "desprocesar", okCorto: "Procesado", okLargo: "Marcar procesado", desCorto: "Devolver", campo: "procesado", chip: "asp", por: "Por procesar", hechas: "Procesadas", hechoPor: "Procesado", ok: "Marcar procesado", oks: "Marcar procesados", des: "Devolver a por procesar", lead: "Levantamientos de aspas para vuelo de dron. Descarga el CSV y las fotos desde la ficha y márcalos como procesados.", vacioPor: "No hay aspas por procesar", vacioHechas: "Aún no hay aspas procesadas", vacioTxt: "Los levantamientos de aspas para vuelo de dron que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha y descargar el CSV y las fotos.", fuente: () => S.bandeja.aspas, marcar: (r, si) => marcarProcesado(r, si) },
+  LEV: { kOk: "enterado", kDes: "quitar", okCorto: "Enterado", okLargo: "Marcar enterado", desCorto: "Quitar", campo: "visto", chip: "lev", por: "Por ver", hechas: "Enterados", hechoPor: "Enterado", ok: "Enterado", oks: "Marcar enterados", des: "Quitar enterado", lead: "Levantamientos topográficos de campo (sin código). Revísalos y marca «Enterado»; quien lo registró ve que ya llegó.", vacioPor: "No hay levantamientos por ver", vacioHechas: "Aún no hay levantamientos marcados como enterados", vacioTxt: "Los levantamientos que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha con sus archivos.", fuente: () => S.bandeja.levs, marcar: (r, si) => marcarVisto(r, si) }
 };
 const porHacer = k => SEG[k].fuente().filter(r => !r[SEG[k].campo]);
 // Pestañas de la bandeja según el rol: gabinete (aceptar, observadas, entregar, levantamientos), jefe (aspas, levantamientos), administrador (todas)
@@ -4653,9 +4737,9 @@ function pintarSeguimiento(k) {
   const ns = B.sel.size, lim = B.ver || 60, nPor = porHacer(k).length, nHechas = todos.length - nPor;
   const quien = r => esc(r[C.campo + "Nombre"] || r[C.campo + "Por"] || "");
   const arch = r => { const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c; return [c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ") || '<span class="muted">Sin archivos</span>'; };
-  const acc = r => por ? `<button type="button" class="mini ok-btn" data-a="${C.kOk}">${C.ok}</button>` : `<button type="button" class="mini" data-a="${C.kDes}">${C.des}</button>`;
+  const acc = r => por ? `<button type="button" class="mini ok-btn" data-a="${C.kOk}" title="${C.okLargo}" aria-label="${C.okLargo}">${C.okCorto}</button>` : `<button type="button" class="mini" data-a="${C.kDes}" title="${C.des}" aria-label="${C.des}">${C.desCorto}</button>`;
   const lista = !vis.length ? `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : por ? C.vacioPor : C.vacioHechas}</b>${fuente.length || !por ? "" : C.vacioTxt}</div>`
-    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Fecha en campo</th><th>Topógrafo</th><th>Archivos</th><th>${por ? "Registrado por" : C.hechoPor}</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r._pend ? '<span class="pend-tag" style="margin:2px 0 0;align-self:flex-start">Por subir</span>' : ""}${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}${r.pkInicio != null ? `<br><span class="mono small">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}</td><td class="nw">${esc(fmtFecha(r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td class="nw">${arch(r)}</td><td>${por ? esc(r.creadoPor || "") : `${quien(r)}<br><span class="muted small">${esc(fmtFecha(r[C.campo + "En"]))}</span>`}</td><td><div class="bact">${acc(r)}${btnMas(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">${C.nota}</p>`
+    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Archivos</th><th>${por ? "Registrado por" : C.hechoPor}</th><th class="tacc">Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}${marcasFila(r)}${r.pkInicio != null ? `<small class="tq mono">${esc(rangoPk(r.pkInicio, r.pkFin))}</small>` : ""}${lineaQuien(r, r.fechaCampo)}</td>${tdFrente(r)}<td class="nw">${arch(r)}</td><td class="tquien">${por ? esc(r.creadoPor || "") : `${quien(r)}<small class="tq">${esc(fechaCorta(r[C.campo + "En"]))}</small>`}</td><td class="tacc"><div class="bact">${acc(r)}${btnMas(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">${C.nota} Usa ⋯ o el clic derecho para ver todas las acciones.</p>`
     : `<div class="list" id="blist">${vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${conMas(tarjeta(r, i), r)}${por ? "" : `<div class="muted small" style="padding:4px 2px 0">${C.hechoPor} por ${quien(r)} · ${esc(fmtFecha(r[C.campo + "En"]))}</div>`}<div class="bact">${acc(r)}</div></div></div>`).join("")}</div>`;
   return { vis, fuente, lim, html: `
   <div class="chips" role="group" aria-label="${k === "ASP" ? "Aspas" : "Levantamientos"}"><button type="button" class="chip" data-${C.chip}="por" aria-pressed="${por}">${C.por}<span class="c">${nPor}</span></button><button type="button" class="chip" data-${C.chip}="hechas" aria-pressed="${!por}">${C.hechas}<span class="c">${nHechas}</span></button></div>
@@ -4690,7 +4774,7 @@ function pintarBandeja() {
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
     ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini warn-mini" data-bk="papelera">Mandar a la papelera</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
   ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
-  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}${btnMas(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${conMas(tarjeta(r, i), r)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
+  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th>${t === "EP" ? "<th>Código</th>" : ""}<th>Liberación</th><th>Frente</th><th>Progresiva</th><th class="tacc">Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td>${t === "EP" ? `<td class="mono nw">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td>` : ""}<td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${capaDe(r) ? " · " + esc(capaDe(r)) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}${marcasFila(r)}${lineaQuien(r, t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo)}</td>${tdFrente(r)}<td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="tacc"><div class="bact">${t === "EP" ? '<button type="button" class="mini ok-btn" data-a="entregar" title="Entregar a Calidad" aria-label="Entregar a Calidad">Entregar</button>' : '<button type="button" class="mini ok-btn" data-a="aceptar" title="Aceptar y generar código" aria-label="Aceptar y generar código">Aceptar</button>'}${btnMas(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Usa ⋯ o el clic derecho para ver todas las acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${conMas(tarjeta(r, i), r)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}
   ${t === "EP" && !B.epHistOk ? `<button class="btn sec more" id="bHist" type="button">Cargar también las del histórico sin entregar</button>` : ""}`;
   $("#bHist")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Cargando…";
@@ -4787,7 +4871,7 @@ function ajExportar() {
         nombre = `registros_${desde}_${hasta}.csv`;
       } else {
         const g = new Map();
-        const k = (f, r) => `${f}|${r.subestructuraId}|${r.tipoId}|${(r.capa || "").trim()}`;
+        const k = (f, r) => `${f}|${r.subestructuraId}|${r.tipoId}|${capaDe(r)}`;
         const get = (f, r) => { const key = k(f, r); if (!g.has(key)) g.set(key, { f, r, reg: 0, m: 0, gen: 0, ent: 0, pend: 0, rech: 0 }); return g.get(key); };
         regs.filter(r => r.actividad === "LIB").forEach(r => {
           const fc = fISO(r.fechaCampo); if (fc && r.estado === "RE") { get(fc, r).rech++; return; }
@@ -5001,8 +5085,8 @@ function ajCapas() {
       <button type="button" class="mini" data-bulk="limpiar">Deseleccionar</button>
     </div>
     <div class="cota-serie" id="cSerie" hidden>
-      <span class="small">Cota de la primera</span><input id="cS0" inputmode="decimal" placeholder="758.00" aria-label="Cota inicial">
-      <span class="small">sube</span><input id="cSd" inputmode="decimal" placeholder="0.30" aria-label="Espesor por capa"><span class="small">m por capa</span>
+      <span class="small">Cota de la primera</span><input id="cS0" inputmode="decimal" placeholder="Ej.: 758.00" aria-label="Cota inicial">
+      <span class="small">sube</span><input id="cSd" inputmode="decimal" placeholder="Ej.: 0.30" aria-label="Espesor por capa"><span class="small">m por capa</span>
       <button type="button" class="mini ok-btn" id="cSOk">Aplicar a ${nSel || "todas"}</button>
     </div>
     ${cfg.capas.length ? `<div class="ctab">
@@ -5125,7 +5209,7 @@ function ajCapas() {
       btn.disabled = true; btn.textContent = "Buscando…";
       try {
         const snap = await getDocs(query(collection(db, "liberaciones"), where("subestructuraId", "==", A.capSub)));
-        const enReg = [...new Set(snap.docs.map(d => d.data()).filter(r => r.tipoId === A.capTipo && r.estado !== "X").map(r => (r.capa || "").trim()).filter(Boolean))];
+        const enReg = [...new Set(snap.docs.map(d => d.data()).filter(r => r.tipoId === A.capTipo && r.estado !== "X").map(r => capaDe(r)).filter(Boolean))];
         const cotas = {}; snap.docs.forEach(d => { const r = d.data(); if (r.tipoId === A.capTipo && r.capa && r.cota && !cotas[r.capa.trim()]) cotas[r.capa.trim()] = r.cota; });
         const nuevas = enReg.filter(n => !cfg.capas.some(c => c.nombre === n));
         nuevas.forEach(n => cfg.capas.push({ nombre: n, cota: cotas[n] || "" }));

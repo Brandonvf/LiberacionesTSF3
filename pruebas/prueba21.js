@@ -105,7 +105,9 @@ const base = (u) => ({ actividad: 'LIB', estado: 'PT', numero: '', creadoPor: OP
 
   // Gabinete no edita lo de campo: solo capa, observar o rechazar
   await p.click('[data-bt="EP"]'); await p.waitForTimeout(300);
-  ok(!(await p.$('#blist [data-a="editar"]')) && await p.$('#blist tr[data-rid="l1"] [data-a="capa"]'), 'en la bandeja gabinete ya no tiene «Editar»: tiene «Cambiar capa»');
+  await p.click('#blist tr[data-rid="l1"] [data-mas]'); await p.waitForSelector('#ctx .ctx-i');
+  { const it = await p.$$eval('#ctx .ctx-i', x => x.map(b => b.textContent.trim())); ok(!it.includes('Editar') && it.includes('Cambiar capa'), 'en la bandeja gabinete ya no tiene «Editar»: tiene «Cambiar capa» (en «⋯»)'); }
+  await p.keyboard.press('Escape'); await p.waitForTimeout(250);
   await p.click('#blist tr[data-rid="l1"] td.tdesc'); await p.waitForSelector('#sheet.on');
   ok(!(await p.$('#fEditar')) && await p.$('#fCapa'), 'en la ficha tampoco: solo «Cambiar capa»');
   await p.click('#fCapa'); await p.waitForSelector('.dlg.on #dCapa');

@@ -110,7 +110,7 @@ async function entrarComo(p, u) { await p.click('#btnSalir'); await p.waitForSel
   await p.waitForSelector('.btab tr[data-rid="n1"]');
   ok(true, 'bandeja en tabla con acciones por fila');
   await p.screenshot({ path: OUT + '/05-bandeja-pc.png' });
-  await p.click('.btab tr[data-rid="n1"] [data-a="rechazar"]'); await p.waitForSelector('.dlg #dRech');
+  await p.click('.btab tr[data-rid="n1"] [data-mas]'); await p.waitForSelector('#ctx .ctx-i'); await p.click('#ctx .ctx-i:has-text("Rechazar")'); await p.waitForSelector('.dlg #dRech');
   await p.click('.dlg [type=submit]'); await p.waitForTimeout(200);
   ok(await p.$('.dlg #dRech'), 'sin motivo no deja rechazar');
   await p.fill('.dlg #dRech', 'Tramo duplicado con SKT-TOP-02684'); await p.click('.dlg [type=submit]'); await p.waitForTimeout(400);
