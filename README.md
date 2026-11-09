@@ -42,7 +42,7 @@ Gabinete no edita lo que registra campo: acepta (y genera el código), observa, 
 
 ## Levantamientos en la Bandeja
 
-Los levantamientos de campo (sin código) llegan a la pestaña «Levantamientos» de gabinete, jefe de área y administrador. Se marcan «Enterado» (uno o varios); quien lo registró ve «Visto» en Mis registros. Se muestran como «Levantamiento» (antes «Sin liberación»).
+Los levantamientos de campo (sin código) llegan a la pestaña «Levantamientos» de gabinete, jefe de área y administrador. Se marcan «Enterado» (uno o varios); quien lo registró ve «Enterado» en Mis registros. Se muestran como «Levantamiento» (antes «Sin liberación»).
 
 ## Resumen para WhatsApp
 

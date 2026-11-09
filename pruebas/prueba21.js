@@ -95,7 +95,7 @@ const base = (u) => ({ actividad: 'LIB', estado: 'PT', numero: '', creadoPor: OP
   ok(v1.visto === true && v1.vistoNombre === 'Gabinete Prueba' && v1.vistoEn && v1.estado === 'NA', 'al tocar «Enterado» queda quién y cuándo lo vio (sigue sin código)');
   ok(/Por ver\s*1/.test(await p.textContent('[data-lev="por"]')) && await badge(p) === '1', 'baja a 1 por ver');
   await p.click('[data-lev="hechas"]'); await p.waitForTimeout(200);
-  ok((await p.textContent('#blist')).includes('Gabinete Prueba'), 'en «Vistos» se ve quién lo vio');
+  ok((await p.textContent('#blist')).includes('Gabinete Prueba'), 'en «Enterados» se ve quién lo vio');
   // Desde la ficha
   await p.click('[data-lev="por"]'); await p.waitForTimeout(200);
   await p.click('#blist tr[data-rid="v2"] td.tdesc'); await p.waitForSelector('#sheet.on #fVisto');
@@ -152,7 +152,7 @@ const base = (u) => ({ actividad: 'LIB', estado: 'PT', numero: '', creadoPor: OP
   await m.goto(URL); await m.evaluate(([s, u]) => { localStorage.setItem('__fakeDB', s); localStorage.setItem('__fakeUser', JSON.stringify(u)); }, [await p.evaluate(() => localStorage.getItem('__fakeDB')), OPE]);
   await m.reload(); await m.waitForSelector('#nav button'); await m.click('#nav [data-v="mis"]'); await m.waitForSelector('#rWsp');
   const t1 = await m.textContent('#lista .item[data-id="v1"]');
-  ok(t1.includes('Levantamiento') && t1.includes('Visto') && !t1.includes('Sin liberación'), 'en Mis registros el levantamiento dice «Levantamiento» y «Visto»');
+  ok(t1.includes('Levantamiento') && t1.includes('Enterado') && !t1.includes('Sin liberación'), 'en Mis registros el levantamiento dice «Levantamiento» y «Enterado»');
   await m.click('#rWsp'); await m.waitForSelector('.dlg.on #dWsp');
   const txt = await m.inputValue('#dWsp');
   ok(txt.startsWith('*Liberaciones TSF3*') && txt.includes('Pedro Operario'), 'el resumen empieza con el título y el nombre');

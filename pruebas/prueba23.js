@@ -129,7 +129,57 @@ const CEL = { viewport: { width: 380, height: 800 }, deviceScaleFactor: 2, isMob
   ok(caps === 8 && !/\.(chip|cchip|fpill|vis-t)\{[^}]*999px/.test(HTML), `T11: la cápsula queda solo para estados, globos y contadores (${caps} casos)`);
   await ctx.close();
 
-  // __GRUPO_C__
+  // ===== Grupo C · Acciones visibles, menú y palabras =====
+  // T12: ojo para ocultar capas (computadora)
+  [ctx, p] = await abrir(b, ADMIN, { viewport: { width: 1366, height: 860 } });
+  await p.click('#nav [data-v="panel"]'); await p.waitForTimeout(300); await p.click('[data-vista="perfil"]'); await p.waitForSelector('#chart .ojo');
+  const n0 = await p.$$eval('#chart .ojo', l => l.length);
+  await p.$eval('#chart text.lab2', t => t.dispatchEvent(new MouseEvent('click', { bubbles: true }))); await p.waitForTimeout(250);
+  ok(await p.$$eval('#chart .ojo', l => l.length) === n0 && !(await p.$('#chart .lab-hit')), 'T12: tocar el nombre de una capa no hace nada');
+  ok(await p.$eval('#chart .ojo title', t => t.textContent) === 'Ocultar esta capa' && await p.$eval('#chart .ojo rect', r => +r.getAttribute('width') === 28), 'T12: el ojo tiene su zona de 28 px y dice «Ocultar esta capa»');
+  ok((await p.textContent('#pNota')).includes('Toca el ojo junto a una capa para ocultarla'), 'T12: la nota explica el ojo');
+  await p.screenshot({ path: path.join(OUT, 'C1-ojo.png') });
+  await p.$eval('#chart .ojo', g => g.dispatchEvent(new MouseEvent('click', { bubbles: true }))); await p.waitForTimeout(300);
+  ok(/oculta\. Vuelve a mostrarla en «Capas»/.test(await p.textContent('#toast')), 'T12: tocar el ojo la oculta con su aviso');
+  // T13 en computadora: columna «⋯» en Registros y en la Bandeja
+  await p.click('#nav [data-v="todos"]'); await p.waitForSelector('.rtab tr[data-id="r1"] [data-mas]');
+  await p.click('.rtab tr[data-id="r1"] [data-mas]'); await p.waitForSelector('#ctx');
+  ok(await p.$('#sheet.on') === null && (await p.textContent('#ctx')).includes('Aceptar'), 'T13: en la tabla, «⋯» abre las acciones sin abrir la ficha');
+  await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+  // T14: en computadora el menú sigue igual
+  ok(await p.$('#nav [data-v="ajustes"]') && await p.$eval('#btnAjustes', b => b.hidden), 'T14: en computadora «Ajustes» sigue en el menú');
+  await ctx.close();
+  // T13 + T14 + T15 en celular
+  [ctx, p] = await abrir(b, ADMIN, CEL);
+  const nb = await p.$$eval('#nav button[data-v]', l => l.map(b => b.dataset.v));
+  ok(nb.length === 5 && !nb.includes('ajustes') && await p.$eval('#btnAjustes', b => !b.hidden && b.getBoundingClientRect().height >= 44 && b.getBoundingClientRect().width >= 44), 'T14: el administrador ve 5 botones abajo y el engranaje arriba (44 × 44): ' + nb.join(', '));
+  await p.click('#btnAjustes'); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => location.hash) === '#ajustes' && await p.$eval('#btnAjustes', b => b.getAttribute('aria-current') === 'page'), 'T14: el engranaje lleva a Ajustes');
+  await p.setViewportSize({ width: 1100, height: 800 }); await p.waitForTimeout(300);
+  ok(await p.$('#nav [data-v="ajustes"]') && await p.$eval('#btnAjustes', b => b.hidden), 'T14: al ensanchar la pantalla «Ajustes» vuelve al menú');
+  await p.setViewportSize({ width: 380, height: 800 }); await p.waitForTimeout(300);
+  await p.click('#nav [data-v="bandeja"]'); await p.waitForSelector('#blist .item-w [data-mas]');
+  await p.click('#blist .item-w [data-mas] >> nth=0'); await p.waitForSelector('#ctx');
+  ok(await p.$('#sheet.on') === null, 'T13: en celular gabinete abre las acciones con «⋯» de un toque, sin que se abra la ficha');
+  await p.screenshot({ path: path.join(OUT, 'C2-menu-celular.png') });
+  await p.keyboard.press('Escape'); await p.waitForTimeout(250);
+  // T15
+  await p.click('#nav [data-v="todos"]'); await p.waitForSelector('#lista');
+  await p.click('#lista .item[data-id="v1"]'); await p.waitForSelector('#sheet.on');
+  const fic = await p.textContent('#sheet');
+  ok(fic.includes('Enterado por') && !/Visto/.test(fic), 'T15: la ficha dice «Enterado por»');
+  await p.click('.sheet-x'); await p.waitForTimeout(300);
+  ok(!/Visto/.test(await p.textContent('#view')), 'T15: no queda «Visto» en pantalla');
+  await p.click('#nav [data-v="panel"]'); await p.waitForTimeout(400);
+  ok((await p.textContent('.view-title')).trim() === 'Panel', 'T15: el título dice «Panel», igual que el menú');
+  ok(!/>\s*Vistos?\s*</.test(HTML) && !/"Vistos?"/.test(HTML), 'T15: «Visto» no queda en los textos de la app');
+  // T16
+  const anim = await p.evaluate(() => { const d = document.querySelector('#dot'); return [d.className, getComputedStyle(d, '::after').animationName]; });
+  ok(anim[0] === 'dot' && anim[1] === 'none', 'T16: con señal y nada pendiente, el punto no late');
+  await p.evaluate(() => { const d = document.querySelector('#dot'); d.className = 'dot pend'; });
+  ok(await p.evaluate(() => getComputedStyle(document.querySelector('#dot'), '::after').animationName) === 'latido', 'T16: con algo por subir, late');
+  ok(await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'celular sin desplazamiento horizontal');
+  await ctx.close();
 
   await b.close();
   ok(errores.length === 0, 'sin errores en la consola' + (errores.length ? ': ' + errores.join(' | ') : ''));

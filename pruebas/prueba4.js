@@ -46,16 +46,16 @@ const ext = p => p.$$eval('#chart .pk-ext', t => t.map(x => x.textContent));
   await p.click('[data-cap="ninguna"]'); await p.waitForTimeout(200);
   ok((await p.textContent('#chart')).includes('Todas las capas están ocultas'), 'ninguna capa → aviso');
   await p.click('[data-cap="ultimas"]'); await p.waitForTimeout(300);
-  const nU = await p.$$eval('#chart .lab-hit', l => l.length);
+  const nU = await p.$$eval('#chart .ojo', l => l.length);
   ok(nU > 0 && nU < total, 'últimas 5 por tipo: ' + nU + ' bandas de ' + total + ' capas');
   await p.click('[data-cap="todas"]'); await p.waitForTimeout(300);
-  const nT = await p.$$eval('#chart .lab-hit', l => l.length);
+  const nT = await p.$$eval('#chart .ojo', l => l.length);
   await grupo(p, 'masivo'); await p.click('#pCapChips [data-key="masivo|Capa 15"]'); await p.waitForTimeout(250);
-  ok(await p.$$eval('#chart .lab-hit', l => l.length) === nT - 1, 'apagar una ficha quita su banda');
-  await p.$eval('#chart .lab-hit', g => g.dispatchEvent(new MouseEvent('click', { bubbles: true }))); await p.waitForTimeout(250);
-  ok(await p.$$eval('#chart .lab-hit', l => l.length) === nT - 2, 'tocar el nombre en el gráfico oculta la capa');
+  ok(await p.$$eval('#chart .ojo', l => l.length) === nT - 1, 'apagar una ficha quita su banda');
+  await p.$eval('#chart .ojo', g => g.dispatchEvent(new MouseEvent('click', { bubbles: true }))); await p.waitForTimeout(250);
+  ok(await p.$$eval('#chart .ojo', l => l.length) === nT - 2, 'tocar el ojo en el gráfico oculta la capa');
   await p.reload(); await p.waitForSelector('#nav button'); await p.click('[data-v="panel"]'); await p.waitForSelector('#chart svg'); await p.waitForTimeout(300);
-  ok(await p.$$eval('#chart .lab-hit', l => l.length) === nT - 2, 'la selección se recuerda al volver');
+  ok(await p.$$eval('#chart .ojo', l => l.length) === nT - 2, 'la selección se recuerda al volver');
   await seccion(p, 'cap'); await p.click('[data-cap="todas"]'); await p.waitForTimeout(300);
 
   // 4. Huecos y tabla «Qué falta»

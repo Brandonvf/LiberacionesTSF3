@@ -67,8 +67,9 @@ button{cursor:pointer}
 .title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;letter-spacing:-.01em;margin-right:auto;white-space:nowrap}
 .title small{font-weight:600;color:var(--muted);font-size:13px;font-family:var(--f-mono)}
 .dot{width:10px;height:10px;border-radius:50%;background:var(--ec);position:relative;flex:none}
-.dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;color:var(--ec);opacity:0;animation:latido 2.4s ease-out infinite}
-.dot.pend{background:var(--ep)} .dot.pend::after{color:var(--ep)}
+.dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;color:var(--ec);opacity:0}
+/* Solo late cuando hay algo por subir (y en la pantalla de carga); conectado y sin pendientes, quieto */
+.dot.pend{background:var(--ep)} .dot.pend::after,.gate .dot::after{color:var(--ep);animation:latido 2.4s ease-out infinite}.gate .dot::after{color:var(--ec)}
 .dot.off{background:var(--pt)} .dot.off::after{color:var(--pt);animation:none}
 @keyframes latido{0%{transform:scale(.6);opacity:.7}80%,100%{transform:scale(1.6);opacity:0}}
 .sync{font-size:12.5px;color:var(--muted);white-space:nowrap;font-weight:600}
@@ -92,7 +93,7 @@ button{cursor:pointer}
 .nav button{flex:1;border:0;background:transparent;border-radius:0;padding:10px 4px 9px;font-weight:600;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:inset 0 2px 0 transparent;transition:color .15s,box-shadow .15s}
 .nav button svg{width:20px;height:20px}
 .nav button[aria-current="page"]{color:var(--accent-strong);box-shadow:inset 0 2px 0 var(--accent)}
-.nav .badge{background:var(--ob);color:#fff;border-radius:999px;font-size:11px;font-weight:600;padding:0 6px;margin-left:4px;line-height:17px}
+.nav .badge,.me-aj .badge{background:var(--ob);color:#fff;border-radius:999px;font-size:11px;font-weight:600;padding:0 6px;margin-left:4px;line-height:17px}
 main{padding-bottom:calc(var(--nav-h) + 28px + env(safe-area-inset-bottom,0px))}
 @media (min-width:860px){
   .nav{position:sticky;top:57px;bottom:auto;border-top:0;border-bottom:1px solid var(--line);background:var(--surface)}
@@ -351,8 +352,7 @@ h1.view-title{font-weight:700;font-size:22px;line-height:1.2;letter-spacing:-.01
 #chart rect.hueco:hover{stroke-width:2}
 #chart rect.hueco.flash{animation:flash 1.4s ease 2}
 @keyframes flash{0%,100%{stroke-width:1.2}40%{stroke-width:4;stroke:var(--ob)}}
-#chart .lab-hit{cursor:pointer}
-#chart .lab-hit:hover .lab2{fill:var(--ob);text-decoration:line-through}
+#chart .ojo{cursor:pointer}#chart .ojo path,#chart .ojo circle{stroke:var(--muted)}#chart .ojo:hover path,#chart .ojo:hover circle{stroke:var(--ob)}
 #chart .pct.full{fill:var(--ec)}
 .pinfo{margin:8px 0 0;background:var(--ob-bg);color:var(--ob);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700}
 .falta-box h2{flex-wrap:wrap}
@@ -503,6 +503,11 @@ h1,h2,h3{text-wrap:balance}
 .item{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;transition:background .15s,border-color .15s;animation:entra .2s ease-out both}
 .item:hover{border-color:var(--line-strong)}
 .item:active{background:var(--surface-2)}
+.item-w{position:relative}.item-w .item .r1{padding-right:44px}
+.mas{border:0;background:transparent;color:var(--muted);border-radius:8px;width:36px;height:36px;font-size:20px;line-height:1;font-weight:700;cursor:pointer;display:inline-grid;place-items:center;flex:none}
+.mas:hover{background:var(--surface-2);color:var(--ink)}
+.item-w>.mas{position:absolute;top:2px;right:2px;width:44px;height:44px}
+.rtab td.mas-td,.rtab th.mas-td{width:44px;padding-left:0;padding-right:4px;text-align:right}
 .item .r1{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
 .item .num{font-family:var(--f-mono);font-weight:500;font-size:13.5px}
 .item .num.sin{color:var(--muted);font-family:var(--f-body);font-weight:600;font-size:13px}
@@ -774,6 +779,9 @@ body.poder #chart rect.nolib{cursor:pointer}
 .glogo{display:block;margin:0 auto 18px;border-radius:12px;animation:entra .25s both}
 .gate h1{margin-top:0}
 .me button.inst{background:var(--accent);color:#fff}
+.me .me-aj{width:44px;height:44px;min-height:44px;padding:0;display:inline-grid;place-items:center;position:relative;color:var(--muted)}
+.me .me-aj[hidden]{display:none}.me .me-aj svg{width:22px;height:22px}.me .me-aj[aria-current="page"]{color:var(--accent-strong);background:var(--accent-soft)}
+.me .me-aj .badge{position:absolute;top:2px;right:0;margin:0;min-width:17px;text-align:center;padding:0 5px}
 /* Aviso de versión nueva (la app instalada suele quedar abierta varios días) */
 .vernueva{position:fixed;z-index:70;left:0;right:0;margin:0 auto;width:max-content;max-width:calc(100vw - 24px);top:calc(10px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;background:var(--ink);color:#fff;border-radius:8px;padding:6px 6px 6px 14px;font-weight:600;font-size:14px;box-shadow:var(--flota);animation:entra .2s both;white-space:nowrap}
 .vernueva button{border:0;border-radius:6px;background:var(--accent);color:#fff;font:inherit;padding:0 12px;min-height:34px;cursor:pointer}
@@ -937,7 +945,7 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
   .fchips .chip,.acc .cap-acc .chip,.prot-e .chip.sub,.qf-h .t,.qf-ej,.me .rol,.rzoom button[data-rz="0"],.avc-n span,.capn small,.capv small,.capw,
   .acc-r,.tsel-sub,.ver-app,.tip,.check.opc small{font-size:13px}
   .flabel,.f label:not([class]),.tsel-sub,.stat span,.kv dt,.sub,.avc-n span{text-transform:none;letter-spacing:0}
-  .nav button,.nav .badge,.acc-b{font-size:12px}
+  .nav button,.nav .badge,.me-aj .badge,.acc-b{font-size:12px}
   #chart .tick,.mlab,#chart .pk-ext,#chart .nolib-t,#mReal .rlab,.norte text{font-size:12px}
   #chart .lab2,#chart .pct,#chart .sum,#chart .grp,#chart .lab-pl{font-size:13px}
 }
@@ -949,7 +957,7 @@ body:has(#gate:not([hidden])) .mudanza{bottom:calc(18px + env(safe-area-inset-bo
   <header class="top"><div class="wrap">
     <div class="title"><span id="dot" class="dot" title="Conectado"></span>Liberaciones <small>TSF3</small></div>
     <span id="sync" class="sync"></span>
-    <div class="me"><b id="meName"></b><span id="meRol" class="rol"></span><button id="btnInstalar" class="inst" type="button" hidden>Instalar</button><button id="btnSalir" type="button">Salir</button></div>
+    <div class="me"><b id="meName"></b><span id="meRol" class="rol"></span><button id="btnAjustes" class="me-aj" type="button" data-ir="ajustes" aria-label="Ajustes" hidden></button><button id="btnInstalar" class="inst" type="button" hidden>Instalar</button><button id="btnSalir" type="button">Salir</button></div>
   </div></header>
   <nav class="nav" aria-label="Secciones"><div class="wrap" id="nav"></div></nav>
   <main class="wrap" id="view"></main>
@@ -1534,13 +1542,21 @@ function pintarCabecera() {
   $("#meRol").textContent = "· " + (ROLES[rol()] || "");
   pintarNav(); estadoSync();
 }
+// En el celular el menú de abajo lleva como máximo 5 botones: si sobran, «Ajustes» pasa a un engranaje arriba
+const MOVIL_NAV = matchMedia("(max-width:859px)");
+MOVIL_NAV.addEventListener("change", () => { if (S.dentro) pintarNav(); });
 function pintarNav() {
   const obs = S.mis.filter(r => r.estado === "OB").length, nNuevos = puedeAjustes() ? [...S.listas.tipos, ...S.listas.elementos].filter(x => x.nuevo && x.activo !== false).length : 0;
   const sol = S.solicitudes.length, pt = (esGab() ? S.bandeja.pend.filter(r => r.estado === "PT").length : 0) + (puedeAjustes() ? porHacer("ASP").length : 0) + (esGab() || puedeAjustes() ? porHacer("LEV").length : 0);
   document.body.classList.toggle("poder", poder());
-  $("#nav").innerHTML = (poder() && enPC() ? `<button type="button" class="nbuscar" data-buscar aria-label="Buscar en todo (Ctrl+K)">${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></button>` : "") + vistas().map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol + nNuevos ? `<span class="badge">${sol + nNuevos}</span>` : ""}</span></button>`).join("");
+  const todasV = vistas(), ajArriba = MOVIL_NAV.matches && todasV.length > 5 && todasV.some(v => v.id === "ajustes");
+  const vistasMenu = ajArriba ? todasV.filter(v => v.id !== "ajustes") : todasV;
+  const bA = $("#btnAjustes");
+  if (bA) { bA.hidden = !ajArriba; bA.innerHTML = ICON.ajustes + (sol + nNuevos ? `<span class="badge">${sol + nNuevos}</span>` : ""); if (S.view === "ajustes") bA.setAttribute("aria-current", "page"); else bA.removeAttribute("aria-current"); }
+  $("#nav").innerHTML = (poder() && enPC() ? `<button type="button" class="nbuscar" data-buscar aria-label="Buscar en todo (Ctrl+K)">${ICON.buscar}<span>Buscar</span><kbd>Ctrl K</kbd></button>` : "") + vistasMenu.map(v => `<button type="button" data-v="${v.id}" ${S.view === v.id ? 'aria-current="page"' : ""}>${ICON[v.id]}<span>${v.c ? `<span class="lg">${v.t}</span><span class="sm">${v.c}</span>` : v.t}${v.id === "mis" && obs ? `<span class="badge">${obs}</span>` : ""}${v.id === "bandeja" && pt ? `<span class="badge" style="background:var(--ep)">${pt}</span>` : ""}${v.id === "ajustes" && sol + nNuevos ? `<span class="badge">${sol + nNuevos}</span>` : ""}</span></button>`).join("");
   insigniaApp(obs + pt + (puedeAjustes() ? sol : 0));
 }
+$("#btnAjustes").addEventListener("click", () => ir("ajustes"));
 $("#nav").addEventListener("click", e => { if (e.target.closest("[data-buscar]")) { abrirBuscador(); return; } const b = e.target.closest("button[data-v]"); if (b) ir(b.dataset.v); });
 $("#btnSalir").addEventListener("click", async () => {
   const pend = new Set([...S.mis, ...S.todos].filter(r => r._pend).map(r => r.id)).size;
@@ -2261,7 +2277,7 @@ function pintarLista(cual) {
   const filaT = r => `<tr data-id="${esc(r.id)}" class="${sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-ck ${sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar ${esc(r.numero || r.descripcion || "")}"></td>
     <td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}</td>
     <td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || r.descripcion || "")}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}${r.estado === "RE" && r.notaRechazo ? `<span class="tn re">Rechazo: ${esc(r.notaRechazo)}</span>` : ""}</td>
-    <td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(pap ? r.borradoEn : r.fechaCampo))}</td><td>${esc(pap ? r.borradoNombre || r.borradoPor || "" : nom(L.topo(r.topografoId), r.topografoId))}</td></tr>`;
+    <td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(pap ? r.borradoEn : r.fechaCampo))}</td><td>${esc(pap ? r.borradoNombre || r.borradoPor || "" : nom(L.topo(r.topografoId), r.topografoId))}</td>${tdMas(r)}</tr>`;
   $("#view").innerHTML = `
   <h1 class="view-title">${cual === "mis" ? "Mis registros" : pap ? "Papelera" : "Registros"}</h1>
   <p class="lead">${cual === "mis" ? "Lo que registraste. Puedes editar lo que está pendiente u observado, y mandar a la papelera lo que aún no tiene código." : pap ? `Lo borrado no sale en las listas ni en el panel. ${puedeAjustes() ? "Restaura o borra para siempre." : "Puedes restaurar lo que no tiene código."}` : porFecha ? `${datos.length} ${datos.length === 1 ? "registro" : "registros"} · ${esc(textoFecha(fl))}.` : `${activos.length ? datos.length + " de los" : "Los"} últimos ${base.length} registros de todos. Para ver más antiguos filtra por fechas.${poder() ? " Busca en todo el histórico con Ctrl+K." : ""}`}</p>
@@ -2272,8 +2288,8 @@ function pintarLista(cual) {
   ${cargandoFecha ? '<p class="rf-nota">Buscando los registros de esas fechas…</p>' : porFecha && S.todosFechaLleno ? '<p class="rf-nota">Hay muchos registros en esas fechas; se muestran los 3000 más recientes. Acorta el rango para verlos todos.</p>' : ""}
   ${pap ? "" : `<div class="chips" role="group" aria-label="Filtrar por estado">${chips.map(([k, t, n]) => `<button type="button" class="chip" data-st="${k}" aria-pressed="${fl.st === k}">${esc(t)}<span class="c">${n}</span></button>`).join("")}</div>`}
   ${bulk}
-  ${!vis.length ? vacio : tabla ? `<div class="card twrap"><table class="rtab" id="lista"><thead><tr><th class="ck"><input type="checkbox" id="rAll" ${vis.slice(0, lim).every(r => sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todos"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${pap ? "Borrado" : "Fecha en campo"}</th><th>${pap ? "Por" : "Topógrafo"}</th></tr></thead><tbody>${vis.slice(0, lim).map(filaT).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver sus acciones. Marca varias para trabajarlas juntas.</p>`
-    : `<div class="list" id="lista">${vis.slice(0, lim).map((r, i) => tarjeta(r, i)).join("")}</div>`}
+  ${!vis.length ? vacio : tabla ? `<div class="card twrap"><table class="rtab" id="lista"><thead><tr><th class="ck"><input type="checkbox" id="rAll" ${vis.slice(0, lim).every(r => sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todos"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${pap ? "Borrado" : "Fecha en campo"}</th><th>${pap ? "Por" : "Topógrafo"}</th>${thMas()}</tr></thead><tbody>${vis.slice(0, lim).map(filaT).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver sus acciones. Marca varias para trabajarlas juntas.</p>`
+    : `<div class="list" id="lista">${vis.slice(0, lim).map((r, i) => conMas(tarjeta(r, i), r)).join("")}</div>`}
   ${cual === "mis" ? `<p class="ver-app" style="text-align:center;margin:18px 0 0">Versión ${VERSION_APP}</p>` : ""}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : cual === "todos" && !pap && !porFecha && S.todosLleno ? `<button class="btn sec more" id="bMasSrv" type="button">Cargar registros más antiguos</button>` : ""}`;
   const q = $("#q");
@@ -2311,10 +2327,16 @@ function resumenArch(r) {
   const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c;
   return a.length ? `<span>${[c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ")}</span>` : "";
 }
+// Botón «⋯» con las mismas acciones del clic derecho o la pulsación larga (gabinete, jefe y administrador)
+const btnMas = r => poder() ? `<button type="button" class="mas" data-mas="${esc(r.id)}" aria-label="Más acciones">⋯</button>` : "";
+const tdMas = r => poder() ? `<td class="mas-td">${btnMas(r)}</td>` : "";
+const thMas = () => poder() ? '<th class="mas-td" aria-label="Acciones"></th>' : "";
+// Una tarjeta es un botón y un botón no puede ir dentro de otro: el «⋯» va al lado, encima de la esquina
+const conMas = (html, r) => poder() ? `<div class="item-w">${html}${btnMas(r)}</div>` : html;
 function tarjeta(r, i) {
   const sub = nom(L.sub(r.subestructuraId)), tipo = nom(L.tipo(r.tipoId));
   return `<button type="button" class="item" data-id="${esc(r.id)}" style="animation-delay:${Math.min(i, 12) * 25}ms">
-    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}${masCodigos(r)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r.visto && r.actividad !== "ASP" ? '<span class="st EC">Visto</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
+    <div class="r1">${r.numero ? `<span class="num">${esc(r.numero)}${masCodigos(r)}</span>` : '<span class="num sin">Sin número</span>'}<span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r.actividad !== "LIB" ? `<span class="act">${esc(nom(L.act(r.actividad), r.actividad))}</span>` : ""}${r.actividad === "ASP" && r.procesado ? '<span class="st EC">Procesado</span>' : ""}${r.visto && r.actividad !== "ASP" ? '<span class="st EC">Enterado</span>' : ""}${r._pend ? '<span class="pend-tag">Por subir</span>' : ""}${(r.solapaCon || []).length && !["EC", "RE"].includes(r.estado) ? '<span class="solapa">Se superpone</span>' : ""}</div>
     <div class="desc">${esc(r.nombreLiberacion || r.descripcion)}</div>
     <div class="meta">${sub ? `<span>${esc(sub)}</span>` : ""}${tipo ? `<span>${esc(tipo)}</span>` : ""}${r.pkInicio != null ? `<span class="pk">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}<span>${esc(fmtFecha(r.fechaCampo))}</span>${S.view === "todos" ? `<span>${esc(nom(L.topo(r.topografoId), r.topografoId))}</span>` : ""}${resumenArch(r)}</div>
     ${r.estado === "OB" && r.notaObservacion ? `<div class="nota">Observación: ${esc(r.notaObservacion)}</div>` : ""}${r.estado === "RE" && r.notaRechazo ? `<div class="nota re">Rechazo: ${esc(r.notaRechazo)}</div>` : ""}${r.borrado ? `<div class="nota re">En la papelera · ${esc(r.borradoNombre || r.borradoPor || "")}${r.borradoEn ? " · " + esc(fmtFecha(r.borradoEn)) : ""}</div>` : ""}
@@ -2361,7 +2383,7 @@ function abrirFicha(r) {
       ${fila("Entrega a Calidad", esc(fmtFecha(r.fechaEntrega, false)))}
       ${fila("Observaciones", esc(r.observaciones))}
       ${r.actividad === "ASP" && r.procesado ? fila("Procesado", esc(`${r.procesadoNombre || r.procesadoPor || ""} · ${fmtFecha(r.procesadoEn)}`)) : ""}
-      ${r.visto ? fila("Visto por", esc(`${r.vistoNombre || r.vistoPor || ""} · ${fmtFecha(r.vistoEn)}`)) : ""}
+      ${r.visto ? fila("Enterado por", esc(`${r.vistoNombre || r.vistoPor || ""} · ${fmtFecha(r.vistoEn)}`)) : ""}
     </dl>
     ${(r.linksCsv || []).length ? `<div class="sub">CSV</div><div class="links">${links(r.linksCsv)}</div>` : ""}
     ${(r.linksFotos || []).length ? `<div class="sub">Fotos</div><div class="links">${links(r.linksFotos)}</div>` : ""}
@@ -2522,6 +2544,11 @@ function lanzarMenu(o, x, y) {
   if (o.tipo === "reg") menuRegistro(o.id, x, y, o.el.closest("tr,.item,.brow,.pfila") || o.el);
   else o.el.dispatchEvent(new CustomEvent("menu-hueco", { bubbles: true, detail: { x, y } }));
 }
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-mas]"); if (!b || !S.dentro) return;
+  e.preventDefault(); e.stopPropagation();
+  const r = b.getBoundingClientRect(); menuRegistro(b.dataset.mas, r.right - 8, r.bottom + 2, b.closest("tr,.item-w,.brow") || b);
+}, true);
 document.addEventListener("contextmenu", e => {
   if (!S.dentro) return; const o = objetivoMenu(e.target); if (!o) return;
   e.preventDefault(); lanzarMenu(o, e.clientX, e.clientY);
@@ -2832,7 +2859,7 @@ function pintarPanel() {
   <h2 class="sub" id="pListaT" style="font-size:16px;margin:18px 0 10px"></h2>
   <div class="list" id="pLista"></div>`;
   $("#view").innerHTML = `
-  <h1 class="view-title">Panel de liberaciones</h1>
+  <h1 class="view-title">Panel</h1>
   <p class="lead" ${movilP ? "hidden" : ""}>Lo liberado y lo que falta liberar, capa por capa y por progresiva. Se actualiza al instante.</p>
   ${pc ? `<div class="pgrid"><aside class="pside">${frente}</aside><div class="pmain"><div class="stats" id="pStats"></div>${grafico}${abajo}</div></div>`
     : `${frente}${movilP ? "" : '<div class="stats" id="pStats"></div>'}${grafico}${abajo}`}`;
@@ -3125,7 +3152,7 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
     box.innerHTML = `<div class="empty"><b>${S.panelCargando ? "Cargando…" : totalBandas ? "Todas las capas están ocultas" : "Sin liberaciones con progresiva"}</b>${S.panelCargando ? "" : totalBandas ? "Elige qué capas ver en «Capas visibles»." : "Cuando se registren liberaciones en este frente aparecerán aquí."}</div>`;
     $("#pNota").textContent = sinPk ? `+${sinPk} sin progresiva.` : ""; if (fueraInfo) fueraInfo.hidden = true; $("#pInfo").hidden = true; return;
   }
-  const labW = movil ? 112 : 230, pctW = movil ? 40 : 54, top = 34, bh = movil ? 24 : 28, gap = 5;
+  const OJO = 28, labW = (movil ? 112 : 230) + OJO, pctW = movil ? 40 : 54, top = 34, bh = movil ? 24 : 28, gap = 5;
   const gx0 = labW, gx1 = W - pctW, X = v => gx0 + (v - x0) / (x1 - x0) * (gx1 - gx0);
   const largoVis = x1 - x0;
   // filas de arriba hacia abajo (la última capa construida arriba); un encabezado por tipo con varias capas
@@ -3170,7 +3197,8 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
       const xa = X(a), w = Math.max(4, X(e) - xa), esHoy = toDate(r.fechaCampo)?.toDateString() === hoy;
       out.push(`<rect class="seg${animar ? " seg-anim" : ""}" data-id="${esc(r.id)}" x="${xa.toFixed(1)}" y="${y + 2}" width="${w.toFixed(1)}" height="${bh - 4}" rx="3" fill="${relleno(r.estado) || COLOR.PT}" stroke="${esHoy ? TOK.ink : "#fff"}" stroke-width="${esHoy ? 1.8 : 1.2}" style="animation-delay:${Math.min(i * 25, 400)}ms"/>`);
     });
-    out.push(`<g class="lab-hit" data-oculta="${esc(b.key)}"><rect x="0" y="${y}" width="${gx0 - 4}" height="${bh}" fill="transparent"/><text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)} · toca para ocultar</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 16 : 34))}</text></g>`);
+    // El nombre solo se lee; para ocultar la capa está el ojo a su izquierda
+    out.push(`<g class="ojo" data-oculta="${esc(b.key)}" role="button" aria-label="Ocultar ${esc(b.nombre)}"><title>Ocultar esta capa</title><rect x="0" y="${y}" width="${OJO}" height="${bh}" fill="transparent"/><g transform="translate(4 ${y + bh / 2 - 8})"><path d="M1 8s3.2-5.5 9-5.5S19 8 19 8s-3.2 5.5-9 5.5S1 8 1 8z" fill="none" stroke-width="1.6"/><circle cx="10" cy="8" r="2.6" fill="none" stroke-width="1.6"/></g></g><text class="lab2" x="${gx0 - 8}" y="${y + bh / 2 + 4}" text-anchor="end"><title>${esc(b.nombre)}</title>${esc(corta(fp.grupo ? b.corto : b.nombre, movil ? 16 : 34))}</text>`);
     out.push(`<text class="pct ${pct >= 100 ? "full" : ""}" x="${W - 2}" y="${y + bh / 2 + 4}" text-anchor="end">${b.rs.length || lib ? pct + "%" : baseLen <= 0.2 ? "N/A" : "0%"}</text>`);
   });
   out.push(`<line x1="${gx0}" x2="${gx0}" y1="${top}" y2="${fondo - gap}" stroke="${TOK.ink}" stroke-width="1.8"/><line x1="${gx1}" x2="${gx1}" y1="${top}" y2="${fondo - gap}" stroke="${TOK.ink}" stroke-width="1.8"/>`);
@@ -3181,7 +3209,7 @@ function dibujarPerfil(sub, recs, bandas, totalBandas) {
   if (sinPk) notas.push(`+${sinPk} sin progresiva`);
   if (fueraFrente) notas.push(`${fueraFrente} ${fueraFrente === 1 ? "registro queda" : "registros quedan"} fuera del rango del frente (${fmtPk(fr0)} a ${fmtPk(fr1)}); ajústalo en Ajustes → Lugares si hace falta`);
   if (ocultosTipo) notas.push(`${ocultosTipo} de tipos que no se dibujan (Ajustes → Tipos)`);
-  notas.push(`El % es lo liberado entre PK ${fmtPk(x0)} y ${fmtPk(x1)}, sin contar lo que no se libera. Toca el nombre de una capa para ocultarla y un tramo para ver su ficha.`);
+  notas.push(`El % es lo liberado entre PK ${fmtPk(x0)} y ${fmtPk(x1)}, sin contar lo que no se libera. Toca el ojo junto a una capa para ocultarla y un tramo para ver su ficha.`);
   $("#pNota").textContent = notas.join(" · ");
   conectarTramos(box.querySelector("svg"), "rect.seg");
   // Tabla «Qué falta liberar»: ordenar por columna, filtrar por capa y agrupar por capa
@@ -4033,7 +4061,7 @@ function pintarModelo() {
   const P = S.panel, lista = subsConDatos();
   const grupos = S.listas.estructuras.filter(e => e.activo !== false).map(e => `<optgroup label="${esc(e.nombre)}">${(e.subs || []).filter(s => s.activo !== false).map(s => `<option value="${esc(s.id)}" ${s.id === P.subId ? "selected" : ""}>${esc(s.nombre)}</option>`).join("")}</optgroup>`).join("");
   $("#view").innerHTML = `<div id="mRoot">
-  <h1 class="view-title">Panel de liberaciones</h1>
+  <h1 class="view-title">Panel</h1>
   <p class="lead" ${innerWidth < 760 ? "hidden" : ""}>Modelo 2D del frente para gabinete: el diseño de Civil 3D con las superficies de cada liberación encima.</p>
   ${enPC() ? '<div class="pgrid"><aside class="pside">' : ""}<div class="card filters"><div class="f wide"><label for="pSub">Frente</label><select id="pSub">${grupos}</select></div>
     <div class="f wide"><label for="mGrupo">Capa</label><select id="mGrupo"></select></div></div>${enPC() ? '<div id="mCapas"></div></aside><div class="pmain">' : ""}
@@ -4603,7 +4631,7 @@ async function marcarProcesado(regs0, si = true) {
 // Listas de seguimiento de la bandeja: aspas (se procesan) y levantamientos (gabinete y jefe se dan por enterados)
 const SEG = {
   ASP: { kOk: "procesar", kDes: "desprocesar", campo: "procesado", chip: "asp", por: "Por procesar", hechas: "Procesadas", hechoPor: "Procesado", ok: "Marcar procesado", oks: "Marcar procesados", des: "Devolver a por procesar", lead: "Levantamientos de aspas para vuelo de dron. Descarga el CSV y las fotos desde la ficha y márcalos como procesados.", vacioPor: "No hay aspas por procesar", vacioHechas: "Aún no hay aspas procesadas", vacioTxt: "Los levantamientos de aspas para vuelo de dron que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha y descargar el CSV y las fotos.", fuente: () => S.bandeja.aspas, marcar: (r, si) => marcarProcesado(r, si) },
-  LEV: { kOk: "enterado", kDes: "quitar", campo: "visto", chip: "lev", por: "Por ver", hechas: "Vistos", hechoPor: "Visto", ok: "Enterado", oks: "Marcar enterados", des: "Quitar enterado", lead: "Levantamientos topográficos de campo (sin código). Revísalos y marca «Enterado»; quien lo registró ve que ya llegó.", vacioPor: "No hay levantamientos por ver", vacioHechas: "Aún no hay levantamientos vistos", vacioTxt: "Los levantamientos que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha con sus archivos.", fuente: () => S.bandeja.levs, marcar: (r, si) => marcarVisto(r, si) }
+  LEV: { kOk: "enterado", kDes: "quitar", campo: "visto", chip: "lev", por: "Por ver", hechas: "Enterados", hechoPor: "Enterado", ok: "Enterado", oks: "Marcar enterados", des: "Quitar enterado", lead: "Levantamientos topográficos de campo (sin código). Revísalos y marca «Enterado»; quien lo registró ve que ya llegó.", vacioPor: "No hay levantamientos por ver", vacioHechas: "Aún no hay levantamientos marcados como enterados", vacioTxt: "Los levantamientos que registren en campo aparecerán aquí al instante.", nota: "Toca una fila para ver la ficha con sus archivos.", fuente: () => S.bandeja.levs, marcar: (r, si) => marcarVisto(r, si) }
 };
 const porHacer = k => SEG[k].fuente().filter(r => !r[SEG[k].campo]);
 // Pestañas de la bandeja según el rol: gabinete (aceptar, observadas, entregar, levantamientos), jefe (aspas, levantamientos), administrador (todas)
@@ -4627,8 +4655,8 @@ function pintarSeguimiento(k) {
   const arch = r => { const a = r.archivos || [], c = a.filter(x => x.tipo === "csv").length, f = a.length - c; return [c ? c + " CSV" : "", f ? f + (f === 1 ? " foto" : " fotos") : ""].filter(Boolean).join(" · ") || '<span class="muted">Sin archivos</span>'; };
   const acc = r => por ? `<button type="button" class="mini ok-btn" data-a="${C.kOk}">${C.ok}</button>` : `<button type="button" class="mini" data-a="${C.kDes}">${C.des}</button>`;
   const lista = !vis.length ? `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : por ? C.vacioPor : C.vacioHechas}</b>${fuente.length || !por ? "" : C.vacioTxt}</div>`
-    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Fecha en campo</th><th>Topógrafo</th><th>Archivos</th><th>${por ? "Registrado por" : C.hechoPor}</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r._pend ? '<span class="pend-tag" style="margin:2px 0 0;align-self:flex-start">Por subir</span>' : ""}${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}${r.pkInicio != null ? `<br><span class="mono small">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}</td><td class="nw">${esc(fmtFecha(r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td class="nw">${arch(r)}</td><td>${por ? esc(r.creadoPor || "") : `${quien(r)}<br><span class="muted small">${esc(fmtFecha(r[C.campo + "En"]))}</span>`}</td><td><div class="bact">${acc(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">${C.nota}</p>`
-    : `<div class="list" id="blist">${vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}${por ? "" : `<div class="muted small" style="padding:4px 2px 0">${C.hechoPor} por ${quien(r)} · ${esc(fmtFecha(r[C.campo + "En"]))}</div>`}<div class="bact">${acc(r)}</div></div></div>`).join("")}</div>`;
+    : tablaPC() ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Descripción</th><th>Frente</th><th>Fecha en campo</th><th>Topógrafo</th><th>Archivos</th><th>${por ? "Registrado por" : C.hechoPor}</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="tdesc"><b>${esc(r.descripcion || "")}</b>${r._pend ? '<span class="pend-tag" style="margin:2px 0 0;align-self:flex-start">Por subir</span>' : ""}${r.observaciones ? `<span>${esc(r.observaciones)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}${r.pkInicio != null ? `<br><span class="mono small">${esc(rangoPk(r.pkInicio, r.pkFin))}</span>` : ""}</td><td class="nw">${esc(fmtFecha(r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td class="nw">${arch(r)}</td><td>${por ? esc(r.creadoPor || "") : `${quien(r)}<br><span class="muted small">${esc(fmtFecha(r[C.campo + "En"]))}</span>`}</td><td><div class="bact">${acc(r)}${btnMas(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">${C.nota}</p>`
+    : `<div class="list" id="blist">${vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${conMas(tarjeta(r, i), r)}${por ? "" : `<div class="muted small" style="padding:4px 2px 0">${C.hechoPor} por ${quien(r)} · ${esc(fmtFecha(r[C.campo + "En"]))}</div>`}<div class="bact">${acc(r)}</div></div></div>`).join("")}</div>`;
   return { vis, fuente, lim, html: `
   <div class="chips" role="group" aria-label="${k === "ASP" ? "Aspas" : "Levantamientos"}"><button type="button" class="chip" data-${C.chip}="por" aria-pressed="${por}">${C.por}<span class="c">${nPor}</span></button><button type="button" class="chip" data-${C.chip}="hechas" aria-pressed="${!por}">${C.hechas}<span class="c">${nHechas}</span></button></div>
   <div class="tools"><input class="search" id="bq" type="search" placeholder="Buscar descripción, frente, topógrafo…" value="${esc(B.q)}" aria-label="Buscar"></div>
@@ -4662,7 +4690,7 @@ function pintarBandeja() {
   <div class="cap-bulk ${ns ? "on" : ""}" id="bBulk"><label class="ck" style="margin-right:4px"><input type="checkbox" id="bAll" ${vis.length && vis.slice(0, lim).every(r => B.sel.has(r.id)) ? "checked" : ""} aria-label="Seleccionar todo"></label><span><b>${ns}</b> ${ns === 1 ? "seleccionada" : "seleccionadas"}</span>
     ${t === "EP" ? `<button type="button" class="mini ok-btn" data-bk="entregar">Entregar a Calidad</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button>` : `<button type="button" class="mini ok-btn" data-bk="aceptar">Aceptar y generar códigos</button><button type="button" class="mini" data-bk="exportar">Exportar CSV</button><button type="button" class="mini warn-mini" data-bk="papelera">Mandar a la papelera</button>`}<button type="button" class="mini" data-bk="limpiar">Deseleccionar</button></div>
   ${!ns && vis.length ? `<label class="check small muted" style="padding:0 0 8px"><input type="checkbox" id="bAll2" aria-label="Seleccionar todo">Seleccionar ${Math.min(vis.length, lim)} para ${t === "EP" ? "entregar" : "aceptar"} en grupo</label>` : ""}
-  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${tarjeta(r, i)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
+  ${tablaPC() && vis.length ? `<div class="card twrap"><table class="rtab btab" id="blist"><thead><tr><th class="ck"></th><th>Código</th><th>Estado</th><th>Liberación</th><th>Frente</th><th>Progresiva</th><th>${t === "EP" ? "Liberada" : "Fecha en campo"}</th><th>Topógrafo</th><th>Acciones</th></tr></thead><tbody>${vis.slice(0, lim).map(r => `<tr data-rid="${esc(r.id)}" class="${B.sel.has(r.id) ? "sel" : ""}"><td class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></td><td class="mono">${r.numero ? esc(r.numero) + masCodigos(r) : '<span class="muted">—</span>'}</td><td><span class="st ${esc(r.estado)}">${esc(ESTADOS[r.estado] || r.estado)}</span>${r._pend ? ' <span class="pend-tag" style="margin-left:4px">Por subir</span>' : ""}${(r.solapaCon || []).length ? ' <span class="solapa">Se superpone</span>' : ""}</td><td class="tdesc"><b>${esc(nom(L.tipo(r.tipoId)) || (r.actividad !== "LIB" ? nom(L.act(r.actividad), r.actividad) : ""))}${r.capa ? " · " + esc(r.capa) : ""}</b><span>${esc(r.nombreLiberacion || r.descripcion || "")}</span>${r.estado === "OB" && r.notaObservacion ? `<span class="tn">Observación: ${esc(r.notaObservacion)}</span>` : ""}</td><td>${esc(nom(L.sub(r.subestructuraId)))}</td><td class="mono nw">${esc(rangoPk(r.pkInicio, r.pkFin))}</td><td class="nw">${esc(fmtFecha(t === "EP" ? r.fechaLiberacion || r.fechaCampo : r.fechaCampo))}</td><td>${esc(nom(L.topo(r.topografoId), r.topografoId))}</td><td><div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}${btnMas(r)}</div></td></tr>`).join("")}</tbody></table></div><p class="nota-g">Clic derecho sobre una fila para ver todas sus acciones.</p>` : `<div class="list" id="blist">${vis.length ? vis.slice(0, lim).map((r, i) => `<div class="brow ${B.sel.has(r.id) ? "sel" : ""}" data-rid="${esc(r.id)}"><label class="ck"><input type="checkbox" data-sel ${B.sel.has(r.id) ? "checked" : ""} aria-label="Seleccionar"></label><div class="bcard">${conMas(tarjeta(r, i), r)}<div class="bact">${t === "EP" ? `<button type="button" class="mini ok-btn" data-a="entregar">Entregar a Calidad</button><button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini ok-btn" data-a="aceptar">Aceptar y generar código</button>${t === "PT" ? `<button type="button" class="mini" data-a="observar">Observar</button>` : `<button type="button" class="mini" data-a="reabrir">Devolver a pendientes</button>`}<button type="button" class="mini warn-mini" data-a="rechazar">Rechazar</button>`}${btnEdCapa(r)}</div></div></div>`).join("") : `<div class="empty card"><b>${fuente.length ? "Nada coincide con la búsqueda" : t === "PT" ? "No hay registros por aceptar" : t === "OB" ? "No hay observadas" : "No hay liberaciones por entregar"}</b>${fuente.length ? "" : "Cuando lleguen de campo aparecerán aquí al instante."}</div>`}</div>`}
   ${vis.length > lim ? `<button class="btn sec more" id="bMas" type="button">Ver más (${vis.length - lim})</button>` : ""}
   ${t === "EP" && !B.epHistOk ? `<button class="btn sec more" id="bHist" type="button">Cargar también las del histórico sin entregar</button>` : ""}`;
   $("#bHist")?.addEventListener("click", async e => { e.target.disabled = true; e.target.textContent = "Cargando…";

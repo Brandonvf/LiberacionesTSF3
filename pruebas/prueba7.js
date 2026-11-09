@@ -72,7 +72,7 @@ async function preparar(ctx) {
   await p.click('[data-v="panel"]'); await p.waitForSelector('.qflist');
   ok((await p.textContent('.qflist')).includes('Capa 31'), 'la capa nueva aparece en «Qué falta»');
   // Lista del panel: abrir ficha completa desde el resumen
-  await p.click('[data-vista="perfil"]'); await p.waitForSelector('#chart .lab-hit');
+  await p.click('[data-vista="perfil"]'); await p.waitForSelector('#chart .ojo');
   await p.click('#pLista .pfila >> nth=0'); await p.waitForSelector('#sheet.on');
   ok((await p.textContent('#sheet')).includes('Historial'), 'tocar una fila del panel abre la ficha completa');
   // Atrás cierra la ficha y luego vuelve a la pantalla anterior
